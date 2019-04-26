@@ -1,4 +1,5 @@
-(ns test-proxy.core
+
+(ns donttellmybro-proxy.core
   (:require [clojure.pprint :as pprint]
             [org.httpkit.client :as http]
             [clojure.walk :refer [stringify-keys]])
@@ -47,7 +48,6 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (pprint args)
   (println "Hello, World!")
  )
 

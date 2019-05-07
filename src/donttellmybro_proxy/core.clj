@@ -1,18 +1,28 @@
 
 (ns donttellmybro-proxy.core
+
   (:require [clojure.pprint :as pprint]
             [org.httpkit.client :as http]
-            [clojure.walk :refer [stringify-keys]])
+            [clojure.walk :refer [stringify-keys]]
+            [donttellmybro-proxy.state :refer [custom-headers main-host]])
   (:use org.httpkit.server)
   (:gen-class))
 
-(def main-host "https://postman-echo.com")
+
+(defn build-headers [existing] ;http-kit seems to decompress for us
+  (->>
+   @custom-headers
+   (merge (dissoc existing :content-encoding))
+   stringify-keys))
+
 
 (defn handle-response [res]
-   (let [{:keys [body headers status]} res]
+  (let [{:keys [body headers status]} res
+
+        ]
      {
      :status status
-     :headers (stringify-keys (dissoc headers :content-encoding)) ;http-kit seems to decompress for us
+     :headers (build-headers headers)
      ;:headers {"Content-Type" "text/html"}
      :body body
      }))
@@ -25,7 +35,7 @@
 
 (defn handler[req]
   (let [{:keys [host uri query-string request-method body headers]
-         :or {host main-host}} req]
+         :or {host @main-host}} req]
         (->>  @(http/request {:url (build-url host uri query-string)
                     :method request-method
                     :body body
@@ -34,8 +44,6 @@
               (handle-response))))
 
 (defonce server (atom nil))
-(defonce params
-  (atom {}))
 
 (defn stop-server []
   (when-not (nil? server)
@@ -48,6 +56,7 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (println "Hello, World!")
+  (println "Starting Server!")
+  (start-server)
  )
 

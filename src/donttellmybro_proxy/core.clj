@@ -17,9 +17,7 @@
 
 
 (defn handle-response [res]
-  (let [{:keys [body headers status]} res
-
-        ]
+  (let [{:keys [body headers status]} res]
      {
      :status status
      :headers (build-headers headers)

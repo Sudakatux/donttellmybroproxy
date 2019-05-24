@@ -1,36 +1,39 @@
-# test-proxy
+# donttellmybro-proxy
 
-FIXME: description
+FIXME: Write a one-line description of your library/project.
 
-## Installation
+## Overview
 
-Download from http://example.com/FIXME.
+FIXME: Write a paragraph about the library/project and highlight its goals.
 
-## Usage
+## Setup
 
-FIXME: explanation
+To get an interactive development environment run:
 
-    $ java -jar test-proxy-0.1.0-standalone.jar [args]
+    lein figwheel
 
-## Options
+and open your browser at [localhost:3449](http://localhost:3449/).
+This will auto compile and send all changes to the browser without the
+need to reload. After the compilation process is complete, you will
+get a Browser Connected REPL. An easy way to try it is:
 
-FIXME: listing of options this app accepts.
+    (js/alert "Am I connected?")
 
-## Examples
+and you should see an alert in the browser window.
 
-...
+To clean all compiled files:
 
-### Bugs
+    lein clean
 
-...
+To create a production build run:
 
-### Any Other Sections
-### That You Think
-### Might be Useful
+    lein do clean, cljsbuild once min
+
+And open your browser in `resources/public/index.html`. You will not
+get live reloading, nor a REPL. 
 
 ## License
 
-Copyright © 2019 FIXME
+Copyright © 2014 FIXME
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.

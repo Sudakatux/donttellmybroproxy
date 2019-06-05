@@ -4,15 +4,18 @@
   (:require [clojure.pprint :as pprint]
             [org.httpkit.client :as http]
             [clojure.walk :refer [stringify-keys]]
-            [donttellmybro-proxy.state :refer [custom-headers main-host]]
+            [donttellmybro-proxy.state :refer [params]]
             [donttellmybro-proxy.interactive-server :refer [start-interactive-server]])
   (:use org.httpkit.server)
   (:gen-class))
 
 
 (defn build-headers [existing] ;http-kit seems to decompress for us
-  (->>
-   (merge (stringify-keys (dissoc existing :content-encoding)) @custom-headers)))
+  (->
+   existing
+   (dissoc :content-encoding)
+   stringify-keys
+   (merge (:headers @params))))
 
 
 (defn handle-response [res]
@@ -32,7 +35,7 @@
 
 (defn handler[req]
   (let [{:keys [host uri query-string request-method body headers]
-         :or {host @main-host}} req]
+         :or {host (:host @params)}} req]
         (->>  @(http/request {:url (build-url host uri query-string)
                     :method request-method
                     :body body

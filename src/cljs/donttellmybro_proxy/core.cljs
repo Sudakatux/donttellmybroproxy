@@ -6,7 +6,8 @@
             ["@material-ui/icons" :as mui-icons]
             [ajax.core :refer [GET]]
             [goog.object :as gobj]
-            [reagent.impl.template :as rtpl]))
+            [reagent.impl.template :as rtpl]
+            [clojure.walk :refer [keywordize-keys]]))
 
 (enable-console-print!)
 
@@ -51,10 +52,6 @@
                   rtpl/convert-prop-value)]
     (apply r/create-element mui/TextField props (map r/as-element children)))) ;turns a react component into something that can be ussed in hiccup
 
-
-
-
-
 (def custom-theme
   (createMuiTheme
    #js {:palette #js {:primary #js {:main (gobj/get (.-red mui-colors) 100)}}}))
@@ -67,7 +64,31 @@
 
 (def with-custom-styles (withStyles custom-styles))
 
-(defonce form-state (r/atom  "fooo"))
+;(defonce form-state (r/atom  "fooo"))
+
+(defonce form-state (r/atom {:host "http://yahoo.com" :headers {}}))
+
+(defn response-handler [response]
+  (reset! form-state (keywordize-keys response)))
+
+(def paramUrl "http://localhost:9091/api/params")
+
+(defn fetch-params []
+  (GET paramUrl
+    {
+     :handler response-handler
+     }))
+
+(defn current-headers []
+(into [:<>]
+  (map (fn [[key value]]
+
+          [:> mui/Grid {:item true}
+           [:> mui/Chip
+            {:icon (r/as-element [:> mui-icons/Face])
+             :label  key}]]
+
+          ) (:headers @form-state))))
 
 ;; define your app data so that it doesn't get over-written on reload
 (defn form [{:keys [classes] :as props}]
@@ -97,14 +118,14 @@
 
    [:> mui/Grid {:item true}
     [text-field
-     {:value @form-state
+     {:value (:host @form-state)
       :label "Proxy host address"
       :placeholder "address"
       :helper-text "Enter api url to redirect to"
       :class (.-textField classes)
       :on-change (fn [e]
-                   (reset! form-state (.. e -target -value)))
-      :inputRef #(js/console.log "input-ref" %)}]]
+                   (reset! form-state (update-in @form-state [:host] (.. e -target -value))))
+      :inputRef #(js/console.log "input-ref" (:host @form-state))}]]
 
   ;; [:> mui/Grid {:item true}
   ;;   [text-field
@@ -119,23 +140,24 @@
   ;;     ;; TODO: Autosize textarea is broken.
   ;;     :rows 10}]]
 
-   [:> mui/Grid {:item true}
-    [text-field
-     {:value  @form-state
-      :label "Select"
-      :placeholder "Placeholder"
-      :helper-text "Helper text"
-      :class (.-textField classes)
-      :on-change (fn [e]
-                   (reset! form-state (.. e -target -value)))
-      :select true}
-     [:> mui/MenuItem
-      {:value 1}
-      "Item 1"]
-     ;; Same as previous, alternative to adapt-react-class
-     [:> mui/MenuItem
-      {:value 2}
-      "Item 2"]]]
+   ;; [:> mui/Grid {:item true}
+   ;;  [text-field
+   ;;   {:value  @form-state
+   ;;    :label "Select"
+   ;;    :placeholder "Placeholder"
+   ;;    :helper-text "Helper text"
+   ;;    :class (.-textField classes)
+   ;;    :on-change (fn [e]
+   ;;                 (reset! form-state (.. e -target -value)))
+   ;;    :select true}
+   ;;   [:> mui/MenuItem
+   ;;    {:value 1}
+   ;;    "Item 1"]
+   ;;   ;; Same as previous, alternative to adapt-react-class
+   ;;   [:> mui/MenuItem
+   ;;    {:value 2}
+   ;;    "Item 2"]]
+   ;;  ]
 
    [:> mui/Grid {:item true}
     [:> mui/Grid
@@ -146,18 +168,17 @@
      ;; For properties that require React Node as parameter,
      ;; either use r/as-element to convert Reagent hiccup forms into React elements,
      ;; or use r/create-element to directly instantiate element from React class (i.e. non-adapted React component).
-     [:> mui/Grid {:item true}
-      [:> mui/Chip
-       {:icon (r/as-element [:> mui-icons/Face])
-        :label "Icon element example, r/as-element"}]]
+     
+     ;; [:> mui/Grid {:item true}
+     ;;  [:> mui/Chip
+     ;;   {:icon (r/create-element mui-icons/Face)
+     ;;    :label "Icon element example, r/create-element"}]]
+[current-headers]
 
-     [:> mui/Grid {:item true}
-      [:> mui/Chip
-       {:icon (r/create-element mui-icons/Face)
-        :label "Icon element example, r/create-element"}]]]]])
+     ]]])
 
 
-(defn main []
+(defn main [] ; Make a form-2 component
   ;; fragment
   [:<>
    [:> mui/CssBaseline]
@@ -172,7 +193,13 @@
        :xs 6}
       [:> (with-custom-styles (r/reactify-component form))]]]]])
 
-(r/render [main]
+(defn call-and-main []
+  (fetch-params)
+  (println "Is this fucking printing")
+  (println (:host @form-state))
+  main)
+
+(r/render [(call-and-main)]
                 (. js/document (getElementById "app")))
 
 

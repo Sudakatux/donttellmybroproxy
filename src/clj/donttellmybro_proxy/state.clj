@@ -1,12 +1,16 @@
 (ns donttellmybro-proxy.state)
 
-(defonce custom-headers (atom {}))
-(defonce main-host (atom "https://postman-echo.com"))
 
-(defn add-header! [header-key header-value]
-  (swap! custom-headers assoc header-key header-value))
+(defonce params (atom {:headers {}
+                       :host "https://postman-echo.com"}))
+
+;This is not being user remove
+
+
+(defn merge-headers! [other]
+  (swap! params assoc :headers (merge (:headers @params) other)))
 
 (defn update-host! [new-host]
-  (reset! main-host new-host))
+  (swap! params assoc :host new-host))
 
 

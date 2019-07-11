@@ -54,7 +54,6 @@
   (reset! server (run-server #'handler {:port 9090})))
 
 (defn -main
-  "I don't do a whole lot ... yet."
   [& args]
   (println "Starting Server!")
   (start-server)

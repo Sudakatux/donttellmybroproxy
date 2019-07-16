@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="aefd106f-6230-4e7e-8b15-435984859636" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/project.clj" beforeDir="false" afterPath="$PROJECT_DIR$/project.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cljs/donttellmybro_proxy/core.cljs" beforeDir="false" afterPath="$PROJECT_DIR$/src/cljs/donttellmybro_proxy/core.cljs" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/classes/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -25,9 +25,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/clj/donttellmybro_proxy/server.clj">
-          <provider selected="true" editor-type-id="text-editor" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-360" />
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/cljs/donttellmybro_proxy/core.cljs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="345">
+              <caret line="197" column="31" lean-forward="true" selection-start-line="197" selection-start-column="31" selection-end-line="197" selection-end-column="31" />
+            </state>
+          </provider>
         </entry>
       </file>
     </leaf>
@@ -44,6 +55,7 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/project.clj" />
+        <option value="$PROJECT_DIR$/src/cljs/donttellmybro_proxy/core.cljs" />
       </list>
     </option>
   </component>
@@ -197,6 +209,19 @@
               <item name="clj" type="462c0819:PsiDirectoryNode" />
               <item name="donttellmybro_proxy" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="donttellmybro-proxy" type="b2602c69:ProjectViewProjectNode" />
+              <item name="donttellmybroproxy" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="cljs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="donttellmybro-proxy" type="b2602c69:ProjectViewProjectNode" />
+              <item name="donttellmybroproxy" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="cljs" type="462c0819:PsiDirectoryNode" />
+              <item name="donttellmybro_proxy" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -204,9 +229,10 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
-  <component name="ReplState" timestamp="1563276916955">{:repl-history {:ide [], :local [], :remote []}}</component>
+  <component name="ReplState" timestamp="1563278534568">{:repl-history {:ide [], :local [], :remote []}}</component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -345,7 +371,16 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/clj/donttellmybro_proxy/server.clj">
-      <provider selected="true" editor-type-id="text-editor" />
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-360" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cljs/donttellmybro_proxy/core.cljs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="197" column="31" lean-forward="true" selection-start-line="197" selection-start-column="31" selection-end-line="197" selection-end-column="31" />
+        </state>
+      </provider>
     </entry>
   </component>
 </project>

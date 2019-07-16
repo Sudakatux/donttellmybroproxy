@@ -195,7 +195,6 @@
 
 (defn call-and-main []
   (fetch-params)
-  (println "Is this fucking printing")
   (println (:host @form-state))
   main)
 

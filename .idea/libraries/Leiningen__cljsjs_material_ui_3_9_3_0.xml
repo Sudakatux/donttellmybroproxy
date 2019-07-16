@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Leiningen: cljsjs/material-ui:3.9.3-0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/cljsjs/material-ui/3.9.3-0/material-ui-3.9.3-0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

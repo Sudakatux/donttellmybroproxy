@@ -111,7 +111,7 @@
 
              ;; doesn't work for you just run your own server :) (see lein-ring)
 
-             ;; :ring-handler hello_world.server/handler
+             ; :ring-handler donttellmybro-proxy.interactive-server/app
 
              ;; To be able to open files in your editor from the heads up display
              ;; you will need to put a script on your path.
@@ -140,13 +140,12 @@
   ;; Please see:
   ;; https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.9"]
-                                  [figwheel-sidecar "0.5.18"]
-                                  [cider/piggieback "0.3.1"]]
+                                  [figwheel-sidecar "0.5.18"]]
                    ;; need to add dev source path here to get user.clj loaded
                    :source-paths ["src" "dev"]
                    ;; for CIDER
                    ;; :plugins [[cider/cider-nrepl "0.12.0"]]
-                   :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
+                   ; :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
                    :resource-paths ["target/cljsbuild/client" "target/cljsbuild/client-npm"]
                    ;; need to add the compliled assets to the :clean-targets
                    ;:clean-targets ^{:protect false} ["resources/public/js/compiled"

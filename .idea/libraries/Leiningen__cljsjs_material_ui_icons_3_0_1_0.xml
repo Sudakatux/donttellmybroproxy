@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Leiningen: cljsjs/material-ui-icons:3.0.1-0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/cljsjs/material-ui-icons/3.0.1-0/material-ui-icons-3.0.1-0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

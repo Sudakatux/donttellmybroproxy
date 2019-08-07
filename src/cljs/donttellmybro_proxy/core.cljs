@@ -4,7 +4,7 @@
             ["@material-ui/core/styles" :refer [createMuiTheme withStyles]]
             ["@material-ui/core/colors" :as mui-colors]
             ["@material-ui/icons" :as mui-icons]
-            [ajax.core :refer [GET]]
+            [ajax.core :refer [GET DELETE]]
             [goog.object :as gobj]
             [reagent.impl.template :as rtpl]
             [clojure.walk :refer [keywordize-keys]]))
@@ -66,12 +66,15 @@
 
 ;(defonce form-state (r/atom  "fooo"))
 
-(defonce form-state (r/atom {:host "http://yahoo.com" :headers {}}))
+(defonce form-state (r/atom {:host "" :headers {}}))
 
+
+;; AJAX stuff
 (defn response-handler [response]
   (reset! form-state (keywordize-keys response)))
 
-(def paramUrl "http://localhost:9091/api/params")
+(def paramUrl "/api/params")
+(defn deleteHeaderUrl [header-key] (str "/api/headers/" (name header-key)) )
 
 (defn fetch-params []
   (GET paramUrl
@@ -79,16 +82,34 @@
      :handler response-handler
      }))
 
+(defn delete-header! [header-key]
+  (DELETE (deleteHeaderUrl header-key))
+  (fetch-params))
+;; End AJAX stuff
+
+(defn delete-element [key]
+  (fn []
+    (delete-header! key)))
+
 (defn current-headers []
-(into [:<>]
-  (map (fn [[key value]]
+  (if (not (empty? (:headers @form-state)))
+    (fn []
+    (into [:<>]
+          (map (fn [[key value]]
 
-          [:> mui/Grid {:item true}
-           [:> mui/Chip
-            {:icon (r/as-element [:> mui-icons/Face])
-             :label  key}]]
+                 [:> mui/Grid {:item true}
+                  [:> mui/Chip
+                   {:icon  (r/as-element [:> mui-icons/Face])
+                    :label (str (name key)  "/" value)
+                    :on-delete (delete-element key)}]]
 
-          ) (:headers @form-state))))
+                 ) (:headers @form-state) )))
+  (fn []
+      [:<>
+       "Nothing here"
+       ]
+      )
+    ))
 
 ;; define your app data so that it doesn't get over-written on reload
 (defn form [{:keys [classes] :as props}]
@@ -173,7 +194,7 @@
      ;;  [:> mui/Chip
      ;;   {:icon (r/create-element mui-icons/Face)
      ;;    :label "Icon element example, r/create-element"}]]
-[current-headers]
+     [current-headers]
 
      ]]])
 
@@ -195,6 +216,7 @@
 
 (defn call-and-main []
   (fetch-params)
+  (println "it updates")
   (println (:host @form-state))
   main)
 

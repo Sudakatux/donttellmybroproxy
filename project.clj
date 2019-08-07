@@ -14,6 +14,8 @@
                  [metosin/muuntaja "0.6.4"]
                  [org.clojure/clojurescript "1.10.516"]
                  [org.clojure/core.async  "0.4.474"]
+                 [ring "1.5.1"]
+                 [ring/ring-defaults "0.2.1"]
                  [reagent "0.8.0"]
                  [figwheel "0.5.18"]
                  [cljs-ajax "0.8.0"]
@@ -109,9 +111,10 @@
              ;; if you want to embed a ring handler into the figwheel http-kit
              ;; server, this is for simple ring servers, if this
 
+
              ;; doesn't work for you just run your own server :) (see lein-ring)
 
-             ; :ring-handler donttellmybro-proxy.interactive-server/app
+             :ring-handler donttellmybro-proxy.interactive-server/dev-app
 
              ;; To be able to open files in your editor from the heads up display
              ;; you will need to put a script on your path.
@@ -142,7 +145,7 @@
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.9"]
                                   [figwheel-sidecar "0.5.18"]]
                    ;; need to add dev source path here to get user.clj loaded
-                   :source-paths ["src" "dev"]
+                   :source-paths ["src/clj" "dev"]
                    ;; for CIDER
                    ;; :plugins [[cider/cider-nrepl "0.12.0"]]
                    ; :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}

@@ -2,8 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <wildcardResourcePatterns>
-      <entry name="!client-npm:*" />
-      <entry name="!client:*" />
+      <entry name="!cljsbuild:*" />
       <entry name="!dev-resources:*" />
       <entry name="!resources:*" />
       <entry name="!?*.java" />

@@ -1,3 +1,3 @@
-# Introduction to test-proxy
+# Introduction to clj.donttellmybroproxy2
 
 TODO: write [great documentation](http://jacobian.org/writing/what-to-write/)

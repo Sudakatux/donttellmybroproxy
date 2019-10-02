@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - Add a new arity to `make-widget-async` to provide a different widget shape.
 
-## [0.1.1] - 2019-04-22
+## [0.1.1] - 2019-09-30
 ### Changed
 - Documentation on how to make the widgets.
 
@@ -15,10 +15,10 @@ All notable changes to this project will be documented in this file. This change
 ### Fixed
 - Fixed widget maker to keep working when daylight savings switches over.
 
-## 0.1.0 - 2019-04-22
+## 0.1.0 - 2019-09-30
 ### Added
 - Files from the new template.
 - Widget maker public API - `make-widget-sync`.
 
-[Unreleased]: https://github.com/your-name/test-proxy/compare/0.1.1...HEAD
-[0.1.1]: https://github.com/your-name/test-proxy/compare/0.1.0...0.1.1
+[Unreleased]: https://github.com/your-name/clj.donttellmybroproxy2/compare/0.1.1...HEAD
+[0.1.1]: https://github.com/your-name/clj.donttellmybroproxy2/compare/0.1.0...0.1.1

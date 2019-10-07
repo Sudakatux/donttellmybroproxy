@@ -10,8 +10,17 @@
                  [metosin/muuntaja "0.6.4"]
                  [metosin/reitit "0.3.1"]
                  [metosin/ring-http-response "0.9.1"]
-                 [ring/ring-defaults "0.3.2"]]
-  :source-paths ["src/clj"]
+                 [ring/ring-defaults "0.3.2"]
+                 [org.clojure/clojurescript "1.10.520" :scope "provided"]
+                 [com.google.javascript/closure-compiler-unshaded "v20190325"]
+                 [org.clojure/google-closure-library "0.0-20190213-2033d5d9"]
+                 [cljs-ajax "0.7.3"]
+                 [reagent "0.8.1"]
+                 [re-frame "0.10.6"]
+                 [thheller/shadow-cljs "2.8.52"]
+                 [day8.re-frame/re-frame-10x "0.3.3-react16"]]
+
+  :source-paths ["src/clj" "src/cljs"]
   :resource-paths ["resources" "target/cljsbuild"]
   :target-path "target/%s/"
   ;:repl-options {:init-ns donttellmybroproxy2.core}

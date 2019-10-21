@@ -53,15 +53,17 @@
 
 (def registered-proxies (atom {}))
 
+(defn params-to-args []
+  (map vals (vals @registered-proxies)))
+
 (defn wrap-dynamic [handler]
 (fn [req]
   ((->>
-     @registered-proxies
-     vals
+     (params-to-args)
      (reduce #(apply wrap-proxy %1 %2) handler)) req)))
 
 (defn add-proxy [key & args]
-  (swap! registered-proxies assoc key args))
+  (swap! registered-proxies assoc key (zipmap [:route :url :args] args)))                ;
 
 (defn remove-proxy [key]
   (swap! registered-proxies dissoc key))
@@ -80,9 +82,12 @@
       ))
 
 (defn server ([] (server 3000))
-  ([port] (run-jetty
-            #'myapp
-            {:port port :join? false})))
+  ([port] (let [running-server (run-jetty
+                                 #'myapp
+                                 {:port port :join? false})]
+            running-server
+            ))
+  )
 
 (defn -main
   []

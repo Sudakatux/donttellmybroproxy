@@ -2,11 +2,209 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="95176b8f-9c24-4d1e-b3dd-95c0657e56df" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__args4j_2_0_26.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__binaryage_devtools_0_9_10.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__binaryage_env_config_0_2_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__cheshire_5_7_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__cljs_ajax_0_7_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__cljsjs_create_react_class_15_6_3_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__cljsjs_highlight_9_6_0_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__cljsjs_prop_types_15_6_0_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__cljsjs_react_16_3_2_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__cljsjs_react_dom_16_3_2_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__cljsjs_react_dom_server_16_3_2_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__cljsjs_react_flip_move_2_9_17_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__cljsjs_react_highlight_1_0_7_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_bhauman_cljs_test_display_0_1_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_cognitect_transit_cljs_0_8_243.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_cognitect_transit_js_0_8_846.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_fasterxml_jackson_dataformat_jackson_dataformat_cbor_2_8_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_fasterxml_jackson_dataformat_jackson_dataformat_smile_2_8_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_google_code_findbugs_jsr305_3_0_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_google_code_gson_gson_2_7.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_google_errorprone_error_prone_annotations_2_3_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_google_guava_guava_25_1_jre.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_google_j2objc_j2objc_annotations_1_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_google_javascript_closure_compiler_externs_v20190325.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_google_javascript_closure_compiler_unshaded_v20190325.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_google_jsinterop_jsinterop_annotations_1_0_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_google_protobuf_protobuf_java_3_0_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_wsscode_pathom_2_2_7.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_wsscode_spec_inspec_1_0_0_alpha2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_yahoo_platform_yui_yuicompressor_2_4_8.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__day8_re_frame_re_frame_10x_0_3_3_react16.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__edn_query_language_eql_0_0_3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__fipp_0_6_18.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__hawk_0_2_11.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__io_undertow_undertow_core_2_0_25_Final.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__net_cgrand_macrovich_0_2_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__net_colourcoding_poppea_0_2_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__net_incongru_watchservice_barbary_watchservice_1_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__net_java_dev_jna_jna_3_2_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_checkerframework_checker_qual_2_0_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_clojurescript_1_10_520.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_core_async_0_4_500.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_core_cache_0_6_5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_core_memoize_0_5_9.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_data_json_0_2_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_data_priority_map_0_0_7.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_google_closure_library_0_0_20190213_2033d5d9.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_google_closure_library_third_party_0_0_20190213_2033d5d9.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_test_check_0_10_0_alpha3.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_tools_analyzer_0_6_9.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_tools_analyzer_jvm_0_7_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_tools_cli_0_3_7.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_tools_logging_0_3_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_tools_reader_1_3_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_codehaus_mojo_animal_sniffer_annotations_1_14.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_jboss_logging_jboss_logging_3_4_0_Final.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_jboss_threads_jboss_threads_2_3_2_Final.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_jboss_xnio_xnio_api_3_7_3_Final.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_jboss_xnio_xnio_nio_3_7_3_Final.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_mozilla_rhino_1_7R5.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_ow2_asm_asm_all_4_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_wildfly_client_wildfly_client_config_1_0_0_Final.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_wildfly_common_wildfly_common_1_3_0_Final.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__re_frame_0_10_6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__reagent_0_8_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__rewrite_clj_0_6_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__rewrite_cljs_0_4_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__spec_coerce_1_0_0_alpha6.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__thheller_shadow_client_1_3_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__thheller_shadow_cljs_2_8_52.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__thheller_shadow_cljsjs_0_0_20.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__thheller_shadow_util_0_7_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__tigris_0_1_1.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__zprint_0_4_7.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_fasterxml_jackson_core_jackson_core_2_9_7.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__com_fasterxml_jackson_core_jackson_core_2_8_6.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Leiningen__fipp_0_6_17.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_core_rrb_vector_0_0_13.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Leiningen__org_clojure_core_rrb_vector_0_0_14.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/ana/donttellmybroproxy/app.cljs.cache.transit.json" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/ana/donttellmybroproxy/app.cljs.cache.transit.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.array.array.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.array.array.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.asserts.asserts.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.asserts.asserts.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.animationdelay.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.animationdelay.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.delay.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.delay.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.freelist.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.freelist.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.nexttick.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.nexttick.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.run.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.run.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.workqueue.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.async.workqueue.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.base.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.base.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.color.color.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.color.color.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.color.names.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.color.names.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.debug.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.debug.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.entrypointregistry.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.entrypointregistry.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.error.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.error.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.errorcontext.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.errorcontext.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.logbuffer.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.logbuffer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.logger.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.logger.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.logrecord.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.debug.logrecord.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.disposable.disposable.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.disposable.disposable.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.disposable.idisposable.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.disposable.idisposable.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.asserts.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.asserts.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.browserfeature.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.browserfeature.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.classlist.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.classlist.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.dom.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.dom.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.forms.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.forms.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.htmlelement.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.htmlelement.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.inputtype.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.inputtype.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.nodetype.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.nodetype.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.safe.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.safe.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.tagname.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.tagname.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.tags.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.tags.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.vendor.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.dom.vendor.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.browserevent.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.browserevent.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.browserfeature.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.browserfeature.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.event.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.event.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.eventid.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.eventid.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.events.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.events.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.eventtarget.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.eventtarget.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.eventtype.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.eventtype.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.listenable.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.listenable.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.listener.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.listener.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.listenermap.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.events.listenermap.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fs.url.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fs.url.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.functions.functions.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.functions.functions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fx.anim.anim.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fx.anim.anim.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fx.animation.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fx.animation.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fx.dom.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fx.dom.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fx.transition.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fx.transition.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fx.transitionbase.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.fx.transitionbase.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.safehtml.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.safehtml.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.safescript.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.safescript.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.safestyle.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.safestyle.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.safestylesheet.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.safestylesheet.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.safeurl.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.safeurl.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.trustedresourceurl.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.trustedresourceurl.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.uncheckedconversions.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.html.uncheckedconversions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.i18n.bidi.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.i18n.bidi.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.iter.iter.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.iter.iter.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.json.hybrid.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.json.hybrid.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.json.json.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.json.json.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.labs.net.xhr.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.labs.net.xhr.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.labs.useragent.browser.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.labs.useragent.browser.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.labs.useragent.engine.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.labs.useragent.engine.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.labs.useragent.platform.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.labs.useragent.platform.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.labs.useragent.util.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.labs.useragent.util.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.log.log.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.log.log.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.box.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.box.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.coordinate.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.coordinate.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.integer.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.integer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.irect.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.irect.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.long.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.long.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.math.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.math.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.rect.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.rect.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.size.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.math.size.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.errorcode.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.errorcode.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.eventtype.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.eventtype.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.httpstatus.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.httpstatus.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.wrapperxmlhttpfactory.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.wrapperxmlhttpfactory.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.xhrio.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.xhrio.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.xhrlike.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.xhrlike.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.xmlhttp.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.xmlhttp.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.xmlhttpfactory.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.net.xmlhttpfactory.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.object.object.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.object.object.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.promise.promise.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.promise.promise.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.promise.resolver.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.promise.resolver.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.promise.thenable.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.promise.thenable.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.reflect.reflect.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.reflect.reflect.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.result.dependentresult.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.result.dependentresult.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.result.result_interface.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.result.result_interface.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.result.resultutil.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.result.resultutil.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.result.simpleresult.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.result.simpleresult.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.errorcode.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.errorcode.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.mechanism.errorcode.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.mechanism.errorcode.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.mechanism.html5localstorage.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.mechanism.html5localstorage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.mechanism.html5webstorage.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.mechanism.html5webstorage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.mechanism.iterablemechanism.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.mechanism.iterablemechanism.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.mechanism.mechanism.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.mechanism.mechanism.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.storage.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.storage.storage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.const.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.const.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.internal.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.internal.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.string.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.string.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.stringbuffer.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.stringbuffer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.stringformat.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.stringformat.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.typedstring.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.string.typedstring.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.structs.map.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.structs.map.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.structs.structs.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.structs.structs.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.style.bidi.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.style.bidi.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.style.style.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.style.style.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.style.transition.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.style.transition.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.timer.timer.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.timer.timer.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.uri.uri.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.uri.uri.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.uri.utils.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.uri.utils.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.useragent.platform.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.useragent.platform.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.useragent.product.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.useragent.product.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.useragent.product_isversion.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.useragent.product_isversion.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.useragent.useragent.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.useragent.useragent.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.window.window.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/goog.window.window.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/index.json.transit" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/index.json.transit" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/shadow.js.js" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/goog-js/shadow.js.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/shadow-js/index.json.transit" beforeDir="false" afterPath="$PROJECT_DIR$/.shadow-cljs/builds/app/dev/shadow-js/index.json.transit" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/donttellmybroproxy.iml" beforeDir="false" afterPath="$PROJECT_DIR$/donttellmybroproxy.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project.clj" beforeDir="false" afterPath="$PROJECT_DIR$/project.clj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/clj/donttellmybroproxy/core.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/clj/donttellmybroproxy/core.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/clj/donttellmybroproxy/proxy.clj" beforeDir="false" afterPath="$PROJECT_DIR$/src/clj/donttellmybroproxy/proxy.clj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cljs/donttellmybroproxy/app.cljs" beforeDir="false" afterPath="$PROJECT_DIR$/src/cljs/donttellmybroproxy/app.cljs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,13 +224,16 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1ReHiMVCx8yV54N3oiBHg7WxuG9" />
+  <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+  </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/resources/public" />
       <recent name="$PROJECT_DIR$/resources" />
     </key>
   </component>
-  <component name="ReplState" timestamp="1570453403928">{:repl-history {:ide [], :local [{:command &quot;(start)&quot;, :offset 7, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(server)&quot;, :offset 8, :ns &quot;donttellmybroproxy.core&quot;}], :remote []}}</component>
+  <component name="ReplState" timestamp="1571662001566">{:repl-history {:ide [], :local [{:command &quot;(.status p)&quot;, :offset 11, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(.stop p)&quot;, :offset 9, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(def p (proxy/server)) &quot;, :offset 22, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(pprint (reflect p))&quot;, :offset 20, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;p&quot;, :offset 1, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(.isAlive p)&quot;, :offset 12, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(.isStopped p)&quot;, :offset 14, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(.isStarted p)&quot;, :offset 14, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(swap! proxy-server assoc :instance (proxy/server 3001\n                                                  ))&quot;, :offset 107, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(.stop (:instance @proxy-server)) &quot;, :offset 33, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(.isStarted (:instance @proxy-server)) &quot;, :offset 38, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(vals (:yahoo (proxy/list-proxies)) ) &quot;, :offset 37, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(vals (vals \n        (proxy/list-proxies)) ) &quot;, :offset 44, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;\n (vals \n        (proxy/list-proxies)) &quot;, :offset 39, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;\n (vals (vals (proxy/list-proxies)))  &quot;, :offset 36, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;\n (map val (vals (proxy/list-proxies)))  &quot;, :offset 41, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;\n (map val (first (vals (proxy/list-proxies))) )  &quot;, :offset 48, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;\n (map vals (vals (proxy/list-proxies)))   &quot;, :offset 40, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;\n (vals (proxy/list-proxies))   &quot;, :offset 29, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(start)&quot;, :offset 7, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(server)&quot;, :offset 8, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(proxy/list-proxies)&quot;, :offset 20, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot; (proxy/params-to-args) &quot;, :offset 23, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(vals (proxy/list-proxies)) &quot;, :offset 28, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(proxy/clear-proxies)&quot;, :offset 21, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(into [] (proxy/list-proxies)) &quot;, :offset 31, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(server) &quot;, :offset 8, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(vec (proxy/list-proxies)) &quot;, :offset 26, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(map :yahoo (vec (proxy/list-proxies)))  &quot;, :offset 39, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(map :yahoo (proxy/list-proxies))  &quot;, :offset 33, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(proxy/list-proxies)  &quot;, :offset 20, :ns &quot;donttellmybroproxy.core&quot;} {:command &quot;(keys (proxy/list-proxies))   &quot;, :offset 27, :ns &quot;donttellmybroproxy.core&quot;}], :remote []}}</component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>

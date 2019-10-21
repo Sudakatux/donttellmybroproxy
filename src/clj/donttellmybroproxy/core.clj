@@ -17,23 +17,50 @@
   (-> handler
       (muuntaja/wrap-format)))
 
+
+(def proxy-server (atom {:server-started false}))
+
+(defn server-running? []
+  (if-let [server-instance (:instance @proxy-server)]
+    (.isStarted server-instance)
+    false
+    )
+  )
+
 (def routes
   [["/api"
     {:middleware [wrap-formats]}
-    ["/start-proxy-server"
+    ["/proxy-server/start"
      {:put
       (fn [{{:keys [port] :or {port 3001}} :body-params}]
-        (proxy/server port)
-        (response/ok {:result "Proxy server started successfully"}))
+        (if (server-running?)
+          (response/conflict {:result "Server is already running"})
+          (do
+              (swap! proxy-server assoc :instance (proxy/server port))
+              (response/no-content))))
       }]
-    ["/create-proxy"
+    ["/proxy-server/stop"
+     {:put
+      (fn [& _]
+        (if (server-running?)
+          (do
+            (.stop (:instance @proxy-server))
+            (response/no-content))
+          (response/conflict {:result "Server was not running"})))
+      }]
+    ["/proxy-server/status"
+     {:get
+      (fn [& _]
+        (response/ok {:result {:server-running (server-running? )}}))
+      }]
+    ["/proxy-server/create"
      {
-     :put
+     :post
      (fn [{{:keys [id route destination]} :body-params}]
        (proxy/add-proxy (keyword id)  route destination #{})
-       (response/ok {:result (str id " was bound to route:" route " with destination: " destination)}))
+       (response/ok {:list (proxy/list-proxies)} ))
       }]
-    ["/remove-proxy/:id"
+    ["/proxy-server/delete/:id"
      {
       :delete
       (fn [{{:keys [id]} :path-params}]
@@ -42,10 +69,10 @@
         )
       }
      ]
-    ["/list-proxy"
+    ["/proxy-server/list"
      {
       :get
-      (fn [& args]
+      (fn [& _]
         (response/ok {:list (proxy/list-proxies)} ))
       }
      ]
@@ -73,9 +100,6 @@
             {:port port :join? false})))
 
 
-;(defn -main []
-;  (jetty/run-jetty
-;    (-> #'handler wrap-nocache wrap-reload)
-;    {:port 3000
-;     :join? false}))
+(defn -main []
+  (server))
 

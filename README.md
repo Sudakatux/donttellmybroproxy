@@ -1,10 +1,10 @@
-# clj.donttellmybroproxy2
+# clj.donttellmybroproxy
 
-A Clojure library designed to ... well, that part is up to you.
+The goal is for an interactive proxy. You can currently create routes and associate to a route
 
 ## Usage
 
-FIXME
+No release yes so.... download the source and build and run. go to http://localhost:3000 start the proxy server and asociate routes to proxies
 
 ## License
 

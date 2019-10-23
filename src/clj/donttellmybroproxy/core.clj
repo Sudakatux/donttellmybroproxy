@@ -71,6 +71,15 @@
         )
       }
      ]
+    ["/proxy-server/add-header/:id"
+     {
+      :post
+      (fn [{{:keys [id header-key value]} :body-params}]
+        (proxy/update-request-headers! (keyword id) {header-key (keyword value)})
+        (response/ok {:result (str "unbinded proxy for id:" id)})
+        )
+      }
+     ]
     ["/proxy-server/list"
      {
       :get

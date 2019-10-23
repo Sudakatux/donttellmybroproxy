@@ -25,6 +25,10 @@
       (.read rdr buf)
       buf)))
 
+(defn debug-interceptor [param]
+  (clojure.pprint/pprint param)
+  param)
+
 (defn wrap-proxy
   "Proxies requests from proxied-path, a local URI, to the remote URI at
   remote-base-uri, also a string."
@@ -38,17 +42,18 @@
                                (.getAuthority rmt-full)
                                (.getPath      rmt-full) nil nil)
               lcl-path   (URI. (subs (:uri req) (.length proxied-path)))
-              remote-uri (.resolve rmt-path lcl-path) ]
-          (-> (merge {:method (:request-method req)
-                      :url (str remote-uri "?" (:query-string req))
-                      :headers (dissoc (:headers req) "host" "content-length")
-                      :body (if-let [len (get-in req [:headers "content-length"])]
-                              (slurp-binary (:body req) (Integer/parseInt len)))
-                      :follow-redirects true
-                      :throw-exceptions false
-                      :as :stream} http-opts)               ; TODO merging should be controlled
-              request
-              prepare-cookies))
+              remote-uri (.resolve rmt-path lcl-path)]
+              (-> (merge {:method (:request-method req)
+                               :url (str remote-uri "?" (:query-string req))
+                               :headers (dissoc (:headers req) "host" "content-length")
+                               :body (if-let [len (get-in req [:headers "content-length"])]
+                                       (slurp-binary (:body req) (Integer/parseInt len)))
+                               :follow-redirects true
+                               :throw-exceptions false
+                               :as :stream} http-opts)               ; TODO merging should be controlled
+                       request
+                       debug-interceptor  ; TODO interception for response should come here
+                       prepare-cookies))
         (handler req)))))
 
 (def registered-proxies (atom {}))
@@ -70,6 +75,9 @@
 
 (defn clear-proxies []
   (reset! registered-proxies {}))
+
+(defn update-request-headers! [key header-args]
+  (swap! registered-proxies assoc-in [key :args] {:headers header-args}))
 
 (defn list-proxies []
   @registered-proxies)

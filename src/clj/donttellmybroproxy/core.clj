@@ -5,7 +5,9 @@
     [ring.util.http-response :as response]
     [ring.middleware.reload :refer [wrap-reload]]
     [muuntaja.middleware :as muuntaja]
-    [donttellmybroproxy.proxy :as proxy] ))
+    [donttellmybroproxy.proxy :as proxy] )
+  (:gen-class)
+  )
 
 (defn wrap-nocache [handler]
   (fn [request]

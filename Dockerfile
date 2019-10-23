@@ -1,6 +1,6 @@
 FROM clojure
 COPY . /usr/src/donttellmybro_proxy
 WORKDIR /usr/src/donttellmybro_proxy
-RUN mv "$(lein uberjar | sed -n 's/^Created \(.*standalone\.jar\)/\1/p')" app-standalone.jar
+RUN mv "$(lein uberjar | sed -n 's/^Created \(.*donttellmybro-proxy\.jar\)/\1/p')" donttellmybro-proxy.jar
 EXPOSE 9090
-CMD ["java", "-jar", "app-standalone.jar"]
+CMD ["java", "-jar", "donttellmybro-proxy.jar"]

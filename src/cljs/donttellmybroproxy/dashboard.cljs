@@ -15,7 +15,8 @@
              ["@material-ui/icons/PlayArrow" :default PlayArrow]
              ["@material-ui/icons/Stop" :default Stop]
              ["@material-ui/icons/Delete" :default DeleteIcon]
-
+             ["@material-ui/core/AppBar" :default AppBar]
+             ["@material-ui/core/Toolbar" :default Toolbar]
              [re-frame.core :as rf]
              [reagent.core :as r :refer [atom as-element render-component]]))
 
@@ -60,32 +61,35 @@
 (defn main-action-buttons []
   (let [server-running? (rf/subscribe [:server/started?])
         status-message (if @server-running? "Running" "Not Running")]
-    [:> Grid
+    [:> AppBar
      {
-      :container true
+      :position "static"
       }
-     [:> Grid
-      {:xs 4}
-      [:> Typography
-       {:variant "h5"}
-       (str "Proxy Server status : "  status-message)
-       ]]
-     [:> Grid
-      {:xs 4
-       :container true
-       :justify "space-between"}
-      [:> Fab
-       {:aria-label "Play"
-        :disabled @server-running?
-        :on-click start-server}
-       [:> PlayArrow]
-       ]
-      [:> Fab
-       {:aria-label "Stop"
-        :disabled (not @server-running?)
-        :on-click stop-server}
-       [:> Stop]                                       ;; TODO implement stop
-       ]]]))
+     [:> Toolbar
+      [:> Grid
+       {:spacing 4
+        :xs 6
+        :container true
+        :justify "space-between"}
+       [:> Typography
+        {:variant "h5"}
+        (str "Proxy Server status : "  status-message)
+        ]
+       [:> Fab
+        {:aria-label "Play"
+         :disabled @server-running?
+         :on-click start-server}
+        [:> PlayArrow]
+        ]
+       [:> Fab
+        {:aria-label "Stop"
+         :disabled (not @server-running?)
+         :on-click stop-server}
+        [:> Stop]                                       ;; TODO implement stop
+        ]]
+      ]]))
+;(defn main-action-button-styles [theme]
+;  #js {:status {:flexGrow 1}})
 
 (defn create-proxy-form []
   [:> Grid
@@ -162,12 +166,16 @@
     ]
    [:> Grid
     {
-     :direction "row"
+     ; :direction "row"
      :container true
+     :style #js {:height "100%"}
      }
     [:> Grid
      {:xs 2
-      :item true}
+      :item true
+      :style #js {:border-right "1px solid"
+                  :margin-right "1rem"}
+     }
      [running-proxy-list]
      ]
     [:> Grid
@@ -176,3 +184,5 @@
      [create-proxy-form]
      ]
     ]])
+;(defn main-layout-styles [theme]
+;  #js {:root #js { }})

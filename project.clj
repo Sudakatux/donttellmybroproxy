@@ -1,5 +1,5 @@
 (defproject donttellmybroproxy "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
+  :description "Dynamic route proxy"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -22,6 +22,10 @@
 
   :source-paths ["src/clj" "src/cljs"]
   :resource-paths ["resources" "target/cljsbuild"]
-  :target-path "target/%s/"
   ;:repl-options {:init-ns donttellmybroproxy2.core}
-  :main donttellmybroproxy.core)
+  :main ^:skip-aot donttellmybroproxy.core
+  :target-path "target/%s"
+  :profiles {:uberjar {:omit-source true
+                       :aot :all
+                       :uberjar-name "donttellmybro-proxy.jar"
+                       :prep-tasks ["compile" ["run" "-m" "shadow.cljs.devtools.cli" "release" "app"]]}})

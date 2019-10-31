@@ -8,6 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/dev-resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/cljsbuild" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/clj" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/cljc" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/cljs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
@@ -67,6 +68,8 @@
     <orderEntry type="library" name="Leiningen: edn-query-language/eql:0.0.3" level="project" />
     <orderEntry type="library" name="Leiningen: expound:0.7.2" level="project" />
     <orderEntry type="library" name="Leiningen: fipp:0.6.18" level="project" />
+    <orderEntry type="library" name="Leiningen: funcool/cuerdas:2.2.0" level="project" />
+    <orderEntry type="library" name="Leiningen: funcool/struct:1.4.0" level="project" />
     <orderEntry type="library" name="Leiningen: hawk:0.2.11" level="project" />
     <orderEntry type="library" name="Leiningen: hiccup:1.0.5" level="project" />
     <orderEntry type="library" name="Leiningen: io.undertow/undertow-core:2.0.25.Final" level="project" />

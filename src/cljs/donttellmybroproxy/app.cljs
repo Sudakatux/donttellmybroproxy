@@ -5,8 +5,10 @@
             ["@material-ui/core/styles/MuiThemeProvider" :default ThemeProvider]
             [donttellmybroproxy.dashboard :refer [main-layout proxy-list server-status]]
             [ajax.core :refer [GET POST PUT DELETE]]
+            [donttellmybroproxy.validations :refer [validate-proxy-entry]]
             [re-frame.core :as rf]
             [reagent.core :as r :refer [atom as-element render-component]]))
+
 ;; API Internal Event Handlers
 (rf/reg-fx
   :ajax/get
@@ -54,7 +56,7 @@
                                                   %))))
                   error-event  (assoc :error-handler
                                       #(rf/dispatch (conj error-event %)))))))
-;; End Api events
+;; End Api Internal events
 
 
 ;; Reducers DB-Events
@@ -102,6 +104,19 @@
   (fn [fields [_ id]]
     (get fields id)))
 
+(rf/reg-sub
+  :proxy-form/errors
+  (fn [db _]
+    (:proxy-form/errors db)))
+
+(rf/reg-sub
+  :proxy-form/error
+  :<- [:proxy-form/errors]
+  (fn [errors [_ id]]
+    (get errors id)))
+
+
+
 
 (rf/reg-sub
   :proxy/list
@@ -112,16 +127,15 @@
   :server/started?
   (fn [db _]
       (:server/started? db)))
-
 ;; End Selectors
-
 
 ;; External effects
 (rf/reg-event-fx
   :app/initialize
   (fn [_ _]
       {:db {:server/started? false
-            :proxy/list []}}))
+            :proxy/list []
+            :proxy-form/errors {}}}))
 
 (rf/reg-event-fx
   :proxy/load-list
@@ -163,15 +177,14 @@
 
 (rf/reg-event-fx
   :proxy/add-to-list!
-  (fn [_ [_ proxy-payload]]
+  (fn [{:keys [db]} [_ proxy-payload]]
+    (if-let [validation-errors (validate-proxy-entry proxy-payload)]
+    {:db (assoc db :proxy-form/errors validation-errors) }
     {:ajax/post {
                  :url "/api/proxy-server/create"
                  :params proxy-payload
                  :success-path [:list]
-                 :success-event [:proxy/set-proxy-list]}}))
-
-
-
+                 :success-event [:proxy/set-proxy-list]}})))
 
 ;; TODO to be implemented
 ;; Should clear fields and add to list

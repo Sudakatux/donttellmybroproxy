@@ -18,9 +18,10 @@
                  [reagent "0.8.1"]
                  [re-frame "0.10.6"]
                  [thheller/shadow-cljs "2.8.52"]
-                 [day8.re-frame/re-frame-10x "0.3.3-react16"]]
+                 [day8.re-frame/re-frame-10x "0.3.3-react16"]
+                 [funcool/struct "1.4.0"]]
 
-  :source-paths ["src/clj" "src/cljs"]
+  :source-paths ["src/clj" "src/cljs" "src/cljc"]
   :resource-paths ["resources" "target/cljsbuild"]
   ;:repl-options {:init-ns donttellmybroproxy2.core}
   :main ^:skip-aot donttellmybroproxy.core

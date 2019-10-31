@@ -11,12 +11,19 @@
              ["@material-ui/core/IconButton" :default IconButton]
              ["@material-ui/core/Fab" :default Fab]
              ["@material-ui/core/TextField" :default TextField]
+             ["@material-ui/core/Typography" :default Typography]
              ["@material-ui/icons/Add" :default Add]
              ["@material-ui/icons/PlayArrow" :default PlayArrow]
              ["@material-ui/icons/Stop" :default Stop]
              ["@material-ui/icons/Delete" :default DeleteIcon]
+             ["@material-ui/icons/AddCircle" :default AddCircle]
+             ["@material-ui/icons/Http" :default Http]
              ["@material-ui/core/AppBar" :default AppBar]
              ["@material-ui/core/Toolbar" :default Toolbar]
+             ["@material-ui/core/Card" :default Card]
+             ["@material-ui/core/CardContent" :default CardContent]
+             ["@material-ui/core/CardActions" :default CardActions]
+             ["@material-ui/core/CardHeader" :default CardHeader]
              [re-frame.core :as rf]
              [reagent.core :as r :refer [atom as-element render-component]]))
 
@@ -42,21 +49,21 @@
 ;; End Handlers
 
 (defn text-field [{val :value
-                   props :attrs
                    :keys [on-save]}]
   (let [draft (r/atom nil)
         value (r/track #(or @draft @val ""))]
-    (fn []
+    (fn [{props :attrs
+          error :error}]
       [:> TextField
        (merge props
-              {
-               :on-focus #(reset! draft (or @val ""))
-               :on-blur (fn []
-                          (on-save (or @draft ""))
-                          (reset! draft nil))
-               :on-change #(reset! draft (.. % -target -value))
-               :value @value })
-       ])))
+              (cond-> {
+                       :on-focus #(reset! draft (or @val ""))
+                       :on-blur (fn []
+                                  (on-save (or @draft ""))
+                                  (reset! draft nil))
+                       :on-change #(reset! draft (.. % -target -value))
+                       :value @value }
+                      error (merge {:error true :helperText error})))])))
 
 (defn main-action-buttons []
   (let [server-running? (rf/subscribe [:server/started?])
@@ -86,40 +93,40 @@
          :disabled (not @server-running?)
          :on-click stop-server}
         [:> Stop]                                       ;; TODO implement stop
-        ]]
-      ]]))
+        ]]]]))
+
 ;(defn main-action-button-styles [theme]
 ;  #js {:status {:flexGrow 1}})
 
 (defn create-proxy-form []
-  [:> Grid
-   {:container true
-    :direction "column"}
-   [text-field
-    {:attrs {:label "Proxy Id"
-             :id "id"}
-     :value (rf/subscribe [:proxy-form/field :id])
-     :on-save #(rf/dispatch [:proxy-form/set-field :id %])}]
-   [text-field
-    {:attrs {:label "/proxy-route"
-             :id "route"}
-     :value (rf/subscribe [:proxy-form/field :route])
-     :on-save #(rf/dispatch [:proxy-form/set-field :route %])}]
-   [text-field
-    {:attrs {:label "Destination http://"
-             :id "destination"}
-     :value (rf/subscribe [:proxy-form/field :destination])
-     :on-save #(rf/dispatch [:proxy-form/set-field :destination %])}]
-   [:> Grid
-    {:container true
-     :justify "flex-end"}
-    [:> Fab
-     {:aria-label "Add"
-      :on-click #(create-proxy @(rf/subscribe [:proxy-form/fields]))}
-     [:> Add]
-     ]
-    ]
-   ])
+[:> Card
+   {:style #js {:max-width 1000}}
+  [:> CardHeader {:title "Create proxy"}]
+   [:> CardContent
+    [:> Grid
+     {:container true
+      :direction "column"}
+    [text-field
+     {:attrs {:label "Proxy Id"
+              :id "id"}
+      :value (rf/subscribe [:proxy-form/field :id])
+      :on-save #(rf/dispatch [:proxy-form/set-field :id %])}]
+    [text-field
+     {:attrs {:label "/some-route"
+              :id "route" }
+      :value (rf/subscribe [:proxy-form/field :route])
+      :on-save #(rf/dispatch [:proxy-form/set-field :route %])
+      :error  @(rf/subscribe [:proxy-form/error :route])}]
+    [text-field
+     {:attrs {:label "Destination http://"
+              :id "destination"}
+      :value (rf/subscribe [:proxy-form/field :destination])
+      :on-save #(rf/dispatch [:proxy-form/set-field :destination %])}]
+     [:> CardActions
+     [:> Fab
+      {:aria-label "Add"
+       :on-click #(create-proxy @(rf/subscribe [:proxy-form/fields]))}
+      [:> Add]]]]]])
 
 (defn running-proxy-list []
   (let [binded-lists (rf/subscribe [:proxy/list])
@@ -144,12 +151,7 @@
                       {:edge "end"
                        :on-click #(remove-from-proxy-list elem)}
                       [:> DeleteIcon
-                       ]]]
-                    ]
-                   ) keys-list))
-      ]
-     ]
-    ))
+                       ]]]]) keys-list))]]))
 
 (defn main-layout []
   [:> Grid
@@ -173,16 +175,14 @@
     [:> Grid
      {:xs 2
       :item true
-      :style #js {:border-right "1px solid"
-                  :margin-right "1rem"}
+      :style #js {:borderRight "1px solid"
+                  :marginRight "1rem"
+                  :paddingTop 10}
      }
-     [running-proxy-list]
-     ]
+     [running-proxy-list]]
     [:> Grid
-     {:xs 4
-      :item true}
-     [create-proxy-form]
-     ]
-    ]])
-;(defn main-layout-styles [theme]
-;  #js {:root #js { }})
+     {:xs 8
+      :item true
+      :style #js {:backgroundColor "#f6f8fa"
+                  :paddingTop 10}}
+     [create-proxy-form]]]])

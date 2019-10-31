@@ -29,6 +29,9 @@
   (clojure.pprint/pprint param)
   param)
 
+(defn apply-response-args [response config]
+  (merge-with into response config))
+
 (defn wrap-proxy
   "Proxies requests from proxied-path, a local URI, to the remote URI at
   remote-base-uri, also a string."
@@ -50,9 +53,10 @@
                                        (slurp-binary (:body req) (Integer/parseInt len)))
                                :follow-redirects true
                                :throw-exceptions false
-                               :as :stream} http-opts)               ; TODO merging should be controlled
+                               :as :stream} (:request http-opts))               ; TODO merging should be controlled
                        request
-                       debug-interceptor  ; TODO interception for response should come here
+                        (apply-response-args (:response http-opts))
+                        debug-interceptor  ; TODO interception for response should come here
                        prepare-cookies))
         (handler req)))))
 
@@ -67,8 +71,14 @@
      (params-to-args)
      (reduce #(apply wrap-proxy %1 %2) handler)) req)))
 
+(defn prepare-default-args [proxy-configuration]
+  (assoc-in proxy-configuration [:args] {:request {}
+                     :response {}}))
+
 (defn add-proxy [key & args]
-  (swap! registered-proxies assoc key (zipmap [:route :url :args] args)))                ;
+  (swap! registered-proxies assoc key (->> args
+                                          (zipmap [:route :url :args])
+                                          prepare-default-args)))                ;
 
 (defn remove-proxy [key]
   (swap! registered-proxies dissoc key))
@@ -76,8 +86,14 @@
 (defn clear-proxies []
   (reset! registered-proxies {}))
 
+
+;; TODO We can use a protocol to manage this updates
 (defn update-request-headers! [key header-args]
-  (swap! registered-proxies assoc-in [key :args] {:headers header-args}))
+  (swap! registered-proxies assoc-in [key :args :request] {:headers header-args}))
+
+(defn update-response-headers! [key header-args]
+  (swap! registered-proxies assoc-in [key :args :response] {:headers header-args}))
+
 
 (defn list-proxies []
   @registered-proxies)

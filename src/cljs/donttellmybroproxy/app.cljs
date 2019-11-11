@@ -3,11 +3,15 @@
             ["@material-ui/core/colors" :as mui-colors]
             ["@material-ui/core/styles" :refer [createMuiTheme withStyles]]
             ["@material-ui/core/styles/MuiThemeProvider" :default ThemeProvider]
-            [donttellmybroproxy.dashboard :refer [main-layout proxy-list server-status]]
+            [donttellmybroproxy.dashboard :refer [main-layout empty-content create-proxy-form]]
             [ajax.core :refer [GET POST PUT DELETE]]
             [donttellmybroproxy.validations :refer [validate-proxy-entry]]
             [re-frame.core :as rf]
-            [reagent.core :as r :refer [atom as-element render-component]]))
+            [reagent.core :as r :refer [atom as-element render-component]]
+            [donttellmybroproxy.add-header :refer [add-header-card]]
+            [reitit.frontend :as reitit]
+            [reagent.session :as session]
+            [accountant.core :as accountant]))
 
 ;; API Internal Event Handlers
 (rf/reg-fx
@@ -115,13 +119,16 @@
   (fn [errors [_ id]]
     (get errors id)))
 
-
-
-
 (rf/reg-sub
   :proxy/list
   (fn [db _]
       (:proxy/list db [])))
+
+(rf/reg-sub
+  :proxy/response-headers
+  :<- [:proxy/list]
+  (fn [list [_ id]]
+    (get-in list [id :args :response :headers])))
 
 (rf/reg-sub
   :server/started?
@@ -135,7 +142,8 @@
   (fn [_ _]
       {:db {:server/started? false
             :proxy/list []
-            :proxy-form/errors {}}}))
+            :proxy-form/errors {}}
+       :dispatch-n  (list [:proxy/load-list] [:server/load-status])}))
 
 (rf/reg-event-fx
   :proxy/load-list
@@ -193,6 +201,26 @@
   (fn [_ _]
     {:db {:server/started? false}}))
 
+(def router
+  (reitit/router
+    [["/" :index]
+     ["/create" :create]]))
+
+;; TODO add routed param for selected proxy
+;;
+(defn path-for [route & [params]]
+  (if params
+    (:path (reitit/match-by-name router route params))
+    (:path (reitit/match-by-name router route))))
+
+
+
+(defn page-for [route]
+  (.log js/console "this is the route" route)
+  (case route
+    :index #'add-header-card
+    :create #'create-proxy-form))
+
 (defn custom-theme []
       (createMuiTheme
         (clj->js
@@ -204,9 +232,12 @@
            { :useNextVariants true}})))
 
 (defn app []
-      [:> ThemeProvider
-       {:theme (custom-theme)}
-       [main-layout]])
+  (let [page (:current-page (session/get :route))]
+    [:> ThemeProvider
+     {:theme (custom-theme)}
+     [main-layout
+      {:main-content page}]]
+    ))
 
 (defn mount-app []
       (render-component
@@ -216,8 +247,18 @@
 (defn init! []
       (.log js/console "Initializing App...")
       (rf/dispatch [:app/initialize])
-      (server-status)
-      (proxy-list)
+      (accountant/configure-navigation!
+        {:nav-handler
+         (fn [path]
+           (let [match (reitit/match-by-path router path)
+                 current-page (:name (:data match))
+                 route-params (:path-params match)]
+             (session/put! :route {:current-page (page-for current-page)
+                                   :route-params route-params}))) ; TODO use re-frame instead
+         :path-exists?
+         (fn [path]
+           (boolean (reitit/match-by-path router path)))})
+      (accountant/dispatch-current!)
       (mount-app))
 
 (init!)

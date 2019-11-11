@@ -86,8 +86,14 @@
 (defn clear-proxies []
   (reset! registered-proxies {}))
 
+(defn list-proxies []
+  @registered-proxies)
 
 ;; TODO We can use a protocol to manage this updates
+(defn existing-headers [key type]
+  "Returns a map with existing headers for proxy [key] for type [request|response]"
+  (get-in (list-proxies) [key :args type :headers]))
+
 (defn update-request-headers! [key header-args]
   (swap! registered-proxies assoc-in [key :args :request] {:headers header-args}))
 
@@ -95,8 +101,6 @@
   (swap! registered-proxies assoc-in [key :args :response] {:headers header-args}))
 
 
-(defn list-proxies []
-  @registered-proxies)
 
 (def myapp
   (-> (constantly {:status 404 :headers {} :body "404 - not found"})

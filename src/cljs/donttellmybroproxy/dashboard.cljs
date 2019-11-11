@@ -24,16 +24,11 @@
              ["@material-ui/core/CardContent" :default CardContent]
              ["@material-ui/core/CardActions" :default CardActions]
              ["@material-ui/core/CardHeader" :default CardHeader]
+             [donttellmybroproxy.common :refer [text-field]]
              [re-frame.core :as rf]
              [reagent.core :as r :refer [atom as-element render-component]]))
 
 ;; Handlers
-
-(defn proxy-list []
-  (rf/dispatch [:proxy/load-list]))
-
-(defn server-status []
-  (rf/dispatch [:server/load-status]))
 
 (defn remove-from-proxy-list [elem]
   (rf/dispatch [:proxy/remove-from-list! elem]))
@@ -47,23 +42,6 @@
 (defn create-proxy [proxy-payload]
   (rf/dispatch [:proxy/add-to-list! proxy-payload]))
 ;; End Handlers
-
-(defn text-field [{val :value
-                   :keys [on-save]}]
-  (let [draft (r/atom nil)
-        value (r/track #(or @draft @val ""))]
-    (fn [{props :attrs
-          error :error}]
-      [:> TextField
-       (merge props
-              (cond-> {
-                       :on-focus #(reset! draft (or @val ""))
-                       :on-blur (fn []
-                                  (on-save (or @draft ""))
-                                  (reset! draft nil))
-                       :on-change #(reset! draft (.. % -target -value))
-                       :value @value }
-                      error (merge {:error true :helperText error})))])))
 
 (defn main-action-buttons []
   (let [server-running? (rf/subscribe [:server/started?])
@@ -110,7 +88,8 @@
      {:attrs {:label "Proxy Id"
               :id "id"}
       :value (rf/subscribe [:proxy-form/field :id])
-      :on-save #(rf/dispatch [:proxy-form/set-field :id %])}]
+      :on-save #(rf/dispatch [:proxy-form/set-field :id %])
+      :error  @(rf/subscribe [:proxy-form/error :id])}]
     [text-field
      {:attrs {:label "/some-route"
               :id "route" }
@@ -121,7 +100,8 @@
      {:attrs {:label "Destination http://"
               :id "destination"}
       :value (rf/subscribe [:proxy-form/field :destination])
-      :on-save #(rf/dispatch [:proxy-form/set-field :destination %])}]
+      :on-save #(rf/dispatch [:proxy-form/set-field :destination %])
+      :error  @(rf/subscribe [:proxy-form/error :destination])}]
      [:> CardActions
      [:> Fab
       {:aria-label "Add"
@@ -152,8 +132,10 @@
                        :on-click #(remove-from-proxy-list elem)}
                       [:> DeleteIcon
                        ]]]]) keys-list))]]))
+(defn empty-content []
+  nil)
 
-(defn main-layout []
+(defn main-layout [{main-content :main-content}]
   [:> Grid
    {:direction "column"
     :justify "space-between"}
@@ -164,8 +146,7 @@
      :direction "row"
      :container true
      }
-    [main-action-buttons]
-    ]
+    [main-action-buttons]]
    [:> Grid
     {
      ; :direction "row"
@@ -185,4 +166,4 @@
       :item true
       :style #js {:backgroundColor "#f6f8fa"
                   :paddingTop 10}}
-     [create-proxy-form]]]])
+     [main-content]]]])

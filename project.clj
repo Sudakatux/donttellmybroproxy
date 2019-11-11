@@ -19,7 +19,11 @@
                  [re-frame "0.10.6"]
                  [thheller/shadow-cljs "2.8.52"]
                  [day8.re-frame/re-frame-10x "0.3.3-react16"]
-                 [funcool/struct "1.4.0"]]
+                 [reagent-utils "0.3.3"]
+                 [lilactown/hx "0.5.3"]
+                 [cljs-bean "1.5.0"]
+                 [funcool/struct "1.4.0"]
+                 [venantius/accountant "0.2.5"]]
 
   :source-paths ["src/clj" "src/cljs" "src/cljc"]
   :resource-paths ["resources" "target/cljsbuild"]

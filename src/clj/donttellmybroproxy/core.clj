@@ -5,9 +5,9 @@
     [ring.util.http-response :as response]
     [ring.middleware.reload :refer [wrap-reload]]
     [muuntaja.middleware :as muuntaja]
-    [donttellmybroproxy.proxy :as proxy] )
-  (:gen-class)
-  )
+    [donttellmybroproxy.proxy :as proxy]
+    [clojure.java.io :as io])
+  (:gen-class))
 
 (defn wrap-nocache [handler]
   (fn [request]
@@ -30,7 +30,8 @@
   )
 
 (def routes
-  [["/api"
+  [
+   ["/api"
     {:middleware [wrap-formats]}
     ["/proxy-server/start"
      {:put
@@ -71,13 +72,29 @@
         )
       }
      ]
-    ["/proxy-server/add-header/:id"
+    ["/proxy-server/:id/request/header"
      {
       :post
       (fn [{{:keys [id header-key value]} :body-params}]
         (proxy/update-request-headers! (keyword id) {header-key (keyword value)})
         (response/ok {:result (str "unbinded proxy for id:" id)})
         )
+      }
+     ]
+    ["/proxy-server/response/add-header/:id"
+     {
+      :post
+      (fn [{{:keys [id header-key value]} :body-params}]
+        (proxy/update-response-headers! (keyword id) {header-key value})
+        (response/ok {:result (str "unbinded proxy for id:" id)})
+        )
+      }
+     ]
+    ["/proxy-server/:id/response/header"
+     {
+      :get
+      (fn [{{:keys [id]} :path-params}]
+        (response/ok {:list (proxy/existing-headers (keyword id) :response) } ))
       }
      ]
     ["/proxy-server/list"
@@ -87,7 +104,16 @@
         (response/ok {:list (proxy/list-proxies)} ))
       }
      ]
-    ]])
+
+    ]
+   ["/"
+    {
+     :get
+     (fn [& _]
+       (response/ok (io/input-stream
+                      (io/resource "public/index.html"))))  ;DRY
+     }]
+   ])
 
 (def handler
   (reitit/routes
@@ -97,7 +123,8 @@
       {:path "/"})
     (reitit/create-default-handler
       {:not-found
-       (constantly (response/not-found "404 - Page not found"))
+       (constantly (response/ok (io/input-stream
+                                  (io/resource "public/index.html"))))
        :method-not-allowed
        (constantly (response/method-not-allowed "405 - Not allowed"))
        :not-acceptable

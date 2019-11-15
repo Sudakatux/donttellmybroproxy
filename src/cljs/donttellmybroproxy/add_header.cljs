@@ -11,11 +11,10 @@
             ["@material-ui/core/CardActions" :default CardActions]
             ["@material-ui/core/CardHeader" :default CardHeader]
             ["@material-ui/core/Button" :default Button]
-            [hx.react :as hx :refer [defnc]]
-            [hx.hooks :as hooks]
-            [cljs-bean.core :refer [bean ->js]]
+
             [reagent.core :as r]
-            [donttellmybroproxy.common :refer [text-field]]
+            [reagent.session :as session]
+            [donttellmybroproxy.common :refer [text-field HeaderAutocomplete]]
             [re-frame.core :as rf]))
 
 (def options
@@ -24,28 +23,7 @@
 ;;
 ;;  Note this is not a re-agent component
 ;;  Move me to common
-(defnc HeaderAutocomplete [__]
-       (let [[val updateVal] (hooks/useState "some val")
-             renderInput (fn [params]
-                           (let [params-clj (bean params)
-                                 inputProps-clj (:inputProps params-clj)
-                                 option-selected (not-empty (:value (bean inputProps-clj)))
-                                 selected-value (or option-selected val)]
-                             (hx/f [TextField (merge  params-clj {
-                                                                  :label "Insert header"
-                                                                  :fullWidth true
-                                                                  :inputProps (.assign js/Object inputProps-clj (->js { :onChange #(updateVal (-> % .-target .-value))
-                                                                                                                        :value selected-value}))
-                                                                  :variant "outlined"} )]))
-                      )]
 
-       [Autocomplete {:id "autocomplete"
-                      :options (->js options)
-                      :renderInput renderInput
-                      :getOptionLabel (fn [elem]
-                                        (:title (bean elem) ))
-                      :freeSolo true
-                      }]))
 (defn add-header-form []
   [:> Grid
    {:container true
@@ -59,7 +37,13 @@
      {
       :xs 4
       }
-     [:> HeaderAutocomplete]
+     [:> HeaderAutocomplete
+     {
+      :initialValue ""
+      :options options
+      :onSave (fn [val]
+                   (.log js/console "selected value is" val))
+      }]
      ]
     [:> Grid
      {:xs 4}
@@ -71,10 +55,11 @@
    ])
 
 (defn existing-header-cloud []                 ; Note i hardcoded the value
-  (let [header-values @(rf/subscribe [:proxy/response-headers :yahoo])]
-    (.log js/console "header values" (get header-values "Bareer3") )
-  ;[:> Grid
-  ; {:direction "row"}
+  (let [current-page (session/get :route)
+        header-values @(rf/subscribe [:proxy/response-headers :yahoo])]
+(.log js/console "current page" current-page)
+  [:> Grid
+   {:direction "row"}
    (into [:<>]
          (map (fn [[hk hv]]
                 ^{:key hk}
@@ -83,7 +68,7 @@
                   :onDelete #( %)}
                  ]) header-values))
 
-    ;]
+    ]
 ))
 
 
@@ -102,5 +87,6 @@
        ]
       [:> Grid
        {:xs 4}
-       [existing-header-cloud]]
+       ; [existing-header-cloud]
+       ]
       ]]])

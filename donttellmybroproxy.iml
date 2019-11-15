@@ -25,6 +25,7 @@
     <orderEntry type="library" name="Leiningen: clj-time:0.14.3" level="project" />
     <orderEntry type="library" name="Leiningen: clj-tuple:0.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: cljs-ajax:0.7.3" level="project" />
+    <orderEntry type="library" name="Leiningen: cljs-bean:1.5.0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/create-react-class:15.6.3-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/highlight:9.6.0-0" level="project" />
     <orderEntry type="library" name="Leiningen: cljsjs/prop-types:15.6.0-0" level="project" />

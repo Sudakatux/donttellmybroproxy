@@ -6,7 +6,9 @@
     [ring.middleware.reload :refer [wrap-reload]]
     [muuntaja.middleware :as muuntaja]
     [donttellmybroproxy.proxy :as proxy]
-    [clojure.java.io :as io])
+    [clojure.java.io :as io]
+    [ring.util.response :as resp]
+    [ring.middleware.content-type :as content-type])
   (:gen-class))
 
 (defn wrap-nocache [handler]
@@ -113,6 +115,14 @@
        (response/ok (io/input-stream
                       (io/resource "public/index.html"))))  ;DRY
      }]
+   ;["/create/"
+   ; {
+   ;  :get
+   ;  (fn [& _]
+   ;    (println "IT fucking gets here")
+   ;    (response/ok (io/input-stream
+   ;                   (io/resource "public/index.html"))))  ;DRY
+   ;  }]
    ])
 
 (def handler
@@ -120,15 +130,21 @@
     (reitit/ring-handler
       (reitit/router routes))
     (reitit/create-resource-handler
-      {:path "/"})
+      {:path "/*"})
     (reitit/create-default-handler
       {:not-found
-       (constantly (response/ok (io/input-stream
-                                  (io/resource "public/index.html"))))
+       (-> (fn [request]
+             (or (resp/resource-response (:uri request) {:root "public"})
+                 (-> (resp/resource-response "index.html" {:root "public"})
+                     (resp/content-type "text/html")))
+             )
+           content-type/wrap-content-type)
        :method-not-allowed
        (constantly (response/method-not-allowed "405 - Not allowed"))
        :not-acceptable
-       (constantly (response/not-acceptable "406 - Not acceptable"))})))
+       (constantly (response/not-acceptable "406 - Not acceptable"))})
+    {:conflicts (constantly nil)}
+    ))
 
 (defn server ([] (server 3000))
   ([port] (jetty/run-jetty

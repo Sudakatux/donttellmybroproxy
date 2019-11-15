@@ -77,6 +77,12 @@
         (assoc :proxy/list list))))
 
 (rf/reg-event-db
+  :session/set-page!
+  (fn [db [_ page-info]]
+    (-> db
+        (assoc :session/page page-info))))
+
+(rf/reg-event-db
   :proxy/list-remove
   [(rf/path :proxy/list)]
   (fn [proxy-list [_ item]]
@@ -127,8 +133,9 @@
 (rf/reg-sub
   :proxy/response-headers
   :<- [:proxy/list]
-  (fn [list [_ id]]
-    (get-in list [id :args :response :headers])))
+  :<- [:session/page]
+  (fn [[list page]  [_ id]]
+    (get-in list [id :args :response :headers] {})))
 
 (rf/reg-sub
   :server/started?
@@ -137,12 +144,15 @@
 ;; End Selectors
 
 ;; External effects
+;;; INITALIZE EFFECT
 (rf/reg-event-fx
   :app/initialize
   (fn [_ _]
       {:db {:server/started? false
-            :proxy/list []
-            :proxy-form/errors {}}
+            :proxy/list {}
+            :proxy-form/errors {}
+            :session/page nil
+            }
        :dispatch-n  (list [:proxy/load-list] [:server/load-status])}))
 
 (rf/reg-event-fx
@@ -187,7 +197,7 @@
   :proxy/add-to-list!
   (fn [{:keys [db]} [_ proxy-payload]]
     (if-let [validation-errors (validate-proxy-entry proxy-payload)]
-    {:db (assoc db :proxy-form/errors validation-errors) }
+    {:db (assoc db :proxy-form/errors validation-errors)}
     {:ajax/post {
                  :url "/api/proxy-server/create"
                  :params proxy-payload
@@ -204,22 +214,15 @@
 (def router
   (reitit/router
     [["/" :index]
-     ["/create" :create]]))
-
-;; TODO add routed param for selected proxy
-;;
-(defn path-for [route & [params]]
-  (if params
-    (:path (reitit/match-by-name router route params))
-    (:path (reitit/match-by-name router route))))
-
-
+     ["/create" :create]
+     ["/proxy/:id" :proxy-route]]))
 
 (defn page-for [route]
-  (.log js/console "this is the route" route)
   (case route
-    :index #'add-header-card
-    :create #'create-proxy-form))
+    :index #'empty-content
+    :create #'create-proxy-form
+    :proxy-route #'add-header-card
+    ))
 
 (defn custom-theme []
       (createMuiTheme
@@ -233,6 +236,7 @@
 
 (defn app []
   (let [page (:current-page (session/get :route))]
+
     [:> ThemeProvider
      {:theme (custom-theme)}
      [main-layout
@@ -253,6 +257,7 @@
            (let [match (reitit/match-by-path router path)
                  current-page (:name (:data match))
                  route-params (:path-params match)]
+             (rf/dispatch [:session/set-page! (get-in route-params [:id])])
              (session/put! :route {:current-page (page-for current-page)
                                    :route-params route-params}))) ; TODO use re-frame instead
          :path-exists?

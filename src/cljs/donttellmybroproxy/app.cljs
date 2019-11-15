@@ -3,9 +3,10 @@
             ["@material-ui/core/colors" :as mui-colors]
             ["@material-ui/core/styles" :refer [createMuiTheme withStyles]]
             ["@material-ui/core/styles/MuiThemeProvider" :default ThemeProvider]
-            [donttellmybroproxy.dashboard :refer [main-layout empty-content create-proxy-form]]
+            [donttellmybroproxy.dashboard :refer [main-layout empty-content]]
+            [donttellmybroproxy.forms :refer [create-proxy-form]]
             [ajax.core :refer [GET POST PUT DELETE]]
-            [donttellmybroproxy.validations :refer [validate-proxy-entry]]
+
             [re-frame.core :as rf]
             [reagent.core :as r :refer [atom as-element render-component]]
             [donttellmybroproxy.add-header :refer [add-header-card]]
@@ -88,42 +89,26 @@
   (fn [proxy-list [_ item]]
     (dissoc proxy-list item)))
 
-(rf/reg-event-db
-  :proxy-form/set-field
-  [(rf/path :proxy-form/fields)]
-  (fn [fields [_ id value]]
-    (assoc fields id value)))
-
-(rf/reg-event-db
-  :proxy-form/clear-fields
-  [(rf/path :proxy-form/fields)]
-  (fn [_ _]
-    {}))
+;(rf/reg-event-db
+;  :form/set-field
+;  (fn [db [_ form-id field-path new-value]]
+;    (assoc-in db (vec (concat value-db-path (cons form-id field-path))) new-value)))
 
 ;; End Reducers
 
 ;; Selectors ---- subscribers
-(rf/reg-sub
-  :proxy-form/fields
-  (fn [db _]
-    (:proxy-form/fields db)))
+;(rf/reg-sub
+;  :form/fields
+;  (fn [db]
+;    (get-in db value-db-path)))
+;
+;(rf/reg-sub
+;  :form/field
+;  :<- [:form/fields]
+;  (fn [forms-data [_ form-id field-path]]
+;    (get-in forms-data (vec (cons form-id field-path)))))
 
-(rf/reg-sub
-  :proxy-form/field
-  :<- [:proxy-form/fields]
-  (fn [fields [_ id]]
-    (get fields id)))
 
-(rf/reg-sub
-  :proxy-form/errors
-  (fn [db _]
-    (:proxy-form/errors db)))
-
-(rf/reg-sub
-  :proxy-form/error
-  :<- [:proxy-form/errors]
-  (fn [errors [_ id]]
-    (get errors id)))
 
 (rf/reg-sub
   :proxy/list
@@ -193,16 +178,16 @@
                 :params {:port 3001 }           ; This should be configurable
                 :success-event [:server/set-status true]}}))
 
-(rf/reg-event-fx
-  :proxy/add-to-list!
-  (fn [{:keys [db]} [_ proxy-payload]]
-    (if-let [validation-errors (validate-proxy-entry proxy-payload)]
-    {:db (assoc db :proxy-form/errors validation-errors)}
-    {:ajax/post {
-                 :url "/api/proxy-server/create"
-                 :params proxy-payload
-                 :success-path [:list]
-                 :success-event [:proxy/set-proxy-list]}})))
+;(rf/reg-event-fx
+;  :proxy/add-to-list!
+;  (fn [{:keys [db]} [_ proxy-payload]]
+;    (if-let [validation-errors (validate-proxy-entry proxy-payload)]
+;    {:db (assoc-in db [:form :errors] validation-errors)}
+;    {:ajax/post {
+;                 :url "/api/proxy-server/create"
+;                 :params proxy-payload
+;                 :success-path [:list]
+;                 :success-event [:proxy/set-proxy-list]}})))
 
 ;; TODO to be implemented
 ;; Should clear fields and add to list

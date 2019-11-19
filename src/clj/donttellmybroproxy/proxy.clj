@@ -95,10 +95,11 @@
   (get-in (list-proxies) [key :args type :headers]))
 
 (defn update-request-headers! [key header-args]
-  (swap! registered-proxies assoc-in [key :args :request] {:headers header-args}))
+  (swap! registered-proxies assoc-in [key :args :request :headers] (merge (existing-headers key :request)  header-args)))
 
 (defn update-response-headers! [key header-args]
-  (swap! registered-proxies assoc-in [key :args :response] {:headers header-args}))
+  (println key header-args)
+  (swap! registered-proxies assoc-in [key :args :response :headers] (merge (existing-headers key :response)  header-args)))
 
 
 

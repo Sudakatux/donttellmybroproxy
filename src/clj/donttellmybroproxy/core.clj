@@ -79,16 +79,17 @@
       :post
       (fn [{{:keys [id header-key value]} :body-params}]
         (proxy/update-request-headers! (keyword id) {header-key (keyword value)})
-        (response/ok {:result (str "unbinded proxy for id:" id)})
+        (response/ok {:result (str "Added header:" id)})
         )
       }
      ]
-    ["/proxy-server/response/add-header/:id"
+    ["/proxy-server/response/headers/:id"
      {
       :post
-      (fn [{{:keys [id header-key value]} :body-params}]
-        (proxy/update-response-headers! (keyword id) {header-key value})
-        (response/ok {:result (str "unbinded proxy for id:" id)})
+      (fn [{{:keys [header-key header-value]} :body-params
+            {:keys [id]} :path-params}]
+        (proxy/update-response-headers! (keyword id) {header-key header-value})
+        (response/ok {:result (str "Added header:" id)})
         )
       }
      ]
@@ -108,21 +109,6 @@
      ]
 
     ]
-   ["/"
-    {
-     :get
-     (fn [& _]
-       (response/ok (io/input-stream
-                      (io/resource "public/index.html"))))  ;DRY
-     }]
-   ;["/create/"
-   ; {
-   ;  :get
-   ;  (fn [& _]
-   ;    (println "IT fucking gets here")
-   ;    (response/ok (io/input-stream
-   ;                   (io/resource "public/index.html"))))  ;DRY
-   ;  }]
    ])
 
 (def handler

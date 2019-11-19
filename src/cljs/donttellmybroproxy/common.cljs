@@ -40,6 +40,7 @@
                                                                   :inputProps (.assign js/Object inputProps-clj (->js { :onChange #(updateVal (-> % .-target .-value))
                                                                                                                        :value selected-value
                                                                                                                        :onBlur #((on-save selected-value))
+                                                                                                                       :autocomplete false
                                                                                                                        }))
                                                                   :variant "outlined"} )]))
                            )]

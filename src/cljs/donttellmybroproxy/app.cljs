@@ -6,7 +6,6 @@
             [donttellmybroproxy.dashboard :refer [main-layout empty-content]]
             [donttellmybroproxy.forms :refer [create-proxy-form]]
             [ajax.core :refer [GET POST PUT DELETE]]
-
             [re-frame.core :as rf]
             [reagent.core :as r :refer [atom as-element render-component]]
             [donttellmybroproxy.add-header :refer [add-header-card]]
@@ -89,31 +88,15 @@
   (fn [proxy-list [_ item]]
     (dissoc proxy-list item)))
 
-;(rf/reg-event-db
-;  :form/set-field
-;  (fn [db [_ form-id field-path new-value]]
-;    (assoc-in db (vec (concat value-db-path (cons form-id field-path))) new-value)))
-
-;; End Reducers
-
-;; Selectors ---- subscribers
-;(rf/reg-sub
-;  :form/fields
-;  (fn [db]
-;    (get-in db value-db-path)))
-;
-;(rf/reg-sub
-;  :form/field
-;  :<- [:form/fields]
-;  (fn [forms-data [_ form-id field-path]]
-;    (get-in forms-data (vec (cons form-id field-path)))))
-
-
-
 (rf/reg-sub
   :proxy/list
   (fn [db _]
       (:proxy/list db [])))
+
+(rf/reg-sub
+  :session/page
+  (fn [db _]
+    (:session/page db)))
 
 (rf/reg-sub
   :proxy/response-headers

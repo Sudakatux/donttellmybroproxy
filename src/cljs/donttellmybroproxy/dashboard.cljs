@@ -70,8 +70,7 @@
         {:aria-label "Stop"
          :disabled (not @server-running?)
          :on-click stop-server}
-        [:> Stop]                                       ;; TODO implement stop
-        ]]]]))
+        [:> Stop]]]]]))
 
 ;(defn main-action-button-styles [theme]
 ;  #js {:status {:flexGrow 1}})
@@ -100,6 +99,7 @@
                        :on-click #(remove-from-proxy-list elem)}
                       [:> DeleteIcon
                        ]]]]) keys-list))]]))
+
 (defn empty-content []
   nil)
 
@@ -117,7 +117,6 @@
     [main-action-buttons]]
    [:> Grid
     {
-     ; :direction "row"
      :container true
      :style #js {:height "100%"}
      }

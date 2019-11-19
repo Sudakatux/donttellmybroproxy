@@ -7,11 +7,12 @@
             ["@material-ui/core/Fab" :default Fab]
             ["@material-ui/core/CardActions" :default CardActions]
             ["@material-ui/core/CardContent" :default CardContent]
-            [donttellmybroproxy.validations :refer [validate-proxy-entry]]
+            ["@material-ui/core/Button" :default Button]
+            [donttellmybroproxy.validations :refer [validate-proxy-entry validate-header-schema]]
+            [donttellmybroproxy.common :refer [text-field HeaderAutocomplete]]
             [donttellmybroproxy.common :refer [text-field]]))
 
-(defn create-proxy [proxy-payload]
-  (rf/dispatch [:proxy/add-to-list! (:new-proxy proxy-payload)]))
+
 
 ;(def root-db-path [:forms])
 (def value-db-path [:forms :values])
@@ -55,6 +56,29 @@
                    :success-path [:list]
                    :success-event [:proxy/set-proxy-list]}})))
 
+(rf/reg-event-fx
+  :proxy/add-header!
+  (fn [{:keys [db]} [_ {:keys [header-type-form id payload]}]]
+    (if-let [validation-errors (validate-header-schema payload)]
+      {:db (assoc-in db [:forms :errors header-type-form] validation-errors)}
+      {:ajax/post {
+                   :url (str "/api/proxy-server/response/headers/" id)
+                   :params payload
+                   :success-path [:list]
+                   :success-event [:proxy/set-proxy-list]}})))
+
+
+(defn create-proxy [proxy-payload]
+  (rf/dispatch [:proxy/add-to-list! (:new-proxy proxy-payload)]))
+
+(defn add-header! [{header-type-form :header-type-form
+                   id :id
+                   payload :payload}]
+  (.log js/console "This is the payload" payload)
+    (rf/dispatch [:proxy/add-header! {:header-type-form header-type-form
+                                    :id id
+                                    :payload payload}]))
+
 
 (defn create-proxy-form []
   [:> Card
@@ -88,3 +112,42 @@
         :on-click #(create-proxy @(rf/subscribe [:form/fields]))}
        [:> Add]]]]]])
 
+(def options
+  [{:title "Content-Type" :value "Content-Type"}
+   {:title "Bareer" :value "Bareer"}])
+
+(defn add-header-form [{header-type-form :header-type-form}]
+  [:> Grid
+   {:container true
+    :justify "space-between"
+    :direction "column"}
+   [:> Grid
+    {:direction "row"
+     :justify "space-between"
+     :container true}
+    [:> Grid
+     {
+      :xs 4
+      }
+     [:> HeaderAutocomplete
+      {
+       :initialValue @(rf/subscribe [:form/field header-type-form [:header-key]])
+       :options options
+       :onSave #(rf/dispatch [:form/set-field header-type-form [:header-key] %])
+       }]
+     ]
+    [:> Grid
+     {:xs 4}
+     [text-field
+      {:attrs {:label "Header"
+               :id "header-value" }
+       :value (rf/subscribe [:form/field header-type-form [:header-value]])
+       :on-save #(rf/dispatch [:form/set-field header-type-form [:header-value] %])
+       :error  @(rf/subscribe [:form/error header-type-form [:header-value]])}]
+     ]]
+   [:> Button
+    {:on-click #(add-header! {:header-type-form header-type-form
+                             :id @(rf/subscribe [:session/page])
+                             :payload (get @(rf/subscribe [:form/fields]) header-type-form)})}
+    "Add Header"
+    ]])

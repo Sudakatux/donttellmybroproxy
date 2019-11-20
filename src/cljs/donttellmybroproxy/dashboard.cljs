@@ -3,7 +3,7 @@
              ["@material-ui/core/styles" :refer [createMuiTheme withStyles]]
              ["@material-ui/core/styles/MuiThemeProvider" :default ThemeProvider]
              ["@material-ui/core/Grid" :default Grid]
-             ["@material-ui/core/Typography" :default Typography]
+             ["@material-ui/core/Button" :default Button]
              ["@material-ui/core/List" :default List]
              ["@material-ui/core/ListItem" :default ListItem]
              ["@material-ui/core/ListItemText" :default ListItemText]
@@ -14,6 +14,7 @@
              ["@material-ui/core/Typography" :default Typography]
              ["@material-ui/icons/Add" :default Add]
              ["@material-ui/icons/PlayArrow" :default PlayArrow]
+             ["@material-ui/icons/Edit" :default Edit]
              ["@material-ui/icons/Stop" :default Stop]
              ["@material-ui/icons/Delete" :default DeleteIcon]
              ["@material-ui/icons/AddCircle" :default AddCircle]
@@ -26,6 +27,7 @@
              ["@material-ui/core/CardHeader" :default CardHeader]
              [donttellmybroproxy.common :refer [text-field]]
              [re-frame.core :as rf]
+             [accountant.core :as accountant]
              [reagent.core :as r :refer [atom as-element render-component]]))
 
 ;; Handlers
@@ -39,8 +41,6 @@
 (defn start-server []
   (rf/dispatch [:server/start!]))
 
-(defn create-proxy [proxy-payload]
-  (rf/dispatch [:proxy/add-to-list! proxy-payload]))
 ;; End Handlers
 
 (defn main-action-buttons []
@@ -96,12 +96,23 @@
                     [:> ListItemSecondaryAction
                      [:> IconButton
                       {:edge "end"
-                       :on-click #(remove-from-proxy-list elem)}
+                       :on-click #(remove-from-proxy-list elem)
+                       }
                       [:> DeleteIcon
-                       ]]]]) keys-list))]]))
-
+                       ]]
+                     [:> IconButton
+                      {:edge "end"
+                       :on-click #(accountant/navigate! (str "/proxy/" (name elem)))
+                       }
+                      [:> Edit
+                       ]]
+                     ]]) keys-list))]]))
+;; TODO center me
 (defn empty-content []
-  nil)
+  [:> Button
+   {:on-click #(accountant/navigate! "/create")}
+   "Create Proxy"
+   ])
 
 (defn main-layout [{main-content :main-content}]
   [:> Grid

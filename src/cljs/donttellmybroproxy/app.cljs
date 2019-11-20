@@ -71,12 +71,6 @@
           (assoc :server/started? returned-status))))
 
 (rf/reg-event-db
-  :proxy/set-proxy-list
-  (fn [db [_ list]]
-    (-> db
-        (assoc :proxy/list list))))
-
-(rf/reg-event-db
   :session/set-page!
   (fn [db [_ page-info]]
     (-> db
@@ -103,7 +97,7 @@
   :<- [:proxy/list]
   :<- [:session/page]
   (fn [[list page]  [_ id]]
-    (get-in list [id :args :response :headers] {})))
+    (get-in list [(keyword page) :args id :headers] {})))
 
 (rf/reg-sub
   :server/started?

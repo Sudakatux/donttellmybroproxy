@@ -23,6 +23,19 @@
   (fn [db [_ form-id field-path new-value]]
     (assoc-in db (vec (concat value-db-path (cons form-id field-path))) new-value)))
 
+(rf/reg-event-db
+  :proxy/set-proxy-list
+  (fn [db [_ list]]
+    (-> db
+        (assoc :proxy/list list))))
+
+
+(rf/reg-event-db
+  :proxy/set-headers!
+  [(rf/path :proxy/list)]
+  (fn [proxy-list [_ proxy-id header-type headers]]
+    (assoc-in proxy-list [proxy-id :args header-type :headers] headers)))
+
 (rf/reg-sub
   :form/fields
   (fn [db]
@@ -62,10 +75,10 @@
     (if-let [validation-errors (validate-header-schema payload)]
       {:db (assoc-in db [:forms :errors header-type-form] validation-errors)}
       {:ajax/post {
-                   :url (str "/api/proxy-server/response/headers/" id)
+                   :url (str "/api/proxy-server/" (name header-type-form)  "/headers/" id)
                    :params payload
                    :success-path [:list]
-                   :success-event [:proxy/set-proxy-list]}})))
+                   :success-event [:proxy/set-headers! (keyword id) header-type-form]}})))
 
 
 (defn create-proxy [proxy-payload]
@@ -74,7 +87,7 @@
 (defn add-header! [{header-type-form :header-type-form
                    id :id
                    payload :payload}]
-  (.log js/console "This is the payload" payload)
+  (.log js/console "This is the payload" payload header-type-form)
     (rf/dispatch [:proxy/add-header! {:header-type-form header-type-form
                                     :id id
                                     :payload payload}]))

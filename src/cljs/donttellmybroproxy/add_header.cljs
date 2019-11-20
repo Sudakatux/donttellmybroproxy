@@ -3,6 +3,7 @@
             ["@material-ui/core/styles" :refer [createMuiTheme withStyles]]
             ["@material-ui/core/styles/MuiThemeProvider" :default ThemeProvider]
             ["@material-ui/core/Grid" :default Grid]
+            ["@material-ui/core/Typography" :default Typography]
             ["@material-ui/core/Chip" :default Chip]
             ["@material-ui/core/TextField" :default TextField]
             ["@material-ui/lab/Autocomplete" :default Autocomplete]
@@ -16,10 +17,8 @@
             [re-frame.core :as rf]))
 
 
-(defn existing-header-cloud []                 ; Note i hardcoded the value
-  (let [current-page (session/get :route)
-        header-values @(rf/subscribe [:proxy/response-headers :yahoo])]
-(.log js/console "current page" current-page)
+(defn existing-header-cloud [{header-type-form :header-type-form}]                 ; Note i hardcoded the value
+  (let [header-values @(rf/subscribe [:proxy/response-headers header-type-form])]
   [:> Grid
    {:direction "row"}
    (into [:<>]
@@ -28,18 +27,16 @@
                 [:> Chip
                  {:label (str hk ":" hv)
                   :onDelete #( %)}
-                 ]) header-values))
-
-    ]
-))
+                 ]) header-values))]))
 
 
 
 (defn add-header-card []
   [:> Card
    {:style #js {:maxWidth 1000}}
-   [:> CardHeader {:title "Add Header"}]
+   [:> CardHeader {:title "Headers"}]
    [:> CardContent
+    [:> Typography "Request headers"]
      [:> Grid
       {:direction "row"
        :container true}
@@ -47,11 +44,33 @@
        {:xs 8}
        [add-header-form
         {
-         :header-type-form :request-header-form
+         :header-type-form :request
          }]
        ]
       [:> Grid
        {:xs 4}
-       ; [existing-header-cloud]
+        [existing-header-cloud
+         {:header-type-form :request}
+         ]
        ]
-      ]]])
+      ]
+    [:> Typography "Response headers"]
+    [:> Grid
+     {:direction "row"
+      :container true}
+     [:> Grid
+      {:xs 8}
+      [add-header-form
+       {
+        :header-type-form :response
+        }]
+      ]
+     [:> Grid
+      {:xs 4}
+      [existing-header-cloud
+       {:header-type-form :response}
+       ]
+      ]
+     ]
+
+    ]])

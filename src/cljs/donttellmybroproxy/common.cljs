@@ -33,15 +33,16 @@
                            (let [params-clj (bean params)
                                  inputProps-clj (:inputProps params-clj)
                                  option-selected (not-empty (:value (bean inputProps-clj)))
-                                 selected-value (or option-selected val)]
+                                 selected-value (or option-selected val "")]
                              (hx/f [TextField (merge  params-clj {
                                                                   :label "Insert header"
                                                                   :fullWidth true
                                                                   :inputProps (.assign js/Object inputProps-clj (->js { :onChange #(updateVal (-> % .-target .-value))
                                                                                                                        :value selected-value
-                                                                                                                       :onBlur #((on-save selected-value))
-                                                                                                                       :autocomplete false
+                                                                                                                       :onBlur #(on-save selected-value)
+                                                                                                                       :autoComplete "off"
                                                                                                                        }))
+                                                                  :autoComplete "off"
                                                                   :variant "outlined"} )]))
                            )]
 

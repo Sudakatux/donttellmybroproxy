@@ -74,12 +74,14 @@
         )
       }
      ]
-    ["/proxy-server/:id/request/header"
+    ;; TODO this two endpoints can be merged into one
+    ["/proxy-server/request/headers/:id"
      {
       :post
-      (fn [{{:keys [id header-key value]} :body-params}]
-        (proxy/update-request-headers! (keyword id) {header-key (keyword value)})
-        (response/ok {:result (str "Added header:" id)})
+      (fn [{{:keys [header-key header-value]} :body-params
+            {:keys [id]} :path-params}]
+        (proxy/update-request-headers! (keyword id) {header-key header-value})
+        (response/ok {:list (proxy/existing-headers (keyword id) :request) } )
         )
       }
      ]
@@ -89,11 +91,11 @@
       (fn [{{:keys [header-key header-value]} :body-params
             {:keys [id]} :path-params}]
         (proxy/update-response-headers! (keyword id) {header-key header-value})
-        (response/ok {:result (str "Added header:" id)})
+        (response/ok {:list (proxy/existing-headers (keyword id) :response) } )
         )
       }
      ]
-    ["/proxy-server/:id/response/header"
+    ["/proxy-server/response/header/:id"
      {
       :get
       (fn [{{:keys [id]} :path-params}]

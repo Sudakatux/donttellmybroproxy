@@ -189,12 +189,14 @@
 (defn custom-theme []
       (createMuiTheme
         (clj->js
-          { :palette
-           {:type       "light"
-            :primary    (.-blue mui-colors)
-            :secondary  (.-amber mui-colors)}
+          {
+           :palette
+           {:type "light"
+             :primary    (.-blue mui-colors)
+            :secondary  (.-amber mui-colors)
+            }
            :typography
-           { :useNextVariants true}})))
+           {:useNextVariants true}})))
 
 (defn app []
   (let [page (:current-page (session/get :route))]

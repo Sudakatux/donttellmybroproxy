@@ -29,6 +29,30 @@
                   :onDelete #( %)}
                  ]) header-values))]))
 
+(defn single-header-configuration [{title :title
+                                    target :target}]
+  [:<>
+   [:> Typography title]
+   [:> Grid
+    {:direction "row"
+     :container true}
+    [:> Grid
+     {:xs 8}
+     [add-header-form
+      {
+       :header-type-form target
+       }]
+     ]
+    [:> Grid
+     {:xs 4}
+     [existing-header-cloud
+      {:header-type-form target}
+      ]
+     ]
+    ]
+   ]
+  )
+
 
 
 (defn add-header-card []
@@ -36,41 +60,9 @@
    {:style #js {:maxWidth 1000}}
    [:> CardHeader {:title "Headers"}]
    [:> CardContent
-    [:> Typography "Request headers"]
-     [:> Grid
-      {:direction "row"
-       :container true}
-      [:> Grid
-       {:xs 8}
-       [add-header-form
-        {
-         :header-type-form :request
-         }]
-       ]
-      [:> Grid
-       {:xs 4}
-        [existing-header-cloud
-         {:header-type-form :request}
-         ]
-       ]
-      ]
-    [:> Typography "Response headers"]
-    [:> Grid
-     {:direction "row"
-      :container true}
-     [:> Grid
-      {:xs 8}
-      [add-header-form
-       {
-        :header-type-form :response
-        }]
-      ]
-     [:> Grid
-      {:xs 4}
-      [existing-header-cloud
-       {:header-type-form :response}
-       ]
-      ]
-     ]
+   [single-header-configuration {:title "Request Header"
+                                 :target :request}]
+    [single-header-configuration {:title "Response Header"
+                                  :target :response}]
 
     ]])

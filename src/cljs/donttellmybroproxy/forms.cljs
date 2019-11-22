@@ -3,6 +3,7 @@
             ["@material-ui/core/Card" :default Card]
             ["@material-ui/core/CardHeader" :default CardHeader]
             ["@material-ui/core/Grid" :default Grid]
+            ["@material-ui/core/Box" :default Box]
             ["@material-ui/icons/Add" :default Add]
             ["@material-ui/core/Fab" :default Fab]
             ["@material-ui/core/CardActions" :default CardActions]
@@ -130,37 +131,51 @@
    {:title "Bareer" :value "Bareer"}])
 
 (defn add-header-form [{header-type-form :header-type-form}]
-  [:> Grid
-   {:container true
-    :justify "space-between"
-    :direction "column"}
-   [:> Grid
-    {:direction "row"
-     :justify "space-between"
-     :container true}
-    [:> Grid
-     {
-      :xs 4
-      }
-     [:> HeaderAutocomplete
-      {
-       :initialValue @(rf/subscribe [:form/field header-type-form [:header-key]])
-       :options options
-       :onSave #(rf/dispatch [:form/set-field header-type-form [:header-key] %])
-       }]
-     ]
-    [:> Grid
-     {:xs 4}
-     [text-field
-      {:attrs {:label "Header"
-               :id "header-value" }
-       :value (rf/subscribe [:form/field header-type-form [:header-value]])
-       :on-save #(rf/dispatch [:form/set-field header-type-form [:header-value] %])
-       :error  @(rf/subscribe [:form/error header-type-form [:header-value]])}]
-     ]]
-   [:> Button
-    {:on-click #(add-header! {:header-type-form header-type-form
-                             :id @(rf/subscribe [:session/page])
-                             :payload (get @(rf/subscribe [:form/fields]) header-type-form)})}
-    "Add Header"
-    ]])
+  [:> Box {:style #js {:padding 20 }}
+     [:> Grid
+      {:direction "row"
+       :justify "space-between"
+       :container true}
+      [:> Grid
+       {
+        :xs 4
+        :item true
+        }
+       [:> HeaderAutocomplete
+        {
+         :initialValue @(rf/subscribe [:form/field header-type-form [:header-key]])
+         :options options
+         :onSave #(rf/dispatch [:form/set-field header-type-form [:header-key] %])
+         }]
+       ]
+      [:> Grid
+       {:xs 4
+        :item true
+        }
+       [text-field
+        {:attrs {:label "Header"
+                 :id "header-value" }
+         :value (rf/subscribe [:form/field header-type-form [:header-value]])
+         :on-save #(rf/dispatch [:form/set-field header-type-form [:header-value] %])
+         :error  @(rf/subscribe [:form/error header-type-form [:header-value]])}]
+       ]
+
+      ]
+   ;[:> Box
+   ; {:style #js {:width "100%"
+   ;              :display "flex"
+   ;              :justify-content "center"
+   ;              }}
+
+      [:> Button
+       {:on-click #(add-header! {:header-type-form header-type-form
+                                 :id @(rf/subscribe [:session/page])
+                                 :payload (get @(rf/subscribe [:form/fields]) header-type-form)})
+        :style #js {:margin-top 20}
+        :color "primary"
+        :variant "contained"
+        }
+       "Add Header"
+       ]
+    ;]
+])

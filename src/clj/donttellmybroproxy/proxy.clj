@@ -6,7 +6,9 @@
     [clojure.string          :refer [join split]]
     [ring.adapter.jetty      :refer [run-jetty]]
     [clj-http.cookies        :refer [wrap-cookies]]
-    [ring.middleware.reload :refer [wrap-reload]]))
+    [ring.middleware.reload :refer [wrap-reload]]
+    )
+  (:import (java.io ByteArrayInputStream)))
 
 (defn prepare-cookies
   "Removes the :domain and :secure keys and converts the :expires key (a Date)
@@ -27,10 +29,25 @@
 
 (defn debug-interceptor [param]
   (clojure.pprint/pprint param)
+  ;(clojure.pprint/pprint (slurp (:body param)))
   param)
 
 (defn apply-response-args [response config]
   (merge-with into response config))
+
+(defn match-interceptor [url interceptors]
+  (let [interceptor-matchers (keys interceptors)
+      matches-url (filter #(re-matches (re-pattern %) url) interceptor-matchers)]
+  (first matches-url)))
+
+(defn create-body-interceptors [url interceptors]
+  (if-let [matcher-key (match-interceptor url interceptors)]
+      {:body (ByteArrayInputStream. (.getBytes (get interceptors matcher-key)) )  }
+      {}))
+
+(defn apply-merge-in-body [response body-param]
+  (merge response body-param))
+
 
 (defn wrap-proxy
   "Proxies requests from proxied-path, a local URI, to the remote URI at
@@ -45,9 +62,10 @@
                                (.getAuthority rmt-full)
                                (.getPath      rmt-full) nil nil)
               lcl-path   (URI. (subs (:uri req) (.length proxied-path)))
-              remote-uri (.resolve rmt-path lcl-path)]
+              remote-uri (.resolve rmt-path lcl-path)
+              url (str remote-uri "?" (:query-string req))]
               (-> (merge {:method (:request-method req)
-                               :url (str remote-uri "?" (:query-string req))
+                               :url url
                                :headers (dissoc (:headers req) "host" "content-length")
                                :body (if-let [len (get-in req [:headers "content-length"])]
                                        (slurp-binary (:body req) (Integer/parseInt len)))
@@ -56,6 +74,7 @@
                                :as :stream} (:request http-opts))               ; TODO merging should be controlled
                        request
                         (apply-response-args (:response http-opts))
+                        (apply-merge-in-body (create-body-interceptors url (get-in http-opts [:interceptors :response])))
                         debug-interceptor  ; TODO interception for response should come here
                        prepare-cookies))
         (handler req)))))
@@ -100,6 +119,16 @@
 (defn update-response-headers! [key header-args]
   (swap! registered-proxies assoc-in [key :args :response :headers] (merge (existing-headers key :response)  header-args)))
 
+;;; Interceptors
+(defn existing-interceptors [key type]
+  "Returns a map with existing headers for proxy [key] for type [request|response]"
+  (get-in (list-proxies) [key :args :interceptors type]))
+
+(defn update-request-interceptors! [key interceptor-args]
+  (swap! registered-proxies assoc-in [key :args :interceptors :request] (merge (existing-interceptors key :request)  interceptor-args)))
+
+(defn update-response-interceptors! [key interceptor-args]
+  (swap! registered-proxies assoc-in [key :args :interceptors :response ] (merge (existing-interceptors key :response)  interceptor-args)))
 
 
 (def myapp

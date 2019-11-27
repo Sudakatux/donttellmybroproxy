@@ -95,6 +95,16 @@
         )
       }
      ]
+    ["/proxy-server/response/interceptors/:id"
+     {
+      :post
+      (fn [{{:keys [matcher body]} :body-params
+            {:keys [id]} :path-params}]
+        (proxy/update-response-interceptors! (keyword id) {matcher body})
+        (response/ok {:list (proxy/existing-interceptors (keyword id) :response) } )
+        )
+      }
+     ]
     ["/proxy-server/response/header/:id"
      {
       :get

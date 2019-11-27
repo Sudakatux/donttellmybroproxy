@@ -161,12 +161,6 @@
        ]
 
       ]
-   ;[:> Box
-   ; {:style #js {:width "100%"
-   ;              :display "flex"
-   ;              :justify-content "center"
-   ;              }}
-
       [:> Button
        {:on-click #(add-header! {:header-type-form header-type-form
                                  :id @(rf/subscribe [:session/page])
@@ -176,6 +170,32 @@
         :variant "contained"
         }
        "Add Header"
-       ]
-    ;]
-])
+       ]])
+
+(defn add-interceptor []
+  [:> Card
+   {:style #js {:max-width 1000}}
+   [:> CardHeader {:title "Create proxy"}]
+   [:> CardContent
+    [:> Grid
+     {:container true
+      :direction "column"}
+     [text-field
+      {:attrs {:label "Regular Expression Matcher"
+               :id "matcher"}
+       :value (rf/subscribe [:form/field :new-interceptor [:matcher]])
+       :on-save #(rf/dispatch [:form/set-field :new-interceptor [:matcher] %])
+       :error  @(rf/subscribe [:form/error :new-interceptor [:matcher]])}]
+     [text-field
+      {:attrs {:label "Answer body"
+               :id "body"
+               :multiple true}
+       :value (rf/subscribe [:form/field :new-interceptor [:body]])
+       :on-save #(rf/dispatch [:form/set-field :new-interceptor [:body] %])
+       :error  @(rf/subscribe [:form/error :new-interceptor [:body]])}]
+     [:> CardActions
+      [:> Fab
+       {:aria-label "Add"
+        :on-click #(create-proxy @(rf/subscribe [:form/fields]))}
+       [:> Add]]]]]])
+

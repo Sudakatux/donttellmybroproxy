@@ -29,7 +29,6 @@
 
 (defn debug-interceptor [param]
   (clojure.pprint/pprint param)
-  ;(clojure.pprint/pprint (slurp (:body param)))
   param)
 
 (defn apply-response-args [response config]

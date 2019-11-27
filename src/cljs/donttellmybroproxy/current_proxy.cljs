@@ -1,4 +1,4 @@
-(ns donttellmybroproxy.add-header
+(ns donttellmybroproxy.current_proxy
   (:require ["@material-ui/core/colors" :as mui-colors]
             ["@material-ui/core/styles" :refer [createMuiTheme withStyles]]
             ["@material-ui/core/styles/MuiThemeProvider" :default ThemeProvider]
@@ -11,7 +11,7 @@
             ["@material-ui/core/CardContent" :default CardContent]
             ["@material-ui/core/CardActions" :default CardActions]
             ["@material-ui/core/CardHeader" :default CardHeader]
-            [donttellmybroproxy.forms :refer [add-header-form]]
+            [donttellmybroproxy.forms :refer [add-header-form add-interceptor]]
             [reagent.core :as r]
             [reagent.session :as session]
             [re-frame.core :as rf]))
@@ -47,12 +47,7 @@
      {:xs 4}
      [existing-header-cloud
       {:header-type-form target}
-      ]
-     ]
-    ]
-   ]
-  )
-
+      ]]]])
 
 
 (defn add-header-card []
@@ -63,6 +58,20 @@
    [single-header-configuration {:title "Request Header"
                                  :target :request}]
     [single-header-configuration {:title "Response Header"
-                                  :target :response}]
+                                  :target :response}]]])
+(defn add-interceptor-card []
+  [:> Card
+   {:style #js {:maxWidth 1000}}
+   [:> CardHeader {:title "Headers"}]
+   [:> CardContent
+    [add-interceptor]]])
 
-    ]])
+(defn forms-container []
+  [:> Grid
+   {:container true
+    :direction "row"}
+   [add-header-card]
+   [add-interceptor-card]
+
+   ]
+  )

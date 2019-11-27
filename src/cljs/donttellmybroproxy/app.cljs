@@ -8,7 +8,7 @@
             [ajax.core :refer [GET POST PUT DELETE]]
             [re-frame.core :as rf]
             [reagent.core :as r :refer [atom as-element render-component]]
-            [donttellmybroproxy.add-header :refer [add-header-card]]
+            [donttellmybroproxy.current_proxy :refer [add-header-card]]
             [reitit.frontend :as reitit]
             [reagent.session :as session]
             [accountant.core :as accountant]))
@@ -154,18 +154,6 @@
                 :url "/api/proxy-server/start"
                 :params {:port 3001 }           ; This should be configurable
                 :success-event [:server/set-status true]}}))
-
-;(rf/reg-event-fx
-;  :proxy/add-to-list!
-;  (fn [{:keys [db]} [_ proxy-payload]]
-;    (if-let [validation-errors (validate-proxy-entry proxy-payload)]
-;    {:db (assoc-in db [:form :errors] validation-errors)}
-;    {:ajax/post {
-;                 :url "/api/proxy-server/create"
-;                 :params proxy-payload
-;                 :success-path [:list]
-;                 :success-event [:proxy/set-proxy-list]}})))
-
 ;; TODO to be implemented
 ;; Should clear fields and add to list
 (rf/reg-event-fx

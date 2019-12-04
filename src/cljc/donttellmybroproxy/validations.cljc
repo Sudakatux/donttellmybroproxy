@@ -26,12 +26,19 @@
     st/string
     ]])
 
+(def body-schema
+  [[:body
+    st/required]])
+
 
 (defn validate-proxy-entry [params]
   (first (st/validate params proxy-entry-schema)))
 
 (defn validate-header-schema [params]
   (first (st/validate params header-schema)))
+
+(defn validate-body [params]
+  (first (st/validate params body-schema)))
 
 
 

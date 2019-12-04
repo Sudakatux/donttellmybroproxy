@@ -8,7 +8,7 @@
             [ajax.core :refer [GET POST PUT DELETE]]
             [re-frame.core :as rf]
             [reagent.core :as r :refer [atom as-element render-component]]
-            [donttellmybroproxy.current_proxy :refer [add-header-card]]
+            [donttellmybroproxy.current_proxy :refer [card-container]]
             [reitit.frontend :as reitit]
             [reagent.session :as session]
             [accountant.core :as accountant]))
@@ -92,12 +92,7 @@
   (fn [db _]
     (:session/page db)))
 
-(rf/reg-sub
-  :proxy/response-headers
-  :<- [:proxy/list]
-  :<- [:session/page]
-  (fn [[list page]  [_ id]]
-    (get-in list [(keyword page) :args id :headers] {})))
+
 
 (rf/reg-sub
   :server/started?
@@ -171,7 +166,7 @@
   (case route
     :index #'empty-content
     :create #'create-proxy-form
-    :proxy-route #'add-header-card
+    :proxy-route #'card-container
     ))
 
 (defn custom-theme []

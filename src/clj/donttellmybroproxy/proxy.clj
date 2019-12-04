@@ -32,6 +32,8 @@
   param)
 
 (defn apply-response-args [response config]
+  (clojure.pprint/pprint response)
+  (clojure.pprint/pprint config)
   (merge-with into response config))
 
 (defn match-interceptor [url interceptors]
@@ -39,10 +41,26 @@
       matches-url (filter #(re-matches (re-pattern %) url) interceptor-matchers)]
   (first matches-url)))
 
-(defn create-body-interceptors [url interceptors]
-  (if-let [matcher-key (match-interceptor url interceptors)]
-      {:body (ByteArrayInputStream. (.getBytes (get interceptors matcher-key)) )  }
-      {}))
+;; TODO move me to another namespace
+(defmacro if-let*
+  ([bindings-vec then] `(if-let* ~bindings-vec ~then nil))
+  ([bindings-vec then else]
+   (if (seq bindings-vec)
+     `(let ~bindings-vec
+        (if (and ~@(take-nth 2 bindings-vec))
+          ~then
+          ~else)))))
+
+
+(defn apply-interceptors [response url interceptors type]
+  "Takes the handler ring response the url interceptors and interceptor type (request | response)
+  and returns the new response"
+  (if-let* [matcher-key (match-interceptor url interceptors)
+           replacements (get-in interceptors [matcher-key type] )]
+    (cond-> response
+            (contains? replacements :headers) (assoc :headers (merge (:headers response) (get-in interceptors [matcher-key type :headers])) )
+            (contains? replacements :body) (merge {:body (ByteArrayInputStream. (.getBytes (get-in interceptors [matcher-key type :body])))}))
+      response))
 
 (defn apply-merge-in-body [response body-param]
   (merge response body-param))
@@ -70,10 +88,11 @@
                                        (slurp-binary (:body req) (Integer/parseInt len)))
                                :follow-redirects true
                                :throw-exceptions false
-                               :as :stream} (:request http-opts))               ; TODO merging should be controlled
+                               :as :stream})               ; TODO merging should be controlled (:request http-opts)
                        request
-                        (apply-response-args (:response http-opts))
-                        (apply-merge-in-body (create-body-interceptors url (get-in http-opts [:interceptors :response])))
+                        (apply-interceptors url (get http-opts :interceptors) :response)
+                        ;(apply-response-args (:response http-opts))
+                        ;(apply-merge-in-body (capture-body-interceptors url (get-in http-opts [:interceptors :response])))
                         debug-interceptor  ; TODO interception for response should come here
                        prepare-cookies))
         (handler req)))))
@@ -96,7 +115,7 @@
 (defn add-proxy [key & args]
   (swap! registered-proxies assoc key (->> args
                                           (zipmap [:route :url :args])
-                                          prepare-default-args)))                ;
+                                          prepare-default-args)))
 
 (defn remove-proxy [key]
   (swap! registered-proxies dissoc key))
@@ -107,45 +126,46 @@
 (defn list-proxies []
   @registered-proxies)
 
-;; TODO We can use a protocol to manage this updates
-(defn existing-headers [key type]
-  "Returns a map with existing headers for proxy [key] for type [request|response]"
-  (get-in (list-proxies) [key :args type :headers]))
-
-(defn update-request-headers! [key header-args]
-  (swap! registered-proxies assoc-in [key :args :request :headers] (merge (existing-headers key :request)  header-args)))
-
-(defn update-response-headers! [key header-args]
-  (swap! registered-proxies assoc-in [key :args :response :headers] (merge (existing-headers key :response)  header-args)))
+;; TODO We can use a protocol to manage this updates. TODO Everything should be an interceptor
+;(defn existing-headers [key type]
+;  "Returns a map with existing headers for proxy [key] for type [request|response]"
+;  (get-in (list-proxies) [key :args type :headers]))
+;
+;(defn update-request-headers! [key header-args]
+;  (swap! registered-proxies assoc-in [key :args :request :headers] (merge (existing-headers key :request)  header-args)))
+;
+;(defn update-response-headers! [key header-args]
+;  (swap! registered-proxies assoc-in [key :args :response :headers] (merge (existing-headers key :response)  header-args)))
 
 ;;; Interceptors
-(defn existing-interceptors [key type]
+
+
+(defn extract-existing-interceptors [current key type matcher]
+  (get-in current [key :args :interceptors matcher type]))
+
+(defn existing-interceptors [key type matcher]
   "Returns a map with existing headers for proxy [key] for type [request|response]"
-  (get-in (list-proxies) [key :args :interceptors type]))
+  (extract-existing-interceptors (list-proxies) key type matcher))
 
-(defn update-request-interceptors! [key interceptor-args]
-  (swap! registered-proxies assoc-in [key :args :interceptors :request] (merge (existing-interceptors key :request)  interceptor-args)))
+;(defn create-new-parameters [oldParams newParams]
+;  (assoc-in oldParams [:yahoo :args :interceptors ".*" :response] (merge-with into (extract-existing-interceptors oldParams :yahoo :response ".*") newParams)))
 
-(defn update-response-interceptors! [key interceptor-args]
-  (swap! registered-proxies assoc-in [key :args :interceptors :response ] (merge (existing-interceptors key :response)  interceptor-args)))
+
+(defn update-request-interceptors! [key interceptor-args matcher]
+  (swap! registered-proxies assoc-in [key :args :interceptors matcher :request] (merge-with into (existing-interceptors key matcher :request) interceptor-args)))
+
+(defn update-response-interceptors! [key interceptor-args matcher]
+  (swap! registered-proxies assoc-in [key :args :interceptors matcher :response] (merge-with into (existing-interceptors key :response matcher) interceptor-args)))
 
 
 (def myapp
   (-> (constantly {:status 404 :headers {} :body "404 - not found"})
-      ; (wrap-proxy listen-path remote-uri http-opts)
       wrap-dynamic
-      wrap-reload
-      ))
+      wrap-reload))
 
 (defn server ([] (server 3000))
   ([port] (let [running-server (run-jetty
-                                 #'myapp
+                                 #'myapp                      ; Just changes here
                                  {:port port :join? false})]
             running-server
-            ))
-  )
-
-(defn -main
-  []
-  ;[listen-path listen-port remote-uri http-opts]
-  (println "Hi"))
+            )))

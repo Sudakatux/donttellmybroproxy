@@ -91,8 +91,6 @@
                                :as :stream})               ; TODO merging should be controlled (:request http-opts)
                        request
                         (apply-interceptors url (get http-opts :interceptors) :response)
-                        ;(apply-response-args (:response http-opts))
-                        ;(apply-merge-in-body (capture-body-interceptors url (get-in http-opts [:interceptors :response])))
                         debug-interceptor  ; TODO interception for response should come here
                        prepare-cookies))
         (handler req)))))
@@ -116,7 +114,6 @@
   (swap! registered-proxies assoc key (->> args
                                           (zipmap [:route :url :args])
                                           prepare-default-args)))
-
 (defn remove-proxy [key]
   (swap! registered-proxies dissoc key))
 
@@ -126,20 +123,6 @@
 (defn list-proxies []
   @registered-proxies)
 
-;; TODO We can use a protocol to manage this updates. TODO Everything should be an interceptor
-;(defn existing-headers [key type]
-;  "Returns a map with existing headers for proxy [key] for type [request|response]"
-;  (get-in (list-proxies) [key :args type :headers]))
-;
-;(defn update-request-headers! [key header-args]
-;  (swap! registered-proxies assoc-in [key :args :request :headers] (merge (existing-headers key :request)  header-args)))
-;
-;(defn update-response-headers! [key header-args]
-;  (swap! registered-proxies assoc-in [key :args :response :headers] (merge (existing-headers key :response)  header-args)))
-
-;;; Interceptors
-
-
 (defn extract-existing-interceptors [current key type matcher]
   (get-in current [key :args :interceptors matcher type]))
 
@@ -147,15 +130,15 @@
   "Returns a map with existing headers for proxy [key] for type [request|response]"
   (extract-existing-interceptors (list-proxies) key type matcher))
 
-;(defn create-new-parameters [oldParams newParams]
-;  (assoc-in oldParams [:yahoo :args :interceptors ".*" :response] (merge-with into (extract-existing-interceptors oldParams :yahoo :response ".*") newParams)))
-
-
 (defn update-request-interceptors! [key interceptor-args matcher]
-  (swap! registered-proxies assoc-in [key :args :interceptors matcher :request] (merge-with into (existing-interceptors key matcher :request) interceptor-args)))
+  (swap! registered-proxies assoc-in
+         [key :args :interceptors matcher :request]
+         (merge-with into (existing-interceptors key :request matcher) interceptor-args)))
 
 (defn update-response-interceptors! [key interceptor-args matcher]
-  (swap! registered-proxies assoc-in [key :args :interceptors matcher :response] (merge-with into (existing-interceptors key :response matcher) interceptor-args)))
+  (swap! registered-proxies assoc-in
+         [key :args :interceptors matcher :response]
+         (merge-with into (existing-interceptors key :response matcher) interceptor-args)))
 
 
 (def myapp

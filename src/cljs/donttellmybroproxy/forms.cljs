@@ -4,11 +4,14 @@
             ["@material-ui/core/CardHeader" :default CardHeader]
             ["@material-ui/core/Grid" :default Grid]
             ["@material-ui/core/Box" :default Box]
+            ["@material-ui/core/Dialog" :default Dialog]
+            ["@material-ui/core/Paper" :default Paper]
             ["@material-ui/icons/Add" :default Add]
             ["@material-ui/core/Fab" :default Fab]
             ["@material-ui/core/CardActions" :default CardActions]
             ["@material-ui/core/CardContent" :default CardContent]
             ["@material-ui/core/Button" :default Button]
+            [reagent.core :as r :refer [atom]]
             [donttellmybroproxy.validations :refer [validate-proxy-entry validate-header-schema validate-body]]
             [donttellmybroproxy.common :refer [text-field HeaderAutocomplete]]
             [donttellmybroproxy.common :refer [text-field]]))
@@ -29,6 +32,13 @@
   (fn [db [_ list]]
     (-> db
         (assoc :proxy/list list))))
+
+(rf/reg-event-db
+  :proxy/add-matcher!
+  [(rf/path :proxy/list)]
+  (fn [proxy-list [_ proxy-id matcher]]
+    (assoc-in proxy-list [proxy-id :args :interceptors matcher] {})
+    ))
 
 
 (rf/reg-event-db
@@ -70,30 +80,29 @@
                    :success-path [:list]
                    :success-event [:proxy/set-proxy-list]}})))
 
-
 ;; TODO implement me
 (rf/reg-event-fx
   :proxy/update-body!
-  (fn [{:keys [db]} [_ {:keys [type-form id payload]}]]
+  (fn [{:keys [db]} [_ {:keys [type id payload]}]]
     (.log js/console "look" payload)
     (if-let [validation-errors (validate-body payload)]
-      {:db (assoc-in db [:forms :errors type-form :body] validation-errors)}
+      {:db (assoc-in db [:forms :errors type :body] validation-errors)}
       {:ajax/post {
-                   :url (str "/api/proxy-server/" (name type-form)  "/body/" id)
+                   :url (str "/api/proxy-server/" (name type)  "/body/" id)
                    :params payload
                    :success-path [:body]
-                   :success-event [:proxy/set-body! (keyword id) type-form]}})))
+                   :success-event [:proxy/set-body! (keyword id) type]}})))
 
 (rf/reg-event-fx
   :proxy/add-header!
-  (fn [{:keys [db]} [_ {:keys [header-type-form id payload]}]]
+  (fn [{:keys [db]} [_ {:keys [header-type-form id payload matcher]}]]
     (if-let [validation-errors (validate-header-schema payload)]
       {:db (assoc-in db [:forms :errors header-type-form] validation-errors)}
       {:ajax/post {
                    :url (str "/api/proxy-server/" (name header-type-form)  "/headers/" id)
                    :params payload
                    :success-path [:headers]
-                   :success-event [:proxy/set-headers! (keyword id) header-type-form ".*"]}})))
+                   :success-event [:proxy/set-headers! (keyword id) header-type-form matcher]}})))
 
 
 (defn create-proxy [proxy-payload]
@@ -105,10 +114,14 @@
 (defn add-header! [{header-type-form :header-type-form
                    id :id
                    payload :payload}]
-    (rf/dispatch [:proxy/add-header!{:header-type-form header-type-form
+    (rf/dispatch [:proxy/add-header! {:header-type-form header-type-form
                                     :id id
                                     :payload payload}]))
 
+(defn add-matcher! [{matcher :matcher
+                     proxy-id :proxy-id
+                     }]
+  (rf/dispatch [:proxy/add-matcher! (keyword proxy-id) matcher]))
 
 (defn create-proxy-form []
   [:> Card
@@ -174,21 +187,57 @@
          :value (rf/subscribe [:form/field header-type-form [:header-value]])
          :on-save #(rf/dispatch [:form/set-field header-type-form [:header-value] %])
          :error  @(rf/subscribe [:form/error header-type-form [:header-value]])}]
-       ]
-
-      ]
+       ]]
       [:> Button
        {:on-click #(add-header! {:header-type-form header-type-form
                                  :id @(rf/subscribe [:session/page])
-                                 :payload (assoc (get @(rf/subscribe [:form/fields]) header-type-form) :matcher ".*") }) ;; TODO hardcoded matcher
+                                 :payload (assoc
+                                            (get
+                                              @(rf/subscribe [:form/fields]) header-type-form)
+                                            :matcher @(rf/subscribe [:session/matcher?])) }) ;; TODO hardcoded matcher
         :style #js {:margin-top 20}
         :color "primary"
         :variant "contained"
         }
-       "Add Header"
-       ]])
+       "Add Header"]])
 
-(defn add-interceptor []
+(defn new-matcher [{
+                    modal-opened :modal-opened
+                    on-close     :on-close
+                    }]
+  [:> Dialog
+   {
+    :open modal-opened
+    }
+   [:> Card
+    [:> CardContent
+     [text-field
+      {:attrs   {:label    "Url Matcher"
+                 :id       "matcher"
+                 :multiple true
+                 :rowMax   4}
+       :value   (rf/subscribe [:form/field :new-matcher [:matcher]])
+       :on-save #(rf/dispatch [:form/set-field :new-matcher [:matcher] %])
+       :error   @(rf/subscribe [:form/error :new-matcher [:matcher]])}]
+     ]
+    [:> CardActions
+     [:> Button
+      {:on-click #((do
+                     (add-matcher! {:matcher @(rf/subscribe [:form/field :new-matcher [:matcher]])
+                                    :proxy-id @(rf/subscribe [:session/page])})
+                     (on-close)
+                     ) )}
+      "Add"
+      ]
+     [:> Button
+      {:on-click on-close}
+      "Cancel"
+      ]]]])
+
+
+(defn update-body-form
+  "Takes a type meaning request response. Returns a body form"
+  [{type :type}]
   [:> Card
    {:style #js {:max-width 1000}}
    [:> CardHeader {:title "Create proxy"}]
@@ -201,14 +250,16 @@
                :id "body"
                :multiple true
                :rowMax 4}
-       :value (rf/subscribe [:form/field :response [:body]])
-       :on-save #(rf/dispatch [:form/set-field :response [:body] %])
-       :error  @(rf/subscribe [:form/error :response [:body]])}]
+       :value (rf/subscribe [:form/field type [:body]])
+       :on-save #(rf/dispatch [:form/set-field type [:body] %])
+       :error  @(rf/subscribe [:form/error type [:body]])}]
      [:> CardActions
       [:> Fab
        {:aria-label "Add"
-        :on-click #(change-body! {:type-form :response
+        :on-click #(change-body! {:type type
                                   :id @(rf/subscribe [:session/page])
-                                  :payload (assoc (get @(rf/subscribe [:form/fields]) :response) :matcher ".*")} )}
+                                  :payload (assoc
+                                             (get @(rf/subscribe [:form/fields]) type)
+                                             :matcher @(rf/subscribe [:session/matcher?]))} )}
        [:> Add]]]]]])
 

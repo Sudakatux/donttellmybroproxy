@@ -81,7 +81,7 @@
       (fn [{{:keys [matcher header-key header-value]} :body-params
             {:keys [id]} :path-params}]
         (proxy/update-request-interceptors! (keyword id) {:headers {header-key header-value}} matcher)
-        (response/ok {:list (proxy/existing-interceptors (keyword id) :request matcher) } )
+        (response/ok (proxy/existing-interceptors (keyword id) :request matcher))
         )
       }
      ]
@@ -102,6 +102,16 @@
             {:keys [id]} :path-params}]
         (proxy/update-response-interceptors! (keyword id)  {:body body} matcher)
         (response/ok {:list (proxy/existing-interceptors (keyword id) :response matcher) } )
+        )
+      }
+     ]
+    ["/proxy-server/request/body/:id"
+     {
+      :post
+      (fn [{{:keys [matcher body]} :body-params
+            {:keys [id]} :path-params}]
+        (proxy/update-response-interceptors! (keyword id)  {:body body} matcher)
+        (response/ok {:list (proxy/existing-interceptors (keyword id) :request matcher) } )
         )
       }
      ]

@@ -16,7 +16,7 @@
             ["@material-ui/core/Select" :default Select]
             ["@material-ui/core/MenuItem" :default MenuItem]
             ["@material-ui/core/Button" :default Button]
-            [donttellmybroproxy.forms :refer [add-header-form add-interceptor]]
+            [donttellmybroproxy.forms :refer [add-header-form update-body-form new-matcher]]
             [reagent.core :as r]
             [reagent.session :as session]
             [re-frame.core :as rf]))
@@ -27,12 +27,23 @@
     (-> db
         (assoc :session/matcher? matcher))))
 
+(rf/reg-event-db
+  :session/set-request-or-response!
+  (fn [db [_ type]]
+    (-> db
+        (assoc :session/request-or-response? type))))
+
 (rf/reg-sub
   :proxy/matchers
   :<- [:proxy/list]
   :<- [:session/page]
   (fn [[list page]]
     (get-in list [(keyword page) :args :interceptors] {})))
+
+(rf/reg-sub
+  :session/request-or-response?
+  (fn [db _]
+    (keyword (get db :session/request-or-response? "response"))))
 
 (rf/reg-sub
   :session/matcher?
@@ -60,8 +71,8 @@
                     :onDelete #(%)}
                    ]) header-values))]))
 
-(defn single-header-configuration [{title  :title
-                                    target :target}]
+(defn single-header-configuration [{title  :title}]
+  (let [type @(rf/subscribe [:session/request-or-response?])]
   [:<>
    [:> Typography title]
    [:> Grid
@@ -71,61 +82,74 @@
      {:xs 8}
      [add-header-form
       {
-       :header-type-form target
+       :header-type-form type
        }]
      ]
     [:> Grid
      {:xs 4}
      [existing-header-cloud
-      {:header-type-form target}
-      ]]]])
+      {:header-type-form type}
+      ]]]]))
 
 
 (defn add-header-card []
+  (let [type @(rf/subscribe [:session/request-or-response?])]
   [:> Card
    {:style #js {:maxWidth 1000}}
    [:> CardHeader {:title "Headers"}]
    [:> CardContent
     [single-header-configuration {:title  "Response Header"
-                                  :target :response}]]])
+                                  :target type}]]]))
 (defn add-interceptor-card []
+  (let [type @(rf/subscribe [:session/request-or-response?])]
   [:> Card
    {:style #js {:maxWidth 1000}}
    [:> CardHeader {:title "Body"}]
    [:> CardContent
-    [add-interceptor]]])
+    [update-body-form
+     {:type type}]]]))
+
+
 
 (defn matcher-menu []
-  (let [matchers @(rf/subscribe [:proxy/matchers])]
-    [:> Grid
-     (into [:> Select
-            {:style     #js {:width "50%"}
-             :value @(rf/subscribe [:session/matcher?])
-             :on-change #(rf/dispatch [:session/set-matcher! (-> % .-target .-value)])}]
-           (map (fn [matcher]
-                  ^{:key matcher}
-                  [:> MenuItem
-                   {:value matcher}
-                   matcher
-                   ]) (keys matchers))
-           )
-     [:> Button
-      "Add Matcher"
-      ]]))
+  (let [
+        modal-state (r/atom false)
+        close-modal #(reset! modal-state false)
+        open-modal (fn [] (reset! modal-state true))]
+    (fn []
+      (let [matchers @(rf/subscribe [:proxy/matchers])]
+        [:> Grid
+         (into [:> Select
+                {:style     #js {:width "50%"}
+                 :value @(rf/subscribe [:session/matcher?])
+                 :on-change #(rf/dispatch [:session/set-matcher! (-> % .-target .-value)])}]
+               (map (fn [matcher]
+                      ^{:key matcher}
+                      [:> MenuItem
+                       {:value matcher}
+                       matcher
+                       ]) (keys matchers))
+               )
+         [:> Button
+          {:on-click open-modal}
+          "Add Matcher"
+          ]
+         [new-matcher {:modal-opened @modal-state
+                       :on-close close-modal}]
+         ]))))
 
 (defn card-container []
-  [:> Grid
-   {:container true
-    :direction "column"}
-   [matcher-menu]
-   [:> Tabs
-    {:value 0}                                              ; TODO add support for this
-    [:> Tab {:label "response"}]
-    [:> Tab {:label "request"}]]
-   [:> Grid
-    [add-header-card]
-    [add-interceptor-card]
-    ]
-
-   ]
-  )
+  (let [type @(rf/subscribe [:session/request-or-response?])]
+    [:> Grid
+     {:container true
+      :direction "column"}
+     [matcher-menu]
+     [:> Tabs
+      {:value type
+       :onChange (fn [_ newType] (rf/dispatch [:session/set-request-or-response! newType]))}                                              ; TODO add support for this
+[:> Tab {:label "response" :value :response}]
+[:> Tab {:label "request" :value :request}]]
+[:> Grid
+ [add-header-card]
+ [add-interceptor-card]
+ ]]))

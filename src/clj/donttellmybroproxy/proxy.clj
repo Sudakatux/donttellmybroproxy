@@ -36,31 +36,24 @@
   (clojure.pprint/pprint config)
   (merge-with into response config))
 
-(defn match-interceptor [url interceptors]
-  (let [interceptor-matchers (keys interceptors)
-      matches-url (filter #(re-matches (re-pattern %) url) interceptor-matchers)]
-  (first matches-url)))
+(defn get-matchers-matching-url [url interceptors]
+  "returns a vector with matching interceptors"
+  (filter #(re-matches (re-pattern (key %)) url) interceptors))
 
-;; TODO move me to another namespace
-(defmacro if-let*
-  ([bindings-vec then] `(if-let* ~bindings-vec ~then nil))
-  ([bindings-vec then else]
-   (if (seq bindings-vec)
-     `(let ~bindings-vec
-        (if (and ~@(take-nth 2 bindings-vec))
-          ~then
-          ~else)))))
+(defn apply-interceptor [response interceptor]
+           (cond-> response
+                   (contains? interceptor :headers) (assoc :headers (merge (:headers response) (get interceptor :headers)))
+                   (contains? interceptor :body) (merge {:body (ByteArrayInputStream. (.getBytes (get interceptor :body)))})))
 
+(defn extract-interceptor-for-type [interceptors type]
+  "Will return interceptor without the matching key"
+  (map (fn [el] (get (val el) type)) interceptors))
 
-(defn apply-interceptors [response url interceptors type]
-  "Takes the handler ring response the url interceptors and interceptor type (request | response)
-  and returns the new response"
-  (if-let* [matcher-key (match-interceptor url interceptors)
-           replacements (get-in interceptors [matcher-key type] )]
-    (cond-> response
-            (contains? replacements :headers) (assoc :headers (merge (:headers response) (get-in interceptors [matcher-key type :headers])) )
-            (contains? replacements :body) (merge {:body (ByteArrayInputStream. (.getBytes (get-in interceptors [matcher-key type :body])))}))
-      response))
+(defn apply-interceptors [response interceptors]
+  "Takes a request and a list of interceptors and applays them in order"
+  (clojure.pprint/pprint response)
+  (clojure.pprint/pprint interceptors)
+  (reduce apply-interceptor response interceptors))
 
 (defn apply-merge-in-body [response body-param]
   (merge response body-param))
@@ -69,7 +62,6 @@
 (defn wrap-proxy
   "Proxies requests from proxied-path, a local URI, to the remote URI at
   remote-base-uri, also a string."
-
   [handler ^String proxied-path remote-base-uri & [http-opts]]
   (wrap-cookies
     (fn [req]
@@ -90,7 +82,9 @@
                                :throw-exceptions false
                                :as :stream})               ; TODO merging should be controlled (:request http-opts)
                        request
-                        (apply-interceptors url (get http-opts :interceptors) :response)
+                        (apply-interceptors
+                          (extract-interceptor-for-type
+                            (get-matchers-matching-url url (get http-opts :interceptors)) :response))
                         debug-interceptor  ; TODO interception for response should come here
                        prepare-cookies))
         (handler req)))))
@@ -124,6 +118,7 @@
   @registered-proxies)
 
 (defn extract-existing-interceptors [current key type matcher]
+  "Returns a request/response(type) interceptor for a given matcher matcher"
   (get-in current [key :args :interceptors matcher type]))
 
 (defn existing-interceptors [key type matcher]

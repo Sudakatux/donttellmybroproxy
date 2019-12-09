@@ -30,7 +30,9 @@
   ;:repl-options {:init-ns donttellmybroproxy2.core}
   :main ^:skip-aot donttellmybroproxy.core
   :target-path "target/%s"
-  :profiles {:uberjar {:omit-source true
+  :profiles {:dev {:dependencies [[midje "1.9.9"]]
+                   :plugins [[lein-midje "3.2.1"]]}
+             :uberjar {:omit-source true
                        :aot :all
                        :uberjar-name "donttellmybro-proxy.jar"
                        :prep-tasks ["compile" ["run" "-m" "shadow.cljs.devtools.cli" "release" "app"]]}})

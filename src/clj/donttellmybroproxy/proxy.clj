@@ -72,15 +72,17 @@
                                (.getPath      rmt-full) nil nil)
               lcl-path   (URI. (subs (:uri req) (.length proxied-path)))
               remote-uri (.resolve rmt-path lcl-path)
-              url (str remote-uri "?" (:query-string req))]
-              (-> (merge {:method (:request-method req)
-                               :url url
-                               :headers (dissoc (:headers req) "host" "content-length")
-                               :body (if-let [len (get-in req [:headers "content-length"])]
-                                       (slurp-binary (:body req) (Integer/parseInt len)))
-                               :follow-redirects true
-                               :throw-exceptions false
-                               :as :stream})               ; TODO merging should be controlled (:request http-opts)
+              url (str remote-uri "?" (:query-string req))
+              original-request {:method (:request-method req)
+                                :url url
+                                :headers (dissoc (:headers req) "host" "content-length")
+                                :body (if-let [len (get-in req [:headers "content-length"])]
+                                        (slurp-binary (:body req) (Integer/parseInt len)))
+                                :follow-redirects true
+                                :throw-exceptions false
+                                :as :stream}
+              ]
+              (-> (apply-interceptors original-request (extract-interceptor-for-type (get-matchers-matching-url url (get http-opts :interceptors)) :request))               ; TODO merging should be controlled (:request http-opts)
                        request
                         (apply-interceptors
                           (extract-interceptor-for-type

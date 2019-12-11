@@ -59,8 +59,9 @@
     (get-in list [(keyword page) :args :interceptors matcher id :headers] {})))
 
 
-(defn existing-header-cloud [{header-type-form :header-type-form}] ; Note i hardcoded the value
-  (let [header-values @(rf/subscribe [:proxy/response-headers header-type-form])]
+(defn existing-header-cloud [] ; Note i hardcoded the value
+  (let [ header-type-form @(rf/subscribe [:session/request-or-response?])
+        header-values @(rf/subscribe [:proxy/response-headers header-type-form])]
     [:> Grid
      {:direction "row"}
      (into [:<>]
@@ -72,24 +73,19 @@
                    ]) header-values))]))
 
 (defn single-header-configuration [{title  :title}]
-  (let [type @(rf/subscribe [:session/request-or-response?])]
-  [:<>
+   [:<>
    [:> Typography title]
    [:> Grid
     {:direction "row"
      :container true}
     [:> Grid
      {:xs 8}
-     [add-header-form
-      {
-       :header-type-form type
-       }]
+     [add-header-form]
      ]
     [:> Grid
      {:xs 4}
-     [existing-header-cloud
-      {:header-type-form type}
-      ]]]]))
+     [existing-header-cloud]
+     ]]])
 
 
 (defn add-header-card []

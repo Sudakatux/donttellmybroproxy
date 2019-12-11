@@ -10,6 +10,7 @@
             ["@material-ui/core/Fab" :default Fab]
             ["@material-ui/core/CardActions" :default CardActions]
             ["@material-ui/core/CardContent" :default CardContent]
+            ["@material-ui/core/TextField" :default TextField]
             ["@material-ui/core/Button" :default Button]
             [reagent.core :as r :refer [atom]]
             [donttellmybroproxy.validations :refer [validate-proxy-entry validate-header-schema validate-body]]
@@ -100,7 +101,6 @@
       {:ajax/post {
                    :url (str "/api/proxy-server/" (name header-type-form)  "/headers/" id)
                    :params payload
-                   ;:success-path [:headers]
                    :success-event [:proxy/set-headers! (keyword id) header-type-form (:matcher payload)]}})))
 
 
@@ -154,8 +154,14 @@
         :on-click #(create-proxy @(rf/subscribe [:form/fields]))}
        [:> Add]]]]]])
 
-(defn add-header-form [{header-type-form :header-type-form}]
-  [:> Box {:style #js {:padding 20 }}
+(defn add-header-form []
+  (let [header-type-form (rf/subscribe [:session/request-or-response?])
+        header-key-value (rf/subscribe [:form/field @header-type-form [:header-key]])
+        header-key-dispatcher #(rf/dispatch [:form/set-field @header-type-form [:header-key] %])
+        header-value (rf/subscribe [:form/field @header-type-form [:header-value]])
+        header-value-dispatcher #(rf/dispatch [:form/set-field @header-type-form [:header-value] %])
+        ]
+    [:> Box {:style #js {:padding 20 }}
      [:> Grid
       {:direction "row"
        :justify "space-between"
@@ -165,11 +171,11 @@
         :xs 4
         :item true
         }
-       [text-field
-        {:attrs {:label "Header Key"
-                 :id "header-key"}
-         :value (rf/subscribe [:form/field header-type-form [:header-key]])
-         :on-save #(rf/dispatch [:form/set-field header-type-form [:header-key] %])
+       [:> TextField
+        {:value @header-key-value
+         :onChange #(header-key-dispatcher (-> % .-target .-value))
+         :label "Header Key"
+         :id "header-key"
          }
         ]
        ]
@@ -177,25 +183,28 @@
        {:xs 4
         :item true
         }
-       [text-field
-        {:attrs {:label "Header"
-                 :id "header-value" }
-         :value (rf/subscribe [:form/field header-type-form [:header-value]])
-         :on-save #(rf/dispatch [:form/set-field header-type-form [:header-value] %])
-         :error  @(rf/subscribe [:form/error header-type-form [:header-value]])}]
+       [:> TextField
+        {:value @header-value
+         :onChange #(header-value-dispatcher (-> % .-target .-value))
+         :label "Header Value"
+         :id "header-value"
+         }
+        ]
        ]]
-      [:> Button
-       {:on-click #(add-header! {:header-type-form header-type-form
-                                 :id @(rf/subscribe [:session/page])
-                                 :payload (assoc
-                                            (get
-                                              @(rf/subscribe [:form/fields]) header-type-form)
-                                            :matcher @(rf/subscribe [:session/matcher?])) }) ;; TODO hardcoded matcher
-        :style #js {:margin-top 20}
-        :color "primary"
-        :variant "contained"
-        }
-       "Add Header"]])
+     [:> Button
+      {:on-click #(add-header! {:header-type-form @header-type-form
+                                :id @(rf/subscribe [:session/page])
+                                :payload (assoc
+                                           (get
+                                             @(rf/subscribe [:form/fields]) @header-type-form)
+                                           :matcher @(rf/subscribe [:session/matcher?])) }) ;; TODO hardcoded matcher
+       :style #js {:margin-top 20}
+       :color "primary"
+       :variant "contained"
+       }
+      "Add Header"]]
+    )
+  )
 
 (defn new-matcher [{
                     modal-opened :modal-opened
@@ -218,7 +227,7 @@
      ]
     [:> CardActions
      [:> Button
-      {:on-click #((do
+      {:on-click (fn [] (do
                      (add-matcher! {:matcher @(rf/subscribe [:form/field :new-matcher [:matcher]])
                                     :proxy-id @(rf/subscribe [:session/page])})
                      (on-close)

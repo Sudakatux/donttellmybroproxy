@@ -75,53 +75,26 @@
       }
      ]
     ;; TODO this two endpoints can be merged into one
-    ["/proxy-server/request/headers/:id"
+    ["/proxy-server/:type/headers/:id"
      {
       :post
       (fn [{{:keys [matcher header-key header-value]} :body-params
-            {:keys [id]} :path-params}]
-        (proxy/update-request-interceptors! (keyword id) {:headers {header-key header-value}} matcher)
-        (response/ok (proxy/existing-interceptors (keyword id) :request matcher))
+            {:keys [type id]} :path-params}]
+        (proxy/update-type-interceptors! (keyword type) (keyword id) {:headers {header-key header-value}} matcher)
+        (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher))
         )
       }
      ]
-    ["/proxy-server/response/headers/:id"
-     {
-      :post
-      (fn [{{:keys [matcher header-key header-value]} :body-params
-            {:keys [id]} :path-params}]
-        (proxy/update-response-interceptors! (keyword id) {:headers {header-key header-value}} matcher)
-        (response/ok (proxy/existing-interceptors (keyword id) :response matcher))
-        )
-      }
-     ]
-    ["/proxy-server/response/body/:id"
+    ["/proxy-server/:type/body/:id"
      {
       :post
       (fn [{{:keys [matcher body]} :body-params
-            {:keys [id]} :path-params}]
-        (proxy/update-response-interceptors! (keyword id)  {:body body} matcher)
+            {:keys [type id]} :path-params}]
+        (proxy/update-type-interceptors! (keyword type) (keyword id)  {:body body} matcher)
         (response/ok {:list (proxy/existing-interceptors (keyword id) :response matcher) } )
         )
       }
      ]
-    ["/proxy-server/request/body/:id"
-     {
-      :post
-      (fn [{{:keys [matcher body]} :body-params
-            {:keys [id]} :path-params}]
-        (proxy/update-response-interceptors! (keyword id)  {:body body} matcher)
-        (response/ok {:list (proxy/existing-interceptors (keyword id) :request matcher) } )
-        )
-      }
-     ]
-    ;["/proxy-server/response/header/:id"
-    ; {
-    ;  :get
-    ;  (fn [{{:keys [id]} :path-params}]
-    ;    (response/ok {:list (proxy/existing-headers (keyword id) :response) } ))
-    ;  }
-    ; ]
     ["/proxy-server/list"
      {
       :get

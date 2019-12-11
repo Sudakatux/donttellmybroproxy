@@ -127,16 +127,10 @@
   "Returns a map with existing headers for proxy [key] for type [request|response]"
   (extract-existing-interceptors (list-proxies) key type matcher))
 
-(defn update-request-interceptors! [key interceptor-args matcher]
+(defn update-type-interceptors! [type key interceptor-args matcher]
   (swap! registered-proxies assoc-in
-         [key :args :interceptors matcher :request]
-         (merge-with into (existing-interceptors key :request matcher) interceptor-args)))
-
-(defn update-response-interceptors! [key interceptor-args matcher]
-  (swap! registered-proxies assoc-in
-         [key :args :interceptors matcher :response]
-         (merge-with into (existing-interceptors key :response matcher) interceptor-args)))
-
+         [key :args :interceptors matcher type]
+         (merge-with into (existing-interceptors key type matcher) interceptor-args)))
 
 (def myapp
   (-> (constantly {:status 404 :headers {} :body "404 - not found"})

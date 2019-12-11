@@ -4,7 +4,8 @@
     [clojure.string :as s]))
 
 (def proxy-entry-schema
-  [[:id
+  [
+   [:id
     st/required
     st/string]
    [:destination
@@ -18,6 +19,8 @@
 
 (def header-schema
   [
+   [:matcher
+    st/required]
    [:header-key
     st/required
     st/string]
@@ -27,7 +30,9 @@
     ]])
 
 (def body-schema
-  [[:body
+  [[:matcher
+    st/required]
+   [:body
     st/required]])
 
 

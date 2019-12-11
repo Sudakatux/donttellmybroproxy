@@ -150,6 +150,16 @@
 [:> Tab {:label "response" :value :response}]
 [:> Tab {:label "request" :value :request}]]
 [:> Grid
- [add-header-card]
- [add-interceptor-card]
+ {:container true
+  :direction "column"
+  :spacing 2}
+ [:> Grid
+  {:item true}
+    [add-header-card]
+
+  ]
+ [:> Grid
+  {:item true }
+  [add-interceptor-card]
+  ]
  ]]))

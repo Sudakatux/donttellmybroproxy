@@ -45,7 +45,7 @@
   :proxy/set-headers!
   [(rf/path :proxy/list)]
   (fn [proxy-list [_ proxy-id header-type matcher headers]]
-    (assoc-in proxy-list [proxy-id :args :interceptors matcher header-type :headers] headers)))
+    (assoc-in proxy-list [proxy-id :args :interceptors matcher header-type] headers)))
 
 (rf/reg-sub
   :form/fields
@@ -84,25 +84,24 @@
 (rf/reg-event-fx
   :proxy/update-body!
   (fn [{:keys [db]} [_ {:keys [type id payload]}]]
-    (.log js/console "look" payload)
     (if-let [validation-errors (validate-body payload)]
       {:db (assoc-in db [:forms :errors type :body] validation-errors)}
       {:ajax/post {
                    :url (str "/api/proxy-server/" (name type)  "/body/" id)
                    :params payload
                    :success-path [:body]
-                   :success-event [:proxy/set-body! (keyword id) type]}})))
+                   :success-event [:proxy/set-body! (keyword id) type]}}))) ;Missing the set-body event
 
 (rf/reg-event-fx
   :proxy/add-header!
-  (fn [{:keys [db]} [_ {:keys [header-type-form id payload matcher]}]]
+  (fn [{:keys [db]} [_ {:keys [header-type-form id payload]}]]
     (if-let [validation-errors (validate-header-schema payload)]
       {:db (assoc-in db [:forms :errors header-type-form] validation-errors)}
       {:ajax/post {
                    :url (str "/api/proxy-server/" (name header-type-form)  "/headers/" id)
                    :params payload
-                   :success-path [:headers]
-                   :success-event [:proxy/set-headers! (keyword id) header-type-form matcher]}})))
+                   ;:success-path [:headers]
+                   :success-event [:proxy/set-headers! (keyword id) header-type-form (:matcher payload)]}})))
 
 
 (defn create-proxy [proxy-payload]
@@ -155,10 +154,6 @@
         :on-click #(create-proxy @(rf/subscribe [:form/fields]))}
        [:> Add]]]]]])
 
-(def options
-  [{:title "Content-Type" :value "Content-Type"}
-   {:title "Bareer" :value "Bareer"}])
-
 (defn add-header-form [{header-type-form :header-type-form}]
   [:> Box {:style #js {:padding 20 }}
      [:> Grid
@@ -170,12 +165,13 @@
         :xs 4
         :item true
         }
-       [:> HeaderAutocomplete
-        {
-         :initialValue @(rf/subscribe [:form/field header-type-form [:header-key]])
-         :options options
-         :onSave #(rf/dispatch [:form/set-field header-type-form [:header-key] %])
-         }]
+       [text-field
+        {:attrs {:label "Header Key"
+                 :id "header-key"}
+         :value (rf/subscribe [:form/field header-type-form [:header-key]])
+         :on-save #(rf/dispatch [:form/set-field header-type-form [:header-key] %])
+         }
+        ]
        ]
       [:> Grid
        {:xs 4
@@ -248,8 +244,8 @@
      [text-field
       {:attrs {:label "Answer body"
                :id "body"
-               :multiple true
-               :rowMax 4}
+               :multiline true
+               :rowsMax 4}
        :value (rf/subscribe [:form/field type [:body]])
        :on-save #(rf/dispatch [:form/set-field type [:body] %])
        :error  @(rf/subscribe [:form/error type [:body]])}]

@@ -97,13 +97,11 @@
     [single-header-configuration {:title  "Response Header"
                                   :target type}]]]))
 (defn add-interceptor-card []
-  (let [type @(rf/subscribe [:session/request-or-response?])]
   [:> Card
    {:style #js {:maxWidth 1000}}
    [:> CardHeader {:title "Body"}]
    [:> CardContent
-    [update-body-form
-     {:type type}]]]))
+    [update-body-form]]])
 
 
 

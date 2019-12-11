@@ -86,12 +86,12 @@
   :proxy/update-body!
   (fn [{:keys [db]} [_ {:keys [type id payload]}]]
     (if-let [validation-errors (validate-body payload)]
-      {:db (assoc-in db [:forms :errors type :body] validation-errors)}
+      {:db (assoc-in db [:forms :errors type] validation-errors)}
       {:ajax/post {
                    :url (str "/api/proxy-server/" (name type)  "/body/" id)
                    :params payload
                    :success-path [:body]
-                   :success-event [:proxy/set-body! (keyword id) type]}}))) ;Missing the set-body event
+                   :success-event [:proxy/set-body! (keyword id) type (:matcher payload)]}}))) ;Missing the set-body event
 
 (rf/reg-event-fx
   :proxy/add-header!
@@ -157,8 +157,10 @@
 (defn add-header-form []
   (let [header-type-form (rf/subscribe [:session/request-or-response?])
         header-key-value (rf/subscribe [:form/field @header-type-form [:header-key]])
+        header-key-error @(rf/subscribe [:form/error @header-type-form [:header-key]])
         header-key-dispatcher #(rf/dispatch [:form/set-field @header-type-form [:header-key] %])
         header-value (rf/subscribe [:form/field @header-type-form [:header-value]])
+        header-value-error @(rf/subscribe [:form/error @header-type-form [:header-value]])
         header-value-dispatcher #(rf/dispatch [:form/set-field @header-type-form [:header-value] %])
         ]
     [:> Box {:style #js {:padding 20 }}
@@ -172,11 +174,12 @@
         :item true
         }
        [:> TextField
-        {:value @header-key-value
-         :onChange #(header-key-dispatcher (-> % .-target .-value))
-         :label "Header Key"
-         :id "header-key"
-         }
+        (cond-> {:value @header-key-value
+                 :onChange #(header-key-dispatcher (-> % .-target .-value))
+                 :label "Header Key"
+                 :id "header-key"
+                 }
+                header-key-error (merge {:error true :helperText header-key-error}))
         ]
        ]
       [:> Grid
@@ -184,11 +187,13 @@
         :item true
         }
        [:> TextField
-        {:value @header-value
-         :onChange #(header-value-dispatcher (-> % .-target .-value))
-         :label "Header Value"
-         :id "header-value"
-         }
+        (cond-> {:value @header-value
+                 :onChange #(header-value-dispatcher (-> % .-target .-value))
+                 :label "Header Value"
+                 :id "header-value"
+                 }
+                header-value-error (merge {:error true :helperText header-value-error}))
+
         ]
        ]]
      [:> Button
@@ -242,29 +247,37 @@
 
 (defn update-body-form
   "Takes a type meaning request response. Returns a body form"
-  [{type :type}]
-  [:> Card
-   {:style #js {:max-width 1000}}
-   [:> CardHeader {:title "Create proxy"}]
-   [:> CardContent
-    [:> Grid
-     {:container true
-      :direction "column"}
-     [text-field
-      {:attrs {:label "Answer body"
-               :id "body"
-               :multiline true
-               :rowsMax 4}
-       :value (rf/subscribe [:form/field type [:body]])
-       :on-save #(rf/dispatch [:form/set-field type [:body] %])
-       :error  @(rf/subscribe [:form/error type [:body]])}]
-     [:> CardActions
-      [:> Fab
-       {:aria-label "Add"
-        :on-click #(change-body! {:type type
-                                  :id @(rf/subscribe [:session/page])
-                                  :payload (assoc
-                                             (get @(rf/subscribe [:form/fields]) type)
-                                             :matcher @(rf/subscribe [:session/matcher?]))} )}
-       [:> Add]]]]]])
+  []
+  (let [type (rf/subscribe [:session/request-or-response?])
+        body-value (rf/subscribe [:form/field @type [:body]])
+        body-value-error @(rf/subscribe [:form/error @type [:body]])
+        body-value-dispatcher #(rf/dispatch [:form/set-field @type [:body] %])]
+    [:> Card
+     {:style #js {:max-width 1000}}
+     [:> CardHeader {:title "Create proxy"}]
+     [:> CardContent
+      [:> Grid
+       {:container true
+        :direction "column"}
+       [:> TextField
+        (cond-> {
+                 :value @body-value
+                 :onChange #(body-value-dispatcher (-> % .-target .-value))
+                 :multiline true
+                 :rowsMax 4
+                 }
+                body-value-error (merge {:error true :helperText body-value-error}))
+        ]
+       [:> CardActions
+        [:> Fab
+         {:aria-label "Add"
+          :on-click #(change-body! {:type @type
+                                    :id @(rf/subscribe [:session/page])
+                                    :payload (assoc
+                                               (get @(rf/subscribe [:form/fields]) @type)
+                                               :matcher @(rf/subscribe [:session/matcher?]))} )}
+         [:> Add]]]]]]
+    )
+
+  )
 

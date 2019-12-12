@@ -1,6 +1,8 @@
 # clj.donttellmybroproxy
 
-The goal is for an interactive proxy. You can currently create routes and associate to a route
+The goal is for an interactive proxy.
+Started writing this to be able to test ui integrations, change headers etc, and ended finding it usefull for other backend integratios as well
+
 
 ## Building and running
 If you use leiningen https://leiningen.org then `lein uberjar` will build the source 
@@ -16,7 +18,7 @@ To run `docker run -p 3000:3000 -p 3001:3001 donttelmybroproxy `
 
 ## Usage
 
-go to http://localhost:3000 start the proxy server and associate routes by providing a unique id a route and a
+Go to http://localhost:3000 start the proxy server and associate routes by providing a unique id a route and a
 desired destination for example
 id: yahoo
 route: /yahoo
@@ -25,10 +27,17 @@ destination: http://yahoo.com
 After clicking play you should be able to go to localhost:3001/yahoo and see yahoo
 you can add new routes with the running server no need to re-start
 
-## Current state of art
-> You can only associate routes to hosts.
+You can edit the created route. and add request response matchers RegEx for urls. For a given matcher
+you can add headers that will be used for the request response. Matchers will be applied in order to a given
+request response meaning if you have two or mor matchers that match for the same url it will merge them together
 
-> Add additional response and request headers for an existing route
+
+## Current state of art
+> You can associate routes to hosts.
+
+> Add additional response and request headers for a given matcher
+
+> Respond a specific body for the given matcher
 
 ## License
 

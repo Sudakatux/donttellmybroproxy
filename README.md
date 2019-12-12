@@ -3,7 +3,9 @@
 The goal is for an interactive proxy.
 Started writing this to be able to test ui integrations, change headers etc, and ended finding it usefull for other backend integratios as well
 
-
+Used code from https://github.com/tailrecursion/ring-proxy when migrated from http-kit to support ssl
+and streams
+ 
 ## Building and running
 If you use leiningen https://leiningen.org then `lein uberjar` will build the source 
 and `java -jar donttellmybroproxy/target/uberjar/donttellmybro-proxy.jar` should run it

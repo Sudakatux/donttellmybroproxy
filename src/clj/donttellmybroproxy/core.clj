@@ -83,8 +83,15 @@
         (proxy/update-type-interceptors! (keyword type) (keyword id) {:headers {header-key header-value}} matcher)
         (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher))
         )
+      :delete
+      (fn [{{:keys [matcher header-key]} :body-params
+            {:keys [type id]} :path-params}]
+        (proxy/remove-header! (keyword id) (keyword type) matcher header-key)
+        (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher))
+        )
       }
      ]
+
     ["/proxy-server/:type/body/:id"
      {
       :post

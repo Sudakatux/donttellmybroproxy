@@ -130,6 +130,9 @@
 (defn remove-header-from-map [current key type matcher header-key]
   (update-in current [key :args :interceptors matcher type :headers] dissoc header-key))
 
+(defn remove-header! [key type matcher header-key]
+  (swap! registered-proxies remove-header-from-map key type matcher header-key))
+
 (defn update-type-interceptors! [type key interceptor-args matcher]
   (swap! registered-proxies assoc-in
          [key :args :interceptors matcher type]

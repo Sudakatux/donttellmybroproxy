@@ -127,6 +127,9 @@
   "Returns a map with existing headers for proxy [key] for type [request|response]"
   (extract-existing-interceptors (list-proxies) key type matcher))
 
+(defn remove-header-from-map [current key type matcher header-key]
+  (update-in current [key :args :interceptors matcher type :headers] dissoc header-key))
+
 (defn update-type-interceptors! [type key interceptor-args matcher]
   (swap! registered-proxies assoc-in
          [key :args :interceptors matcher type]

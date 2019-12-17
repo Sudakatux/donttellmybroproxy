@@ -63,4 +63,21 @@
       (extract-interceptor-for-type sample-multi-matcher :response)
       => '({:headers {"Content-Type" "Text"}} {:headers {"Some-Header" "Some Value"}}))
 
+(def sample-state
+  {:yahoo {:route "/yahoo",
+           :url "http://www.yahoo.com",
+           :args {:request {},
+                  :response {},
+                  :interceptors {".*" {:response {:headers {"Bareer" "123456", "Content-Type" "text"}}}}}}})
+
+(fact "Should remove a header interceptor when provided with a type a key and the proxy id"
+      (remove-header-from-map sample-state :yahoo :response ".*" "Content-Type")
+      => {:yahoo {:route "/yahoo",
+                    :url "http://www.yahoo.com",
+                    :args {:request {},
+                           :response {},
+                           :interceptors {".*" {:response {:headers {"Bareer" "123456"}}}}}}})
+
+
+
 

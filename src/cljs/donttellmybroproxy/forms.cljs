@@ -17,8 +17,6 @@
             [donttellmybroproxy.common :refer [text-field HeaderAutocomplete]]
             [donttellmybroproxy.common :refer [text-field]]))
 
-
-
 ;(def root-db-path [:forms])
 (def value-db-path [:forms :values])
 (def error-db-path [:forms :errors])
@@ -38,8 +36,7 @@
   :proxy/add-matcher!
   [(rf/path :proxy/list)]
   (fn [proxy-list [_ proxy-id matcher]]
-    (assoc-in proxy-list [proxy-id :args :interceptors matcher] {})
-    ))
+    (assoc-in proxy-list [proxy-id :args :interceptors matcher] {})))
 
 
 (rf/reg-event-db
@@ -241,8 +238,7 @@
       ]
      [:> Button
       {:on-click on-close}
-      "Cancel"
-      ]]]])
+      "Cancel"]]]])
 
 
 (defn update-body-form

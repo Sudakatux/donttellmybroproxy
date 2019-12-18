@@ -50,6 +50,16 @@
   (fn [db _]
     (:session/matcher? db)))
 
+(rf/reg-event-fx
+  :proxy/remove-header!
+  (fn [_ [_ {:keys [type header-key id matcher current-headers]}]]
+    {:ajax/delete {
+                 :url (str "/api/proxy-server/" (name type) "/headers/" id )
+                 :params {:header-key header-key
+                          :matcher matcher}
+                 :success-path [:list]
+                 :success-event [:proxy/set-headers! (keyword id) type matcher {:headers (dissoc current-headers header-key)}]}}))
+
 (rf/reg-sub
   :proxy/response-headers
   :<- [:proxy/list]
@@ -58,18 +68,25 @@
   (fn [[list page matcher] [_ id]]
     (get-in list [(keyword page) :args :interceptors matcher id :headers] {})))
 
-
 (defn existing-header-cloud [] ; Note i hardcoded the value
-  (let [ header-type-form @(rf/subscribe [:session/request-or-response?])
-        header-values @(rf/subscribe [:proxy/response-headers header-type-form])]
+  (let [header-type-form @(rf/subscribe [:session/request-or-response?])
+        header-values @(rf/subscribe [:proxy/response-headers header-type-form])
+        type @(rf/subscribe [:session/request-or-response?])
+        matcher @(rf/subscribe [:session/matcher?])
+        page @(rf/subscribe [:session/page])]
     [:> Grid
      {:direction "row"}
      (into [:<>]
            (map (fn [[hk hv]]
                   ^{:key hk}
                   [:> Chip
-                   {:label    (str hk ":" hv)
-                    :onDelete #(%)}
+                   {:label (str hk " : " hv)
+                    :onDelete (fn []
+                                (rf/dispatch [:proxy/remove-header! {:type type
+                                                                     :matcher matcher
+                                                                     :header-key hk
+                                                                     :id page
+                                                                     :current-headers header-values}]))}
                    ]) header-values))]))
 
 (defn single-header-configuration [{title  :title}]
@@ -87,7 +104,6 @@
      [existing-header-cloud]
      ]]])
 
-
 (defn add-header-card []
   (let [type @(rf/subscribe [:session/request-or-response?])]
   [:> Card
@@ -102,8 +118,6 @@
    [:> CardHeader {:title "Body"}]
    [:> CardContent
     [update-body-form]]])
-
-
 
 (defn matcher-menu []
   (let [

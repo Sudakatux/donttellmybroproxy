@@ -68,7 +68,7 @@
   (fn [[list page matcher] [_ id]]
     (get-in list [(keyword page) :args :interceptors matcher id :headers] {})))
 
-(defn existing-header-cloud [] ; Note i hardcoded the value
+(defn existing-header-cloud []
   (let [header-type-form @(rf/subscribe [:session/request-or-response?])
         header-values @(rf/subscribe [:proxy/response-headers header-type-form])
         type @(rf/subscribe [:session/request-or-response?])

@@ -159,6 +159,7 @@
         header-value (rf/subscribe [:form/field @header-type-form [:header-value]])
         header-value-error @(rf/subscribe [:form/error @header-type-form [:header-value]])
         header-value-dispatcher #(rf/dispatch [:form/set-field @header-type-form [:header-value] %])
+        matcher @(rf/subscribe [:session/matcher?])
         ]
     [:> Box {:style #js {:padding 20 }}
      [:> Grid
@@ -194,12 +195,13 @@
         ]
        ]]
      [:> Button
-      {:on-click #(add-header! {:header-type-form @header-type-form
+      { :disabled (not matcher)
+       :on-click #(add-header! {:header-type-form @header-type-form
                                 :id @(rf/subscribe [:session/page])
                                 :payload (assoc
                                            (get
                                              @(rf/subscribe [:form/fields]) @header-type-form)
-                                           :matcher @(rf/subscribe [:session/matcher?])) }) ;; TODO hardcoded matcher
+                                           :matcher matcher) }) ;; TODO hardcoded matcher
        :style #js {:margin-top 20}
        :color "primary"
        :variant "contained"
@@ -247,10 +249,11 @@
   (let [type (rf/subscribe [:session/request-or-response?])
         body-value (rf/subscribe [:form/field @type [:body]])
         body-value-error @(rf/subscribe [:form/error @type [:body]])
-        body-value-dispatcher #(rf/dispatch [:form/set-field @type [:body] %])]
+        body-value-dispatcher #(rf/dispatch [:form/set-field @type [:body] %])
+        matcher @(rf/subscribe [:session/matcher?])]
     [:> Card
      {:style #js {:max-width 1000}}
-     [:> CardHeader {:title "Create proxy"}]
+     [:> CardHeader {:title "Set Body"}]
      [:> CardContent
       [:> Grid
        {:container true
@@ -267,11 +270,12 @@
        [:> CardActions
         [:> Fab
          {:aria-label "Add"
+          :disabled (not matcher)
           :on-click #(change-body! {:type @type
                                     :id @(rf/subscribe [:session/page])
                                     :payload (assoc
                                                (get @(rf/subscribe [:form/fields]) @type)
-                                               :matcher @(rf/subscribe [:session/matcher?]))} )}
+                                               :matcher matcher)} )}
          [:> Add]]]]]]
     )
 

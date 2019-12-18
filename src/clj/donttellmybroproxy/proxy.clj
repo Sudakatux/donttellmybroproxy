@@ -32,8 +32,6 @@
   param)
 
 (defn apply-response-args [response config]
-  (clojure.pprint/pprint response)
-  (clojure.pprint/pprint config)
   (merge-with into response config))
 
 (defn get-matchers-matching-url [url interceptors]
@@ -51,8 +49,6 @@
 
 (defn apply-interceptors [response interceptors]
   "Takes a request and a list of interceptors and applays them in order"
-  (clojure.pprint/pprint response)
-  (clojure.pprint/pprint interceptors)
   (reduce apply-interceptor response interceptors))
 
 (defn apply-merge-in-body [response body-param]
@@ -82,12 +78,13 @@
                                 :throw-exceptions false
                                 :as :stream}
               ]
-              (-> (apply-interceptors original-request (extract-interceptor-for-type (get-matchers-matching-url url (get http-opts :interceptors)) :request))               ; TODO merging should be controlled (:request http-opts)
+              (-> original-request
+                  (apply-interceptors (extract-interceptor-for-type (get-matchers-matching-url url (get http-opts :interceptors)) :request))
                        request
                         (apply-interceptors
                           (extract-interceptor-for-type
                             (get-matchers-matching-url url (get http-opts :interceptors)) :response))
-                        debug-interceptor  ; TODO interception for response should come here
+                        debug-interceptor
                        prepare-cookies))
         (handler req)))))
 

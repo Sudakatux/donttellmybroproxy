@@ -102,6 +102,14 @@
         )
       }
      ]
+    ["/proxy-server/record/:id"
+     {
+      :put
+      (fn [{{:keys [id]} :path-params}]
+        (proxy/start-recording! (keyword id))
+        (response/no-content))
+      }
+     ]
     ["/proxy-server/list"
      {
       :get

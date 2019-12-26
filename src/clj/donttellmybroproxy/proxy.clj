@@ -3,12 +3,12 @@
     [java.net URI] )
   (:require
     [clj-http.client         :refer [request]]
-    [clojure.string          :refer [join split]]
+    [clojure.string          :as clj-str]
     [ring.adapter.jetty      :refer [run-jetty]]
     [clj-http.cookies        :refer [wrap-cookies]]
     [ring.middleware.reload :refer [wrap-reload]]
     )
-  (:import (java.io ByteArrayInputStream)))
+  (:import (java.io ByteArrayInputStream ByteArrayOutputStream)))
 
 (defn prepare-cookies
   "Removes the :domain and :secure keys and converts the :expires key (a Date)
@@ -27,6 +27,13 @@
       (.read rdr buf)
       buf)))
 
+(defn slurp-bytes
+  "Slurp the bytes from a slurpable thing"
+  [x]
+  (with-open [out (ByteArrayOutputStream.)]
+    (clojure.java.io/copy (clojure.java.io/input-stream x) out)
+    (.toByteArray out)))
+
 (defn debug-interceptor [param]
   (clojure.pprint/pprint param)
   param)
@@ -35,7 +42,7 @@
   (merge-with into response config))
 
 (defn get-matchers-matching-url [url interceptors]
-  "returns a vector with matching interceptors"
+  "Returns a vector with matching interceptors"
   (filter #(re-matches (re-pattern (key %)) url) interceptors))
 
 (defn apply-interceptor [response interceptor]
@@ -53,6 +60,37 @@
 
 (defn apply-merge-in-body [response body-param]
   (merge response body-param))
+
+(def recordings (atom {}))
+
+(defn current-recordings [proxy-path]
+  (get-in @recordings [:recordings proxy-path :recorded] []))
+
+(defn add-recording! [recording proxy-path base-url]
+  (swap! recordings assoc-in [:recordings proxy-path] {:base-url base-url
+                                                       :recorded (conj (current-recordings proxy-path) recording)}))
+
+(defn toInterceptor [recordedElement elementIdx]
+  (let [element-to-interceptor (nth (get recordedElement :recorded) elementIdx)
+        url-difference (clj-str/replace (:url element-to-interceptor) (get recordedElement :base-url) "")]
+    {(str "." url-difference) {:response (:response element-to-interceptor)}}))
+
+(defn record! [response request proxy-path base-url record?]
+  (clojure.pprint/pprint (str "record" record?))
+  (if record?
+    (let [response-body (slurp-bytes (:body response))
+          url (:url request)
+          method (:method request)
+          body (:body request)]
+      (add-recording! {
+                       :url url
+                       :method method
+                       :body body
+                       :response (select-keys (merge response {:body response-body})
+                                              [:cached :request-time :repeatable? :protocol-version :chunked? :cookies :reason-phrase :headers :status :length :body])
+                       } proxy-path base-url)
+      (merge response {:body (ByteArrayInputStream. response-body)}) )
+    response))
 
 
 (defn wrap-proxy
@@ -78,13 +116,15 @@
                                 :throw-exceptions false
                                 :as :stream}
               ]
+          (clojure.pprint/pprint http-opts)
               (-> original-request
                   (apply-interceptors (extract-interceptor-for-type (get-matchers-matching-url url (get http-opts :interceptors)) :request))
-                       request
+                  request
+                  (record! original-request proxied-path remote-base-uri (:record? http-opts))
                         (apply-interceptors
                           (extract-interceptor-for-type
                             (get-matchers-matching-url url (get http-opts :interceptors)) :response))
-                        debug-interceptor
+                  ;debug-interceptor
                        prepare-cookies))
         (handler req)))))
 
@@ -136,6 +176,9 @@
          [key :args :interceptors matcher type]
          (merge-with into (existing-interceptors key type matcher) interceptor-args)))
 
+(defn start-recording! [key]
+  (swap! registered-proxies assoc-in [key :args :record?] true))
+
 (def myapp
   (-> (constantly {:status 404 :headers {} :body "404 - not found"})
       wrap-dynamic
@@ -145,5 +188,4 @@
   ([port] (let [running-server (run-jetty
                                  #'myapp                      ; Just changes here
                                  {:port port :join? false})]
-            running-server
-            )))
+            running-server)))

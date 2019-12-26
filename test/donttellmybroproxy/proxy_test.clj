@@ -78,6 +78,56 @@
                            :response {},
                            :interceptors {".*" {:response {:headers {"Bareer" "123456"}}}}}}})
 
+(def some-bytes (byte-array [(byte 0x43)
+                    (byte 0x6c)
+                    (byte 0x6f)
+                    (byte 0x6a)
+                    (byte 0x75)
+                    (byte 0x72)
+                    (byte 0x65)
+                    (byte 0x21)]))
 
+(def sample-recorded-response
+  {:cached nil,
+   :request-time 1243,
+   :repeatable? false,
+   :protocol-version {:name "HTTP", :major 1, :minor 1},
+   :chunked? false,
+   :cookies {"sails.sid" {:discard true,
+                          :path "/",
+                          :secure false,
+                          :value "s%3AhEcGVYfm4C_yhtl-gKhzjy2xTZeeHfAD.SYprp3zYF6aiUX2cmJryFu1mEbDYDz5zWobDkXumAhE",
+                          :version 0}},
+   :reason-phrase "OK",
+   :headers {"Content-Type" "application/json; charset=utf-8",
+             "Date" "Tue, 24 Dec 2019 12:01:45 GMT",
+             "ETag" "W/\"40e-4wWvkw27hk7OZ3gzloXmBsT7QXs\"",
+             "Server" "nginx",
+             "Vary" "Accept-Encoding",
+             "Connection" "Close"},
+   :status 200,
+   :length -1,
+   ;:body some-bytes
+   }
+  )
+
+(def sample-record-element
+  {"/postman" {:base-url "https://postman-echo.com",
+               :recorded [{:url "https://postman-echo.com/post?",
+                           :method :post,
+                           :body (.getBytes "Some request body"),
+                           :response sample-recorded-response}]}}) ;Use vector instead of list
+
+(def expected-result
+  {
+   "./post?" {
+              :response sample-recorded-response
+              }
+   }
+  )
+
+(fact "Should take a recorded element and return an interceptor"
+      (toInterceptor (get sample-record-element "/postman") 0)
+      => expected-result)
 
 

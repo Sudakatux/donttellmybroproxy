@@ -48,14 +48,17 @@
 (defn apply-interceptor [response interceptor]
            (cond-> response
                    (contains? interceptor :headers) (assoc :headers (merge (:headers response) (get interceptor :headers)))
-                   (contains? interceptor :body) (merge {:body (ByteArrayInputStream. (.getBytes (get interceptor :body)))})))
+                   (contains? interceptor :body) (merge {:body (ByteArrayInputStream. (condp = (type (get interceptor :body))
+                                                                                        java.lang.String  (.getBytes (get interceptor :body))
+                                                                                        (get interceptor :body))
+                                                                 )})))
 
 (defn extract-interceptor-for-type [interceptors type]
   "Will return interceptor without the matching key"
   (map (fn [el] (get (val el) type)) interceptors))
 
 (defn apply-interceptors [response interceptors]
-  "Takes a request and a list of interceptors and applays them in order"
+  "Takes a request and a list of interceptors and apply them in order"
   (reduce apply-interceptor response interceptors))
 
 (defn apply-merge-in-body [response body-param]
@@ -73,10 +76,9 @@
 (defn toInterceptor [recordedElement elementIdx]
   (let [element-to-interceptor (nth (get recordedElement :recorded) elementIdx)
         url-difference (clj-str/replace (:url element-to-interceptor) (get recordedElement :base-url) "")]
-    {(str "." url-difference) {:response (:response element-to-interceptor)}}))
+    {(str ".*" url-difference) {:response (:response element-to-interceptor)}}))
 
 (defn record! [response request proxy-path base-url record?]
-  (clojure.pprint/pprint (str "record" record?))
   (if record?
     (let [response-body (slurp-bytes (:body response))
           url (:url request)
@@ -92,7 +94,6 @@
       (merge response {:body (ByteArrayInputStream. response-body)}) )
     response))
 
-
 (defn wrap-proxy
   "Proxies requests from proxied-path, a local URI, to the remote URI at
   remote-base-uri, also a string."
@@ -106,7 +107,7 @@
                                (.getPath      rmt-full) nil nil)
               lcl-path   (URI. (subs (:uri req) (.length proxied-path)))
               remote-uri (.resolve rmt-path lcl-path)
-              url (str remote-uri "?" (:query-string req))
+              url (str remote-uri (if (:query-string req) (str "?" (:query-string req)) ""))
               original-request {:method (:request-method req)
                                 :url url
                                 :headers (dissoc (:headers req) "host" "content-length")
@@ -116,14 +117,13 @@
                                 :throw-exceptions false
                                 :as :stream}
               ]
-          (clojure.pprint/pprint http-opts)
               (-> original-request
                   (apply-interceptors (extract-interceptor-for-type (get-matchers-matching-url url (get http-opts :interceptors)) :request))
                   request
                   (record! original-request proxied-path remote-base-uri (:record? http-opts))
-                        (apply-interceptors
-                          (extract-interceptor-for-type
-                            (get-matchers-matching-url url (get http-opts :interceptors)) :response))
+                  (apply-interceptors
+                    (extract-interceptor-for-type
+                      (get-matchers-matching-url url (get http-opts :interceptors)) :response))
                   ;debug-interceptor
                        prepare-cookies))
         (handler req)))))
@@ -164,6 +164,23 @@
   "Returns a map with existing headers for proxy [key] for type [request|response]"
   (extract-existing-interceptors (list-proxies) key type matcher))
 
+(defn route-by-id [id]
+  "Given an id returns the route"
+  (get-in @registered-proxies [id :route]))
+
+(defn recordings-by-route [route]
+  "Takes a route string returns recordings vector"
+  (get-in @recordings [:recordings route :recorded]))
+
+(defn recordings-by-id [id]
+  "Takes an id returns recordings vector"
+  (-> id
+      route-by-id
+      recordings-by-route))
+
+(defn is-recording? [id]
+  (get-in @registered-proxies [id :args :record?]))
+
 (defn remove-header-from-map [current key type matcher header-key]
   (update-in current [key :args :interceptors matcher type :headers] dissoc header-key))
 
@@ -178,6 +195,9 @@
 
 (defn start-recording! [key]
   (swap! registered-proxies assoc-in [key :args :record?] true))
+
+(defn stop-recording! [key]
+  (swap! registered-proxies assoc-in [key :args :record?] false))
 
 (def myapp
   (-> (constantly {:status 404 :headers {} :body "404 - not found"})

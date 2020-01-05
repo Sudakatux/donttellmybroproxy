@@ -104,10 +104,16 @@
      ]
     ["/proxy-server/record/:id"
      {
-      :put
-      (fn [{{:keys [id]} :path-params}]
-        (proxy/start-recording! (keyword id))
-        (response/no-content))
+      :post
+      (fn [{{:keys [record?]} :body-params
+            {:keys [id]} :path-params}]
+        (if record?
+            (proxy/start-recording! (keyword id))
+            (proxy/stop-recording! (keyword id)))
+        (response/ok {
+                      :record? (proxy/is-recording? (keyword id))
+                      :recordings (proxy/recordings-by-id (keyword id))
+                      }))
       }
      ]
     ["/proxy-server/list"

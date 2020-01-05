@@ -16,6 +16,9 @@
             ["@material-ui/core/Select" :default Select]
             ["@material-ui/core/MenuItem" :default MenuItem]
             ["@material-ui/core/Button" :default Button]
+            ["@material-ui/icons/RadioButtonChecked" :default RadioButtonChecked]
+            ["@material-ui/icons/RadioButtonUnchecked" :default RadioButtonUnchecked]
+            ["@material-ui/core/Fab" :default Fab]
             [donttellmybroproxy.forms :refer [add-header-form update-body-form new-matcher]]
             [reagent.core :as r]
             [reagent.session :as session]
@@ -32,6 +35,15 @@
   (fn [db [_ type]]
     (-> db
         (assoc :session/request-or-response? type))))
+
+(rf/reg-event-db
+  :proxy/start-stop-recording!
+  (fn [db [_ id record-recordings]]
+    (let [args-path [:proxy/list (keyword id) :args]]
+      (-> db
+          (assoc-in args-path (merge (get-in db args-path) record-recordings))))
+      )
+    )
 
 (rf/reg-sub
   :proxy/matchers
@@ -50,6 +62,13 @@
   (fn [db _]
     (:session/matcher? db)))
 
+(rf/reg-sub
+  :proxy/record?
+  :<- [:proxy/list]
+  :<- [:session/page]
+  (fn [[list page]]
+    (get-in list [(keyword page) :args :record?] {})))
+
 (rf/reg-event-fx
   :proxy/remove-header!
   (fn [_ [_ {:keys [type header-key id matcher current-headers]}]]
@@ -59,6 +78,15 @@
                           :matcher matcher}
                  :success-path [:list]
                  :success-event [:proxy/set-headers! (keyword id) type matcher {:headers (dissoc current-headers header-key)}]}}))
+
+(rf/reg-event-fx
+  :proxy/record!
+  (fn [_ [_ {:keys [id record?]}]]
+    {:ajax/post {
+                :url    (str "/api/proxy-server/record/" id)
+                :params {:record? record?}
+                :success-event [:proxy/start-stop-recording! (keyword id)]
+                }}))
 
 (rf/reg-sub
   :proxy/response-headers
@@ -88,6 +116,18 @@
                                                                      :id page
                                                                      :current-headers header-values}]))}
                    ]) header-values))]))
+
+(defn rec-toggle [{record? :record?}]
+
+  [:> Fab
+   {:aria-label "Rec"
+    :on-click (fn [] (rf/dispatch [:proxy/record! {:id @(rf/subscribe [:session/page])
+                                                   :record? (not record?)}]))
+    }
+   [:> (if record? RadioButtonChecked RadioButtonUnchecked)]
+   ]
+  )
+
 
 (defn single-header-configuration [{title  :title}]
    [:<>
@@ -125,7 +165,8 @@
         close-modal #(reset! modal-state false)
         open-modal (fn [] (reset! modal-state true))]
     (fn []
-      (let [matchers @(rf/subscribe [:proxy/matchers])]
+      (let [matchers @(rf/subscribe [:proxy/matchers])
+            record? @(rf/subscribe [:proxy/record?])]
         [:> Grid
          (into [:> Select
                 {:style     #js {:width "50%"}
@@ -144,6 +185,8 @@
           ]
          [new-matcher {:modal-opened @modal-state
                        :on-close close-modal}]
+         [rec-toggle {:record? record?}]
+
          ]))))
 
 (defn card-container []

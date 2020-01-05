@@ -2,6 +2,9 @@
   (:require
     ["@material-ui/core/TextField" :default TextField]
     ["@material-ui/lab/Autocomplete" :default Autocomplete]
+    ["@material-ui/icons/RadioButtonChecked" :default RadioButtonChecked]
+    ["@material-ui/icons/RadioButtonUnchecked" :default RadioButtonUnchecked]
+    ["@material-ui/core/Fab" :default Fab]
     [hx.react :as hx :refer [defnc]]
     [hx.hooks :as hooks]
     [cljs-bean.core :refer [bean ->js]]
@@ -23,6 +26,18 @@
                        :on-change #(reset! draft (.. % -target -value))
                        :value @value }
                       error (merge {:error true :helperText error})))])))
+
+;(defn rec-toggle [{rec :rec}]
+;
+;  [:> Fab
+;   {:aria-label "Play"
+;    :disabled @server-running?
+;    :on-click start-server}
+;   [:> (if rec RadioButtonChecked RadioButtonUnchecked)]
+;   ]
+;  )
+
+
 
 (defnc HeaderAutocomplete [{initial-value :initialValue
                             options :options

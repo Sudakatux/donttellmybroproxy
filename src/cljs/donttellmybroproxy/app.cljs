@@ -92,8 +92,6 @@
   (fn [db _]
     (:session/page db)))
 
-
-
 (rf/reg-sub
   :server/started?
   (fn [db _]

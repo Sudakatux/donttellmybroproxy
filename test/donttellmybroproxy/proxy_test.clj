@@ -130,4 +130,5 @@
       (toInterceptor (get sample-record-element "/postman") 0)
       => expected-result)
 
-
+; Instruction to convert toInterceptor
+;(swap! registered-proxies assoc-in [:postman :args :interceptors] (toInterceptor (get-in @recordings [:recordings "/postman"]) 0))

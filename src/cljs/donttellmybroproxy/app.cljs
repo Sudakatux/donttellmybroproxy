@@ -8,7 +8,7 @@
             [ajax.core :refer [GET POST PUT DELETE]]
             [re-frame.core :as rf]
             [reagent.core :as r :refer [atom as-element render-component]]
-            [donttellmybroproxy.current_proxy :refer [card-container]]
+            [donttellmybroproxy.current_proxy :refer [card-container recordings-proxy-layout]]
             [reitit.frontend :as reitit]
             [reagent.session :as session]
             [accountant.core :as accountant]))
@@ -158,13 +158,15 @@
   (reitit/router
     [["/" :index]
      ["/create" :create]
-     ["/proxy/:id" :proxy-route]]))
+     ["/proxy/:id" :proxy-route]
+     ["/proxy/:id/recordings" :proxy-route-recordings]]))
 
 (defn page-for [route]
   (case route
     :index #'empty-content
     :create #'create-proxy-form
     :proxy-route #'card-container
+    :proxy-route-recordings #'recordings-proxy-layout
     ))
 
 (defn custom-theme []
@@ -202,7 +204,7 @@
            (let [match (reitit/match-by-path router path)
                  current-page (:name (:data match))
                  route-params (:path-params match)]
-             (rf/dispatch [:session/set-page! (get-in route-params [:id])])
+             (rf/dispatch [:session/set-page! (get-in route-params [:id])]) ; TODO rename me page is id proxy-id or something
              (session/put! :route {:current-page (page-for current-page)
                                    :route-params route-params}))) ; TODO use re-frame instead
          :path-exists?

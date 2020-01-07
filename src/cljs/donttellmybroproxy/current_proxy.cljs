@@ -14,6 +14,9 @@
             ["@material-ui/core/Tabs" :default Tabs]
             ["@material-ui/core/Tab" :default Tab]
             ["@material-ui/core/Select" :default Select]
+            ["@material-ui/core/ListItem" :default ListItem]
+            ["@material-ui/core/ListItemText" :default ListItemText]
+            ["@material-ui/core/List" :default List]
             ["@material-ui/core/MenuItem" :default MenuItem]
             ["@material-ui/core/Button" :default Button]
             ["@material-ui/icons/RadioButtonChecked" :default RadioButtonChecked]
@@ -21,7 +24,6 @@
             ["@material-ui/core/Fab" :default Fab]
             [donttellmybroproxy.forms :refer [add-header-form update-body-form new-matcher]]
             [reagent.core :as r]
-            [reagent.session :as session]
             [re-frame.core :as rf]))
 
 (rf/reg-event-db
@@ -38,10 +40,14 @@
 
 (rf/reg-event-db
   :proxy/start-stop-recording!
-  (fn [db [_ id record-recordings]]
-    (let [args-path [:proxy/list (keyword id) :args]]
+  (fn [db [_ id {:keys [record? recordings]}]]
+    (let [id-path [:proxy/list (keyword id)]
+          args-path [:proxy/list (keyword id) :args]]
       (-> db
-          (assoc-in args-path (merge (get-in db args-path) record-recordings))))
+          (assoc-in id-path {
+                             :args (merge (get-in db args-path) {:record? record?})
+                             :recordings recordings
+                             } )))
       )
     )
 
@@ -68,6 +74,14 @@
   :<- [:session/page]
   (fn [[list page]]
     (get-in list [(keyword page) :args :record?] {})))
+
+(rf/reg-sub
+  :proxy/recordings
+  :<- [:proxy/list]
+  :<- [:session/page]
+  (fn [[list page]]
+    (get-in list [(keyword page) :recordings] [])))
+
 
 (rf/reg-event-fx
   :proxy/remove-header!
@@ -118,15 +132,18 @@
                    ]) header-values))]))
 
 (defn rec-toggle [{record? :record?}]
-
-  [:> Fab
+(let [current_proxy @(rf/subscribe [:session/page])]
+  [:> Button
    {:aria-label "Rec"
-    :on-click (fn [] (rf/dispatch [:proxy/record! {:id @(rf/subscribe [:session/page])
+    :on-click (fn [] (rf/dispatch [:proxy/record! {:id current_proxy
                                                    :record? (not record?)}]))
+    :variant "contained"
+    :style #js {:margin 8 }
+     :startIcon (if record? (r/as-element [:> RadioButtonChecked] )   (r/as-element [:> RadioButtonUnchecked]) )
     }
-   [:> (if record? RadioButtonChecked RadioButtonUnchecked)]
+   "Record"
    ]
-  )
+  ))
 
 
 (defn single-header-configuration [{title  :title}]
@@ -214,3 +231,33 @@
   [add-interceptor-card]
   ]
  ]]))
+
+;;;;;; Recordings
+
+(defn recordings-proxy-layout []
+  (let [recordings @(rf/subscribe [:proxy/recordings])]
+(into [:> List
+       (map (fn [{:keys  [url method]}]
+              [:> ListItem {:alignItems "flex-start"}
+               [:> ListItemText {
+                                 :primary url
+                                 :secondary (name method)
+                                 }]
+
+
+               ]) recordings)
+
+       ])
+
+    )
+ ; [:> List
+ ;[:> ListItem {:alignItems "flex-start"}
+ ; [:> ListItemText {
+ ;                   :primary "Brunch "
+ ;                   :secondary "can be Typography"
+ ;                   }]
+
+
+ ; ]
+ ;]
+  )

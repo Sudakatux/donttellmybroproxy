@@ -4,6 +4,13 @@
     ["@material-ui/lab/Autocomplete" :default Autocomplete]
     ["@material-ui/icons/RadioButtonChecked" :default RadioButtonChecked]
     ["@material-ui/icons/RadioButtonUnchecked" :default RadioButtonUnchecked]
+    ["@material-ui/icons/ArrowDropDown" :default ArrowDropDown]
+    ["@material-ui/core/Grid" :default Grid]
+    ["@material-ui/core/Grow" :default Grow]
+    ["@material-ui/core/Box" :default Box]
+    ["@material-ui/core/Button" :default Button]
+    ["@material-ui/core/ButtonGroup" :default ButtonGroup]
+    ["@material-ui/core/Popper" :default Popper]
     ["@material-ui/core/Fab" :default Fab]
     [hx.react :as hx :refer [defnc]]
     [hx.hooks :as hooks]
@@ -27,6 +34,8 @@
                        :value @value }
                       error (merge {:error true :helperText error})))])))
 
+
+
 ;(defn rec-toggle [{rec :rec}]
 ;
 ;  [:> Fab
@@ -39,31 +48,62 @@
 
 
 
-(defnc HeaderAutocomplete [{initial-value :initialValue
-                            options :options
-                            on-save :onSave
-                            }]
-       (let [[val updateVal] (hooks/useState initial-value)
-             renderInput (fn [params]
-                           (let [params-clj (bean params)
-                                 inputProps-clj (:inputProps params-clj)
-                                 option-selected (not-empty (:value (bean inputProps-clj)))
-                                 selected-value (or option-selected val "")]
-                             (hx/f [TextField (merge  params-clj {
-                                                                  :label "Insert header"
-                                                                  :fullWidth true
-                                                                  :inputProps (.assign js/Object inputProps-clj (->js { :onChange #(updateVal (-> % .-target .-value))
-                                                                                                                       :value selected-value
-                                                                                                                       :onBlur #(on-save selected-value)
-                                                                                                                       :autoComplete "off"
-                                                                                                                       }))
-                                                                  :autoComplete "off"
-                                                                  :variant "outlined"} )]))
-                           )]
+(defnc RecordButton [{}]
+       (let [anchorRef (hooks/useIRef nil)
+             [opened? update_open_close]  (hooks/useState true)]
+         ;(.log js/console (str  "Anchro ref " (:current anchorRef) ) anchorRef)
+         [Box
+          [ButtonGroup {
+                        :variant "contained"
+                        :ref anchorRef
+                        }
+           [Button
+            "Record"
+            ]
+           [Button {
+                    :size "small"
+                    }
+            [ArrowDropDown]
+            ]
+           ]
+          [Popper {
+                   :open opened?
+                   :anchorEl (:current anchorRef)
+                   ;:transition true
+                   ;:disablePortal true
+                   }
+           [Box "Some content"]
 
-         [Autocomplete {:id "autocomplete"
-                        :options (->js options)
-                        :renderInput renderInput
-                        :getOptionLabel (fn [elem]
-                                          (:title (bean elem) ))
-                        :freeSolo true }]))
+           ]
+          ]
+         )
+       )
+
+;(defnc HeaderAutocomplete [{initial-value :initialValue
+;                            options :options
+;                            on-save :onSave
+;                            }]
+;       (let [[val updateVal] (hooks/useState initial-value)
+;             renderInput (fn [params]
+;                           (let [params-clj (bean params)
+;                                 inputProps-clj (:inputProps params-clj)
+;                                 option-selected (not-empty (:value (bean inputProps-clj)))
+;                                 selected-value (or option-selected val "")]
+;                             (hx/f [TextField (merge  params-clj {
+;                                                                  :label "Insert header"
+;                                                                  :fullWidth true
+;                                                                  :inputProps (.assign js/Object inputProps-clj (->js { :onChange #(updateVal (-> % .-target .-value))
+;                                                                                                                       :value selected-value
+;                                                                                                                       :onBlur #(on-save selected-value)
+;                                                                                                                       :autoComplete "off"
+;                                                                                                                       }))
+;                                                                  :autoComplete "off"
+;                                                                  :variant "outlined"} )]))
+;                           )]
+;
+;         [Autocomplete {:id "autocomplete"
+;                        :options (->js options)
+;                        :renderInput renderInput
+;                        :getOptionLabel (fn [elem]
+;                                          (:title (bean elem) ))
+;                        :freeSolo true }]))

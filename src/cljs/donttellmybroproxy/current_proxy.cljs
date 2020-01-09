@@ -4,25 +4,34 @@
             ["@material-ui/core/styles/MuiThemeProvider" :default ThemeProvider]
             ["@material-ui/core/Grid" :default Grid]
             ["@material-ui/core/Typography" :default Typography]
+            ["@material-ui/core/ClickAwayListener" :default ClickAwayListener]
             ["@material-ui/core/Chip" :default Chip]
             ["@material-ui/core/TextField" :default TextField]
-            ["@material-ui/lab/Autocomplete" :default Autocomplete]
             ["@material-ui/core/Card" :default Card]
             ["@material-ui/core/CardContent" :default CardContent]
             ["@material-ui/core/CardActions" :default CardActions]
             ["@material-ui/core/CardHeader" :default CardHeader]
+            ["@material-ui/core/Box" :default Box]
+            ["@material-ui/core/ButtonGroup" :default ButtonGroup]
+            ["@material-ui/core/Popper" :default Popper]
+            ["@material-ui/core/Paper" :default Paper]
+            ["@material-ui/core/MenuList" :default MenuList]
+            ["@material-ui/core/MenuItem" :default MenuItem]
             ["@material-ui/core/Tabs" :default Tabs]
             ["@material-ui/core/Tab" :default Tab]
             ["@material-ui/core/Select" :default Select]
             ["@material-ui/core/ListItem" :default ListItem]
             ["@material-ui/core/ListItemText" :default ListItemText]
             ["@material-ui/core/List" :default List]
-            ["@material-ui/core/MenuItem" :default MenuItem]
+            ["@material-ui/core/Link" :default Link]
             ["@material-ui/core/Button" :default Button]
             ["@material-ui/icons/RadioButtonChecked" :default RadioButtonChecked]
             ["@material-ui/icons/RadioButtonUnchecked" :default RadioButtonUnchecked]
+            ["@material-ui/icons/ArrowDropDown" :default ArrowDropDown]
             ["@material-ui/core/Fab" :default Fab]
             [donttellmybroproxy.forms :refer [add-header-form update-body-form new-matcher]]
+            [accountant.core :as accountant]
+    ;[donttellmybroproxy.common :refer [RecordButton]]
             [reagent.core :as r]
             [re-frame.core :as rf]))
 
@@ -131,19 +140,78 @@
                                                                      :current-headers header-values}]))}
                    ]) header-values))]))
 
-(defn rec-toggle [{record? :record?}]
-(let [current_proxy @(rf/subscribe [:session/page])]
-  [:> Button
-   {:aria-label "Rec"
-    :on-click (fn [] (rf/dispatch [:proxy/record! {:id current_proxy
-                                                   :record? (not record?)}]))
-    :variant "contained"
-    :style #js {:margin 8 }
-     :startIcon (if record? (r/as-element [:> RadioButtonChecked] )   (r/as-element [:> RadioButtonUnchecked]) )
-    }
-   "Record"
-   ]
-  ))
+(defn rec-toggle []
+  (let [current_proxy @(rf/subscribe [:session/page])
+        record? @(rf/subscribe [:proxy/record?])]
+    [:> Button
+     {:aria-label "Rec"
+      :on-click (fn [] (rf/dispatch [:proxy/record! {:id current_proxy
+                                                     :record? (not record?)}]))
+      ;:variant "contained"
+      ;:style #js {:margin 8 }
+      :startIcon (if record? (r/as-element [:> RadioButtonChecked] )   (r/as-element [:> RadioButtonUnchecked]) )
+      }
+     "Record"
+     ]))
+
+
+(defn record-button [recordings]
+  (let [
+        anchor (r/atom nil)
+        opened? (r/atom false)
+        set-anchor #(reset! anchor %)]
+    (fn [recordings]
+        [:div
+         [:> ButtonGroup {
+                          :variant "contained"
+                          ;         :ref anchorRef
+                          }
+          [rec-toggle]
+            [:> Button {
+                        :size    "small"
+                        :disabled (empty? recordings)
+                        :onClick (fn [event]
+                                     (when (nil? @anchor)
+                                       (set-anchor (-> event .-currentTarget))
+                                       )
+                                      (reset! opened? true)
+                                   )
+
+                        }
+             [:> ArrowDropDown]]
+          ]
+         [:> Popper {
+                     :open          @opened?
+                     ;:keepMounted   true
+                     :anchorEl      @anchor
+                     :disablePortal true
+                     ;:transition true
+                     }
+          [:> Paper
+           [:> ClickAwayListener
+            {
+             :onClickAway #(swap! opened? not)
+             }
+            [:> MenuList
+             {
+              :autoFocusItem @opened?
+              }
+             [:> MenuItem
+              {
+               :on-click #(accountant/navigate! (str "/proxy/postman/recordings"))
+               }
+              [:> Button
+               "Show Recordings"
+               ]
+              ]
+             ]
+            ]
+           ]
+          ]
+         ])))
+
+
+
 
 
 (defn single-header-configuration [{title  :title}]
@@ -183,8 +251,12 @@
         open-modal (fn [] (reset! modal-state true))]
     (fn []
       (let [matchers @(rf/subscribe [:proxy/matchers])
-            record? @(rf/subscribe [:proxy/record?])]
+            recordings @(rf/subscribe [:proxy/recordings])]
         [:> Grid
+         {
+          :direction "row"
+          :container true
+          }
          (into [:> Select
                 {:style     #js {:width "50%"}
                  :value @(rf/subscribe [:session/matcher?])
@@ -202,7 +274,7 @@
           ]
          [new-matcher {:modal-opened @modal-state
                        :on-close close-modal}]
-         [rec-toggle {:record? record?}]
+         [record-button recordings]
 
          ]))))
 
@@ -236,20 +308,20 @@
 
 (defn recordings-proxy-layout []
   (let [recordings @(rf/subscribe [:proxy/recordings])]
+    ;(.log js/console (:url (first recordings))  recordings)
 (into [:> List
-       (map (fn [{:keys  [url method]}]
+       (map (fn [{:keys [url method]}]
+              ^{:key url}
               [:> ListItem {:alignItems "flex-start"}
                [:> ListItemText {
                                  :primary url
-                                 :secondary (name method)
+                                 :secondary (str "Method: " (name method))
                                  }]
 
 
                ]) recordings)
 
-       ])
-
-    )
+       ]))
  ; [:> List
  ;[:> ListItem {:alignItems "flex-start"}
  ; [:> ListItemText {

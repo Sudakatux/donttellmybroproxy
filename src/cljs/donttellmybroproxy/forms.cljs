@@ -14,7 +14,6 @@
             ["@material-ui/core/Button" :default Button]
             [reagent.core :as r :refer [atom]]
             [donttellmybroproxy.validations :refer [validate-proxy-entry validate-header-schema validate-body]]
-            [donttellmybroproxy.common :refer [text-field HeaderAutocomplete]]
             [donttellmybroproxy.common :refer [text-field]]))
 
 ;(def root-db-path [:forms])

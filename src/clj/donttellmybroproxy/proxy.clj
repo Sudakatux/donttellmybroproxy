@@ -73,9 +73,9 @@
   (swap! recordings assoc-in [:recordings proxy-path] {:base-url base-url
                                                        :recorded (conj (current-recordings proxy-path) recording)}))
 
-(defn toInterceptor [recordedElement elementIdx]
-  (let [element-to-interceptor (nth (get recordedElement :recorded) elementIdx)
-        url-difference (clj-str/replace (:url element-to-interceptor) (get recordedElement :base-url) "")]
+(defn toInterceptor [recordElement elementIdx]
+  (let [element-to-interceptor (nth (get recordElement :recorded) elementIdx)
+        url-difference (clj-str/replace (:url element-to-interceptor) (get recordElement :base-url) "")]
     {(str ".*" url-difference) {:response (:response element-to-interceptor)}}))
 
 (defn record! [response request proxy-path base-url record?]
@@ -168,15 +168,25 @@
   "Given an id returns the route"
   (get-in @registered-proxies [id :route]))
 
-(defn recordings-by-route [route]
+(defn recorded-element-by-route [route]
   "Takes a route string returns recordings vector"
-  (get-in @recordings [:recordings route :recorded]))
+  (get-in @recordings [:recordings route]))
+
+(defn recordings-from-recorded-element [recorded-element]
+  "Takes a route string returns recordings vector"
+  (get recorded-element :recorded))
+
+(defn recorded-element-by-id [id]
+  "Takes an id returns recorded element"
+  (-> id
+      route-by-id
+      recorded-element-by-route))
 
 (defn recordings-by-id [id]
   "Takes an id returns recordings vector"
   (-> id
-      route-by-id
-      recordings-by-route))
+      recorded-element-by-id
+      recordings-from-recorded-element))
 
 (defn is-recording? [id]
   (get-in @registered-proxies [id :args :record?]))
@@ -189,9 +199,15 @@
   (swap! registered-proxies remove-header-from-map key type matcher header-key))
 
 (defn update-type-interceptors! [type key interceptor-args matcher]
+  "Takes the type the key the matcher and the interceptor arguments and creates/replace an interceptor"
   (swap! registered-proxies assoc-in
          [key :args :interceptors matcher type]
          (merge-with into (existing-interceptors key type matcher) interceptor-args)))
+
+;Todo extract swap and add tests
+(defn create-an-interceptor-from-recording-idx [key recording-idx]
+  (swap! registered-proxies assoc-in [key :args :interceptors] (merge (get-in @registered-proxies [key :args :interceptors]) (toInterceptor (recorded-element-by-id key) recording-idx)))
+  )
 
 (defn start-recording! [key]
   (swap! registered-proxies assoc-in [key :args :record?] true))

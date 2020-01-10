@@ -10,6 +10,7 @@
             ["@material-ui/core/Card" :default Card]
             ["@material-ui/core/CardContent" :default CardContent]
             ["@material-ui/core/CardActions" :default CardActions]
+            ["@material-ui/core/Divider" :default Divider]
             ["@material-ui/core/CardHeader" :default CardHeader]
             ["@material-ui/core/Box" :default Box]
             ["@material-ui/core/ButtonGroup" :default ButtonGroup]
@@ -22,6 +23,7 @@
             ["@material-ui/core/Select" :default Select]
             ["@material-ui/core/ListItem" :default ListItem]
             ["@material-ui/core/ListItemText" :default ListItemText]
+            ["@material-ui/core/ListItemSecondaryAction" :default ListItemSecondaryAction]
             ["@material-ui/core/List" :default List]
             ["@material-ui/core/Link" :default Link]
             ["@material-ui/core/Button" :default Button]
@@ -308,28 +310,22 @@
 
 (defn recordings-proxy-layout []
   (let [recordings @(rf/subscribe [:proxy/recordings])]
-    ;(.log js/console (:url (first recordings))  recordings)
 (into [:> List
        (map (fn [{:keys [url method]}]
               ^{:key url}
-              [:> ListItem {:alignItems "flex-start"}
-               [:> ListItemText {
-                                 :primary url
-                                 :secondary (str "Method: " (name method))
-                                 }]
+              [:<>
+                [:> ListItem {:alignItems "flex-start"}
+                 [:> ListItemText {
+                                   :primary url
+                                   :secondary (str "Method: " (name method))
+                                   }]
+                 [:> ListItemSecondaryAction
+                  [:> Button
+                      "Convert to Interceptor"
+                   ]]]
+                [:> Divider { :variant "inset"
+                             :component "li"}]
+               ]
+              ) recordings)
 
-
-               ]) recordings)
-
-       ]))
- ; [:> List
- ;[:> ListItem {:alignItems "flex-start"}
- ; [:> ListItemText {
- ;                   :primary "Brunch "
- ;                   :secondary "can be Typography"
- ;                   }]
-
-
- ; ]
- ;]
-  )
+       ])))

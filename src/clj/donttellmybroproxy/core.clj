@@ -30,7 +30,7 @@
     false
     )
   )
-
+;TODO endpoint paths are in a confusing order refactor proxy-server/:id/thenTheAction
 (def routes
   [
    ["/api"
@@ -74,7 +74,6 @@
         )
       }
      ]
-    ;; TODO this two endpoints can be merged into one
     ["/proxy-server/:type/headers/:id"
      {
       :post
@@ -116,6 +115,15 @@
                       }))
       }
      ]
+    ["/proxy-server/:id/recordings/:recording_id/to_interceptor"
+     {
+      :put
+      (fn [{{:keys [id recording_id]} :path-params}]
+        (proxy/create-an-interceptor-from-recording-idx (keyword id) (Integer/parseInt recording_id))
+        (response/ok {:list (proxy/list-proxies)} ))
+      }
+     ]
+
     ["/proxy-server/list"
      {
       :get

@@ -25,7 +25,6 @@
             ["@material-ui/core/ListItemText" :default ListItemText]
             ["@material-ui/core/ListItemSecondaryAction" :default ListItemSecondaryAction]
             ["@material-ui/core/List" :default List]
-            ["@material-ui/core/Link" :default Link]
             ["@material-ui/core/Button" :default Button]
             ["@material-ui/icons/RadioButtonChecked" :default RadioButtonChecked]
             ["@material-ui/icons/RadioButtonUnchecked" :default RadioButtonUnchecked]
@@ -33,7 +32,6 @@
             ["@material-ui/core/Fab" :default Fab]
             [donttellmybroproxy.forms :refer [add-header-form update-body-form new-matcher]]
             [accountant.core :as accountant]
-    ;[donttellmybroproxy.common :refer [RecordButton]]
             [reagent.core :as r]
             [re-frame.core :as rf]))
 
@@ -58,9 +56,13 @@
           (assoc-in id-path {
                              :args (merge (get-in db args-path) {:record? record?})
                              :recordings recordings
-                             } )))
-      )
-    )
+                             })))))
+
+(rf/reg-event-db
+  :proxy/set-interceptors!
+  [(rf/path :proxy/list)]
+  (fn [proxy-list [_ proxy-id interceptors]]
+    (assoc-in proxy-list [proxy-id :args :interceptors ] interceptors)))
 
 (rf/reg-sub
   :proxy/matchers
@@ -93,7 +95,6 @@
   (fn [[list page]]
     (get-in list [(keyword page) :recordings] [])))
 
-
 (rf/reg-event-fx
   :proxy/remove-header!
   (fn [_ [_ {:keys [type header-key id matcher current-headers]}]]
@@ -112,6 +113,14 @@
                 :params {:record? record?}
                 :success-event [:proxy/start-stop-recording! (keyword id)]
                 }}))
+
+(rf/reg-event-fx
+  :proxy/convert-to-interceptor!
+  (fn [_ [_ {:keys [id recording-idx]}]]
+    {:ajax/post {
+                 :success-path [:interceptors]
+                 :url    (str "/api/proxy-server/" id "/recordings/" recording-idx "/to_interceptor")
+                 :success-event [:proxy/set-interceptors! (keyword id)]}}))
 
 (rf/reg-sub
   :proxy/response-headers
@@ -212,10 +221,6 @@
           ]
          ])))
 
-
-
-
-
 (defn single-header-configuration [{title  :title}]
    [:<>
    [:> Typography title]
@@ -253,7 +258,8 @@
         open-modal (fn [] (reset! modal-state true))]
     (fn []
       (let [matchers @(rf/subscribe [:proxy/matchers])
-            recordings @(rf/subscribe [:proxy/recordings])]
+            recordings @(rf/subscribe [:proxy/recordings])
+            selected-matcher @(rf/subscribe [:session/matcher?])]
         [:> Grid
          {
           :direction "row"
@@ -261,7 +267,7 @@
           }
          (into [:> Select
                 {:style     #js {:width "50%"}
-                 :value @(rf/subscribe [:session/matcher?])
+                 :value selected-matcher
                  :on-change #(rf/dispatch [:session/set-matcher! (-> % .-target .-value)])}]
                (map (fn [matcher]
                       ^{:key matcher}
@@ -276,9 +282,7 @@
           ]
          [new-matcher {:modal-opened @modal-state
                        :on-close close-modal}]
-         [record-button recordings]
-
-         ]))))
+         [record-button recordings]]))))
 
 (defn card-container []
   (let [type @(rf/subscribe [:session/request-or-response?])]
@@ -309,9 +313,10 @@
 ;;;;;; Recordings
 
 (defn recordings-proxy-layout []
-  (let [recordings @(rf/subscribe [:proxy/recordings])]
+  (let [recordings @(rf/subscribe [:proxy/recordings])
+        current_proxy @(rf/subscribe [:session/page])]
 (into [:> List
-       (map (fn [{:keys [url method]}]
+       (map-indexed (fn [idx {:keys [url method]}]
               ^{:key url}
               [:<>
                 [:> ListItem {:alignItems "flex-start"}
@@ -321,6 +326,9 @@
                                    }]
                  [:> ListItemSecondaryAction
                   [:> Button
+                   {
+                    :onClick #(rf/dispatch [:proxy/convert-to-interceptor! {:id current_proxy :recording-idx idx} ])
+                    }
                       "Convert to Interceptor"
                    ]]]
                 [:> Divider { :variant "inset"

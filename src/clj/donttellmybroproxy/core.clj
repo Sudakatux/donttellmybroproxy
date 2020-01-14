@@ -115,12 +115,12 @@
                       }))
       }
      ]
-    ["/proxy-server/:id/recordings/:recording_id/to_interceptor"
+    ["/proxy-server/:id/recordings/:recording_idx/to_interceptor"
      {
-      :put
-      (fn [{{:keys [id recording_id]} :path-params}]
-        (proxy/create-an-interceptor-from-recording-idx (keyword id) (Integer/parseInt recording_id))
-        (response/ok {:list (proxy/list-proxies)} ))
+      :post
+      (fn [{{:keys [id recording_idx]} :path-params}]
+        (proxy/create-an-interceptor-from-recording-idx (keyword id) (Integer/parseInt recording_idx))
+        (response/ok {:interceptors (proxy/interceptors-for-id (keyword id))} ))
       }
      ]
 

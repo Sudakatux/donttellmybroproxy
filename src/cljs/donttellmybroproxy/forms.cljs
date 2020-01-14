@@ -159,6 +159,8 @@
         header-value-error @(rf/subscribe [:form/error @header-type-form [:header-value]])
         header-value-dispatcher #(rf/dispatch [:form/set-field @header-type-form [:header-value] %])
         matcher @(rf/subscribe [:session/matcher?])
+        form-fields-for-type  (get
+                                @(rf/subscribe [:form/fields]) @header-type-form)
         ]
     [:> Box {:style #js {:padding 20 }}
      [:> Grid
@@ -198,8 +200,7 @@
        :on-click #(add-header! {:header-type-form @header-type-form
                                 :id @(rf/subscribe [:session/page])
                                 :payload (assoc
-                                           (get
-                                             @(rf/subscribe [:form/fields]) @header-type-form)
+                                           form-fields-for-type
                                            :matcher matcher) }) ;; TODO hardcoded matcher
        :style #js {:margin-top 20}
        :color "primary"
@@ -213,33 +214,38 @@
                     modal-opened :modal-opened
                     on-close     :on-close
                     }]
-  [:> Dialog
-   {
-    :open modal-opened
-    }
-   [:> Card
-    [:> CardContent
-     [text-field
-      {:attrs   {:label    "Url Matcher"
-                 :id       "matcher"
-                 :multiple true
-                 :rowMax   4}
-       :value   (rf/subscribe [:form/field :new-matcher [:matcher]])
-       :on-save #(rf/dispatch [:form/set-field :new-matcher [:matcher] %])
-       :error   @(rf/subscribe [:form/error :new-matcher [:matcher]])}]
-     ]
-    [:> CardActions
-     [:> Button
-      {:on-click (fn [] (do
-                     (add-matcher! {:matcher @(rf/subscribe [:form/field :new-matcher [:matcher]])
-                                    :proxy-id @(rf/subscribe [:session/page])})
-                     (on-close)
-                     ) )}
-      "Add"
-      ]
-     [:> Button
-      {:on-click on-close}
-      "Cancel"]]]])
+  (let [matcher @(rf/subscribe [:form/field :new-matcher [:matcher]])
+        proxy-id @(rf/subscribe [:session/page])]
+    [:> Dialog
+     {
+      :open modal-opened
+      }
+     [:> Card
+      [:> CardContent
+       [text-field
+        {:attrs   {:label    "Url Matcher"
+                   :id       "matcher"
+                   :multiple true
+                   :rowMax   4}
+         :value   (rf/subscribe [:form/field :new-matcher [:matcher]])
+         :on-save #(rf/dispatch [:form/set-field :new-matcher [:matcher] %])
+         :error   @(rf/subscribe [:form/error :new-matcher [:matcher]])}]
+       ]
+      [:> CardActions
+       [:> Button
+        {:on-click (fn [] (do
+                            (add-matcher! {:matcher matcher
+                                           :proxy-id proxy-id
+                                           })
+                            (on-close)
+                            ) )}
+        "Add"
+        ]
+       [:> Button
+        {:on-click on-close}
+        "Cancel"]]]]
+
+    ))
 
 
 (defn update-body-form
@@ -249,7 +255,8 @@
         body-value (rf/subscribe [:form/field @type [:body]])
         body-value-error @(rf/subscribe [:form/error @type [:body]])
         body-value-dispatcher #(rf/dispatch [:form/set-field @type [:body] %])
-        matcher @(rf/subscribe [:session/matcher?])]
+        matcher @(rf/subscribe [:session/matcher?])
+        form-fields-for-type (get @(rf/subscribe [:form/fields]) @type)]
     [:> Card
      {:style #js {:max-width 1000}}
      [:> CardHeader {:title "Set Body"}]
@@ -273,7 +280,7 @@
           :on-click #(change-body! {:type @type
                                     :id @(rf/subscribe [:session/page])
                                     :payload (assoc
-                                               (get @(rf/subscribe [:form/fields]) @type)
+                                               form-fields-for-type
                                                :matcher matcher)} )}
          [:> Add]]]]]]
     )

@@ -156,6 +156,9 @@
 (defn list-proxies []
   @registered-proxies)
 
+(defn interceptors-for-id [id]
+  (get-in @registered-proxies [id :args :interceptors] {}))
+
 (defn extract-existing-interceptors [current key type matcher]
   "Returns a request/response(type) interceptor for a given matcher matcher"
   (get-in current [key :args :interceptors matcher type]))

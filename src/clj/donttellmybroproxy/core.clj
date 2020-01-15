@@ -119,8 +119,8 @@
      {
       :post
       (fn [{{:keys [id recording_idx]} :path-params}]
-        (proxy/create-an-interceptor-from-recording-idx (keyword id) (Integer/parseInt recording_idx))
-        (response/ok {:interceptors (proxy/interceptors-for-id (keyword id))} ))
+        (proxy/create-an-interceptor-from-recording-idx! (keyword id) (Integer/parseInt recording_idx))
+        (response/ok {:interceptors (proxy/interceptors-for-id (keyword id))}))
       }
      ]
 

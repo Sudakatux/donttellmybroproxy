@@ -127,7 +127,7 @@
   )
 
 (fact "Should take a recorded element and return an interceptor"
-      (toInterceptor (get sample-record-element "/postman") 0)
+      (recorded-element->interceptor (get sample-record-element "/postman") 0)
       => expected-result)
 
 ; Instruction to convert toInterceptor

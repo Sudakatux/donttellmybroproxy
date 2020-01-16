@@ -110,7 +110,11 @@
 ;; TODO center me
 (defn empty-content []
   [:> Button
-   {:on-click #(accountant/navigate! "/create")}
+   {:on-click #(accountant/navigate! "/create")
+    :startIcon (r/as-element [:> Add] )
+    :variant "contained"
+    :size "large"
+    }
    "Create Proxy"
    ])
 

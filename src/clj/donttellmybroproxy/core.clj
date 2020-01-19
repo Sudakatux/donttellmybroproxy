@@ -8,7 +8,9 @@
     [donttellmybroproxy.proxy :as proxy]
     [clojure.java.io :as io]
     [ring.util.response :as resp]
-    [ring.middleware.content-type :as content-type])
+    [ring.middleware.content-type :as content-type]
+    [reitit.ring.middleware.multipart :as multipart]
+    [clojure.edn :as edn])
   (:gen-class))
 
 (defn wrap-nocache [handler]
@@ -34,7 +36,8 @@
 (def routes
   [
    ["/api"
-    {:middleware [wrap-formats]}
+    {:middleware [wrap-formats
+                  multipart/multipart-middleware]}
     ["/proxy-server/start"
      {:put
       (fn [{{:keys [port] :or {port 3001}} :body-params}]
@@ -133,6 +136,14 @@
                    }
          :body (prn-str  {:interceptors (proxy/interceptors-for-id (keyword id))} )
          })
+      :post {
+             :parameters {:multipart {:file multipart/temp-file-part}}
+             :handler (fn [{{:keys [id]} :path-params
+                            multipart-params :multipart-params}]
+                        (let [file-obj (get multipart-params "file")]
+                          {:status 200
+                           :body (proxy/merge-to-existing-interceptors! (keyword id) (:interceptors (edn/read-string (slurp (:tempfile file-obj) ))) ) }))
+             }
       }]
     ["/proxy-server/list"
      {

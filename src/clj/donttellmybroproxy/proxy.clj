@@ -212,10 +212,14 @@
        (into {})))
 
 ;Todo extract swap and add tests
-(defn create-an-interceptor-from-recording-idx! [key recording-idx]
+(defn merge-to-existing-interceptors! [key interceptors]
   (swap! registered-proxies assoc-in [key :args :interceptors]
          (merge (get-in @registered-proxies [key :args :interceptors])
-                (recorded-element->interceptor (recorded-element-by-id key) recording-idx))))
+                interceptors)))
+
+(defn create-an-interceptor-from-recording-idx! [key recording-idx]
+         (merge-to-existing-interceptors! key
+                (recorded-element->interceptor (recorded-element-by-id key) recording-idx)))
 
 (defn start-recording! [key]
   (swap! registered-proxies assoc-in [key :args :record?] true))

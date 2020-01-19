@@ -123,7 +123,17 @@
         (response/ok {:interceptors (proxy/interceptors-for-id (keyword id))}))
       }
      ]
-
+    ["/proxy-server/:id/interceptors/download"
+     {:get
+      (fn [{{:keys [id]} :path-params}]
+        {:status 200
+         :headers {
+                   "content-type" "application/edn"
+                   "Content-Disposition" (str "attachment; filename=\"" id ".edn\"" )
+                   }
+         :body (prn-str  {:interceptors (proxy/interceptors-for-id (keyword id))} )
+         })
+      }]
     ["/proxy-server/list"
      {
       :get

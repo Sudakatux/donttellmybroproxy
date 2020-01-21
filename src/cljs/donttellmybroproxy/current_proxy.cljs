@@ -127,7 +127,7 @@
   (fn [_ [_ {:keys [id form-data]}]]
     {:ajax/post {
                  :success-path [:interceptors]
-                 :url    (str "/api/proxy-server/" id "/interceptors/file")
+                 :url (str "/api/proxy-server/" id "/interceptors/file")
                  :body form-data
                  :success-event [:proxy/set-interceptors! (keyword id)]}}))
 
@@ -167,7 +167,9 @@
      {:aria-label "Rec"
       :on-click (fn [] (rf/dispatch [:proxy/record! {:id current_proxy
                                                      :record? (not record?)}]))
-      :startIcon (if record? (r/as-element [:> RadioButtonChecked] )   (r/as-element [:> RadioButtonUnchecked]) )
+      :startIcon (if record?
+                   (r/as-element [:> RadioButtonChecked])
+                    (r/as-element [:> RadioButtonUnchecked]) )
       }
      "Record"
      ]))
@@ -180,11 +182,7 @@
     (rf/dispatch [:proxy/upload-interceptors! {
                                                :id current_proxy
                                                :form-data form-data
-                                               }])
-    ))
-
-
-
+                                               }])))
 
 (defn upload-interceptor []
   (let [!file (atom nil)]
@@ -204,26 +202,33 @@
 
         "Upload"
         ]
-
       )
     )
   )
 
 
-(defn record-button [recordings]
+(defn record-button []
   (let [
         anchor (r/atom nil)
         opened? (r/atom false)
-        set-anchor #(reset! anchor %)]
+        set-anchor #(reset! anchor %)
+        current_proxy @(rf/subscribe [:session/page])]
     (fn [recordings]
         [:div
          [:> ButtonGroup {
                           :variant "contained"
                           ;         :ref anchorRef
+
                           }
-          [:Button
-           "Download"
-           ]
+
+           [:Button
+            [:a
+             {:href (str "/api/proxy-server/" @(rf/subscribe [:session/page]) "/interceptors/file")
+              :style #js {:text-decoration "none"
+                          :color "inherit"}}
+            "Download"
+             ]
+            ]
           [upload-interceptor]
           [rec-toggle]
           [:> Button {

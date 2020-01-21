@@ -48,10 +48,11 @@
 
 (rf/reg-fx
   :ajax/post
-  (fn [{:keys [url params success-event error-event success-path]}]
+  (fn [{:keys [url params body success-event error-event success-path]}]
     (POST url
-          (cond-> {:headers {"Accept" "application/transit+json"}
-                   :params params}
+          (cond-> {:headers {"Accept" "application/transit+json"}}
+                  params (assoc :params params)
+                  body (assoc :body body)
                   success-event (assoc :handler
                                        #(rf/dispatch
                                           (conj success-event

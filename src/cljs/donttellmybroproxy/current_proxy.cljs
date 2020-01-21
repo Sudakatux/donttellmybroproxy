@@ -122,6 +122,15 @@
                  :url    (str "/api/proxy-server/" id "/recordings/" recording-idx "/to_interceptor")
                  :success-event [:proxy/set-interceptors! (keyword id)]}}))
 
+(rf/reg-event-fx
+  :proxy/upload-interceptors!
+  (fn [_ [_ {:keys [id form-data]}]]
+    {:ajax/post {
+                 :success-path [:interceptors]
+                 :url    (str "/api/proxy-server/" id "/interceptors/file")
+                 :body form-data
+                 :success-event [:proxy/set-interceptors! (keyword id)]}}))
+
 (rf/reg-sub
   :proxy/response-headers
   :<- [:proxy/list]
@@ -158,12 +167,52 @@
      {:aria-label "Rec"
       :on-click (fn [] (rf/dispatch [:proxy/record! {:id current_proxy
                                                      :record? (not record?)}]))
-      ;:variant "contained"
-      ;:style #js {:margin 8 }
       :startIcon (if record? (r/as-element [:> RadioButtonChecked] )   (r/as-element [:> RadioButtonUnchecked]) )
       }
      "Record"
      ]))
+
+(def first-file
+  (map (fn [e]
+         (let [target (.-currentTarget e)
+               file (-> target .-files (aget 0))]
+           (set! (.-value target) "")                       ; Not sure what this does
+           file))))
+
+(defn process-file-upload [fevent]
+(let [form-data (doto
+                  (js/FormData.)
+                  (.append "file" (-> fevent .-target .-files (aget 0))))]
+  (rf/dispatch [:proxy/upload-interceptors! {
+                                             :id "postman"
+                                             :form-data form-data
+                                             } ])))
+
+
+
+
+(defn upload-interceptor []
+  (let [!file (atom nil)]
+    (fn []
+       [:Button
+        {:onClick (fn []
+                    (when-let [file @!file]
+                      (.click file)
+                      ))}
+        [:input {:type "file"
+                 :id "file"
+                 :ref (fn [el]
+                        (reset! !file el))
+                 :on-change process-file-upload
+                 :style #js {:display "none"}
+                 }]
+
+        "Upload"
+        ]
+
+      )
+    )
+  )
 
 
 (defn record-button [recordings]
@@ -177,26 +226,29 @@
                           :variant "contained"
                           ;         :ref anchorRef
                           }
+          [:Button
+           "Download"
+           ]
+          [upload-interceptor]
           [rec-toggle]
-            [:> Button {
-                        :size    "small"
-                        :disabled (empty? recordings)
-                        :onClick (fn [event]
-                                     (when (nil? @anchor)
-                                       (set-anchor (-> event .-currentTarget))
-                                       )
-                                      (reset! opened? true)
-                                   )
+          [:> Button {
+                      :size    "small"
+                      :disabled (empty? recordings)
+                      :onClick (fn [event]
+                                   (when (nil? @anchor)
+                                     (set-anchor (-> event .-currentTarget))
+                                     )
+                                    (reset! opened? true)
+                                 )
 
-                        }
-             [:> ArrowDropDown]]
+                      }
+           [:> ArrowDropDown]]
+
           ]
          [:> Popper {
                      :open          @opened?
-                     ;:keepMounted   true
                      :anchorEl      @anchor
                      :disablePortal true
-                     ;:transition true
                      }
           [:> Paper
            [:> ClickAwayListener

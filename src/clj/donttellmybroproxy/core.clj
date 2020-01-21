@@ -126,7 +126,7 @@
         (response/ok {:interceptors (proxy/interceptors-for-id (keyword id))}))
       }
      ]
-    ["/proxy-server/:id/interceptors/download"
+    ["/proxy-server/:id/interceptors/file"
      {:get
       (fn [{{:keys [id]} :path-params}]
         {:status 200
@@ -136,14 +136,18 @@
                    }
          :body (prn-str  {:interceptors (proxy/interceptors-for-id (keyword id))} )
          })
-      :post {
-             :parameters {:multipart {:file multipart/temp-file-part}}
-             :handler (fn [{{:keys [id]} :path-params
-                            multipart-params :multipart-params}]
-                        (let [file-obj (get multipart-params "file")]
-                          {:status 200
-                           :body (proxy/merge-to-existing-interceptors! (keyword id) (:interceptors (edn/read-string (slurp (:tempfile file-obj) ))) ) }))
-             }
+        :post {
+               :parameters {:multipart {:file multipart/temp-file-part}}
+               :handler (fn [{{:keys [id]} :path-params
+                              multipart-params :multipart-params}]
+                          (let [file-obj (get multipart-params "file")] ;TODO Refactor this can be done in one single step
+                            (proxy/merge-to-existing-interceptors!
+                              (keyword id)
+                              (:interceptors
+                                (edn/read-string (slurp (:tempfile file-obj)))))
+                            {:status 200
+                             :body {:interceptors (proxy/interceptors-for-id (keyword id))}}))
+               }
       }]
     ["/proxy-server/list"
      {

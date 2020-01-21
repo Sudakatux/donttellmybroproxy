@@ -172,21 +172,16 @@
      "Record"
      ]))
 
-(def first-file
-  (map (fn [e]
-         (let [target (.-currentTarget e)
-               file (-> target .-files (aget 0))]
-           (set! (.-value target) "")                       ; Not sure what this does
-           file))))
-
 (defn process-file-upload [fevent]
-(let [form-data (doto
-                  (js/FormData.)
-                  (.append "file" (-> fevent .-target .-files (aget 0))))]
-  (rf/dispatch [:proxy/upload-interceptors! {
-                                             :id "postman"
-                                             :form-data form-data
-                                             } ])))
+  (let [form-data (doto
+                    (js/FormData.)
+                    (.append "file" (-> fevent .-target .-files (aget 0))))
+        current_proxy @(rf/subscribe [:session/page])]
+    (rf/dispatch [:proxy/upload-interceptors! {
+                                               :id current_proxy
+                                               :form-data form-data
+                                               }])
+    ))
 
 
 

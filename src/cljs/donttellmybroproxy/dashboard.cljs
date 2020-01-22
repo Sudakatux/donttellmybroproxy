@@ -3,6 +3,7 @@
              ["@material-ui/core/styles" :refer [createMuiTheme withStyles]]
              ["@material-ui/core/styles/MuiThemeProvider" :default ThemeProvider]
              ["@material-ui/core/Grid" :default Grid]
+             ["@material-ui/core/ButtonGroup" :default ButtonGroup]
              ["@material-ui/core/Button" :default Button]
              ["@material-ui/core/List" :default List]
              ["@material-ui/core/ListItem" :default ListItem]
@@ -76,33 +77,46 @@
   (let [binded-lists (rf/subscribe [:proxy/list])
         keys-list (keys @binded-lists)]
     [:> Grid
-     {:direction "column"}
-     [:> Typography
-      {:variant "h6"}
-      "Running proxies"]
-     [:> List
-      {:dense true}
-      ;Should render list item
-      (into [:<>]
-            (map (fn [elem]
-                   ^{:key elem}
-                   [:> ListItem
-                    [:> ListItemText
-                     {:primary elem}
-                     ]
-                    [:> ListItemSecondaryAction
-                     [:> IconButton
-                      {:edge "end"
-                       :on-click #(remove-from-proxy-list elem)
-                       }
-                      [:> DeleteIcon
-                       ]]
-                     [:> IconButton
-                      {:edge "end"
-                       :on-click #(accountant/navigate! (str "/proxy/" (name elem)))
-                       }
-                      [:> Edit
-                       ]]]]) keys-list))]]))
+     {:direction "column"
+      :container true}
+     [:> Grid {:item true}
+       [:> Typography
+        {:variant "h6"}
+        "Running proxies"]]
+     [:> Grid {:item true
+               :align-self "flex-end"
+               :style #js {:padding-right "1rem"}}
+      [:> ButtonGroup
+          [:> Button {:onClick #(accountant/navigate! "/create")}
+            [:> Add]
+           ]
+       ]
+      ]
+     [:> Grid {:item true}
+      [:> List
+       {:dense true}
+       ;Should render list item
+       (into [:<>]
+             (map (fn [elem]
+                    ^{:key elem}
+                    [:> ListItem
+                     [:> ListItemText
+                      {:primary elem}
+                      ]
+                     [:> ListItemSecondaryAction
+                      [:> IconButton
+                       {:edge "end"
+                        :on-click #(remove-from-proxy-list elem)
+                        }
+                       [:> DeleteIcon
+                        ]]
+                      [:> IconButton
+                       {:edge "end"
+                        :on-click #(accountant/navigate! (str "/proxy/" (name elem)))
+                        }
+                       [:> Edit
+                        ]]]]) keys-list))]]
+     ]))
 ;; TODO center me
 (defn empty-content []
   [:> Button

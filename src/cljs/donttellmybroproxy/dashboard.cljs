@@ -72,9 +72,6 @@
          :on-click stop-server}
         [:> Stop]]]]]))
 
-;(defn main-action-button-styles [theme]
-;  #js {:status {:flexGrow 1}})
-
 (defn running-proxy-list []
   (let [binded-lists (rf/subscribe [:proxy/list])
         keys-list (keys @binded-lists)]
@@ -105,8 +102,7 @@
                        :on-click #(accountant/navigate! (str "/proxy/" (name elem)))
                        }
                       [:> Edit
-                       ]]
-                     ]]) keys-list))]]))
+                       ]]]]) keys-list))]]))
 ;; TODO center me
 (defn empty-content []
   [:> Button

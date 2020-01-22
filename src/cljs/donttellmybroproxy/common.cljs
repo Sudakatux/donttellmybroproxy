@@ -34,51 +34,6 @@
                        :value @value }
                       error (merge {:error true :helperText error})))])))
 
-
-
-;(defn rec-toggle [{rec :rec}]
-;
-;  [:> Fab
-;   {:aria-label "Play"
-;    :disabled @server-running?
-;    :on-click start-server}
-;   [:> (if rec RadioButtonChecked RadioButtonUnchecked)]
-;   ]
-;  )
-
-
-
-(defnc RecordButton [{}]
-       (let [anchorRef (hooks/useIRef nil)
-             [opened? update_open_close]  (hooks/useState true)]
-         ;(.log js/console (str  "Anchro ref " (:current anchorRef) ) anchorRef)
-         [Box
-          [ButtonGroup {
-                        :variant "contained"
-                        :ref anchorRef
-                        }
-           [Button
-            "Record"
-            ]
-           [Button {
-                    :size "small"
-                    }
-            [ArrowDropDown]
-            ]
-           ]
-          [Popper {
-                   :open opened?
-                   :anchorEl (:current anchorRef)
-                   ;:transition true
-                   ;:disablePortal true
-                   }
-           [Box "Some content"]
-
-           ]
-          ]
-         )
-       )
-
 ;(defnc HeaderAutocomplete [{initial-value :initialValue
 ;                            options :options
 ;                            on-save :onSave

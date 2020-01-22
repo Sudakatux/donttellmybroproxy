@@ -173,8 +173,7 @@
                    (r/as-element [:> RadioButtonChecked])
                     (r/as-element [:> RadioButtonUnchecked]) )
       }
-     "Record"
-     ]))
+     "Record"]))
 
 (defn process-file-upload [fevent]
   (let [form-data (doto

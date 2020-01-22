@@ -120,7 +120,7 @@
 
 (def expected-result
   {
-   "./post?" {
+   ".*/post?" {
               :response sample-recorded-response
               }
    }

@@ -115,8 +115,7 @@
                                         (slurp-binary (:body req) (Integer/parseInt len)))
                                 :follow-redirects true
                                 :throw-exceptions false
-                                :as :stream}
-              ]
+                                :as :stream }]
               (-> original-request
                   (apply-interceptors (extract-interceptor-for-type (get-matchers-matching-url url (get http-opts :interceptors)) :request))
                   request
@@ -148,6 +147,7 @@
   (swap! registered-proxies assoc key (->> args
                                           (zipmap [:route :url :args])
                                           prepare-default-args)))
+
 (defn remove-proxy [key]
   (swap! registered-proxies dissoc key))
 
@@ -163,7 +163,7 @@
 
 (defn existing-interceptors [key type matcher]
   "Returns a map with existing headers for proxy [key] for type [request|response]"
-  (extract-existing-interceptors (@registered-proxies) key type matcher))
+  (extract-existing-interceptors @registered-proxies key type matcher))
 
 (defn route-by-id [id]
   "Given an id returns the route"
@@ -211,7 +211,7 @@
        (map (fn [[k v]] [k (assoc v :recordings (recordings-by-id k))]))
        (into {})))
 
-;Todo extract swap and add tests
+;TODO extract swap and add tests
 (defn merge-to-existing-interceptors! [key interceptors]
   (swap! registered-proxies assoc-in [key :args :interceptors]
          (merge (get-in @registered-proxies [key :args :interceptors])
@@ -228,7 +228,11 @@
   (swap! registered-proxies assoc-in [key :args :record?] false))
 
 (def myapp
-  (-> (constantly {:status 404 :headers {} :body "404 - not found"})
+  (-> (constantly {
+                   :status 404
+                   :headers {}
+                   :body "404 - not found"
+                   })
       wrap-dynamic
       wrap-reload))
 

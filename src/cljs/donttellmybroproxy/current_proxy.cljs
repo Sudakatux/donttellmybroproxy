@@ -26,6 +26,8 @@
             ["@material-ui/core/ListItemSecondaryAction" :default ListItemSecondaryAction]
             ["@material-ui/core/List" :default List]
             ["@material-ui/core/Button" :default Button]
+            ["@material-ui/icons/GetApp" :default GetApp]
+            ["@material-ui/icons/Publish" :default Publish]
             ["@material-ui/icons/RadioButtonChecked" :default RadioButtonChecked]
             ["@material-ui/icons/RadioButtonUnchecked" :default RadioButtonUnchecked]
             ["@material-ui/icons/ArrowDropDown" :default ArrowDropDown]
@@ -187,11 +189,13 @@
 (defn upload-interceptor []
   (let [!file (atom nil)]
     (fn []
-       [:Button
+       [:> Button
         {:onClick (fn []
                     (when-let [file @!file]
                       (.click file)
-                      ))}
+                      ))
+         :startIcon (r/as-element [:> Publish])
+         }
         [:input {:type "file"
                  :id "file"
                  :ref (fn [el]
@@ -199,7 +203,6 @@
                  :on-change process-file-upload
                  :style #js {:display "none"}
                  }]
-
         "Upload"
         ]
       )
@@ -211,9 +214,9 @@
   (let [
         anchor (r/atom nil)
         opened? (r/atom false)
-        set-anchor #(reset! anchor %)
-        current_proxy @(rf/subscribe [:session/page])]
+        set-anchor #(reset! anchor %)]
     (fn [recordings]
+      (let [current_proxy @(rf/subscribe [:session/page])]
         [:div
          [:> ButtonGroup {
                           :variant "contained"
@@ -221,9 +224,9 @@
 
                           }
 
-           [:Button
+           [:> Button {:startIcon (r/as-element [:> GetApp])}
             [:a
-             {:href (str "/api/proxy-server/" @(rf/subscribe [:session/page]) "/interceptors/file")
+             {:href (str "/api/proxy-server/" current_proxy "/interceptors/file")
               :style #js {:text-decoration "none"
                           :color "inherit"}}
             "Download"
@@ -242,9 +245,7 @@
                                  )
 
                       }
-           [:> ArrowDropDown]]
-
-          ]
+           [:> ArrowDropDown]]]
          [:> Popper {
                      :open          @opened?
                      :anchorEl      @anchor
@@ -265,13 +266,7 @@
                }
               [:> Button
                "Show Recordings"
-               ]
-              ]
-             ]
-            ]
-           ]
-          ]
-         ])))
+               ]]]]]]]))))
 
 (defn single-header-configuration [{title  :title}]
    [:<>
@@ -285,8 +280,7 @@
      ]
     [:> Grid
      {:xs 4}
-     [existing-header-cloud]
-     ]]])
+     [existing-header-cloud]]]])
 
 (defn add-header-card []
   (let [type @(rf/subscribe [:session/request-or-response?])]
@@ -296,6 +290,7 @@
    [:> CardContent
     [single-header-configuration {:title  "Response Header"
                                   :target type}]]]))
+
 (defn add-interceptor-card []
   [:> Card
    {:style #js {:maxWidth 1000}}
@@ -326,12 +321,10 @@
                       [:> MenuItem
                        {:value matcher}
                        matcher
-                       ]) (keys matchers))
-               )
+                       ]) (keys matchers)))
          [:> Button
           {:on-click open-modal}
-          "Add Matcher"
-          ]
+          "Add Matcher"]
          [new-matcher {:modal-opened @modal-state
                        :on-close close-modal}]
          [record-button recordings]]))))
@@ -345,47 +338,45 @@
      [:> Tabs
       {:value type
        :onChange (fn [_ newType] (rf/dispatch [:session/set-request-or-response! newType]))}                                              ; TODO add support for this
-[:> Tab {:label "response" :value :response}]
-[:> Tab {:label "request" :value :request}]]
-[:> Grid
- {:container true
-  :direction "column"
-  :spacing 2}
- [:> Grid
-  {:item true}
-    [add-header-card]
+    [:> Tab {:label "response" :value :response}]
+    [:> Tab {:label "request" :value :request}]]
+    [:> Grid
+     {:container true
+      :direction "column"
+      :spacing 2}
+     [:> Grid
+      {:item true}
+        [add-header-card]
 
-  ]
- [:> Grid
-  {:item true }
-  [add-interceptor-card]
-  ]
- ]]))
+      ]
+     [:> Grid
+      {:item true }
+      [add-interceptor-card]
+      ]]]))
 
 ;;;;;; Recordings
 
 (defn recordings-proxy-layout []
   (let [recordings @(rf/subscribe [:proxy/recordings])
         current_proxy @(rf/subscribe [:session/page])]
-(into [:> List
-       (map-indexed (fn [idx {:keys [url method]}]
-              ^{:key url}
-              [:<>
-                [:> ListItem {:alignItems "flex-start"}
-                 [:> ListItemText {
-                                   :primary url
-                                   :secondary (str "Method: " (name method))
-                                   }]
-                 [:> ListItemSecondaryAction
-                  [:> Button
-                   {
-                    :onClick #(rf/dispatch [:proxy/convert-to-interceptor! {:id current_proxy :recording-idx idx} ])
-                    }
-                      "Convert to Interceptor"
-                   ]]]
-                [:> Divider { :variant "inset"
-                             :component "li"}]
-               ]
-              ) recordings)
-
-       ])))
+    (into [:> List
+           (map-indexed (fn [idx {:keys [url method]}]
+                  ^{:key url}
+                  [:<>
+                    [:> ListItem {:alignItems "flex-start"}
+                     [:> ListItemText {
+                                       :primary url
+                                       :secondary (str "Method: " (name method))
+                                       }]
+                     [:> ListItemSecondaryAction
+                      [:> Button
+                       {
+                        :onClick #(rf/dispatch [:proxy/convert-to-interceptor! {:id current_proxy :recording-idx idx} ])
+                        }
+                          "Convert to Interceptor"
+                       ]]]
+                    [:> Divider { :variant "inset"
+                                 :component "li"}]
+                   ]
+                  ) recordings)
+           ])))

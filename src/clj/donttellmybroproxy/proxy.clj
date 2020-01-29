@@ -123,7 +123,7 @@
                   (apply-interceptors
                     (extract-interceptor-for-type
                       (get-matchers-matching-url url (get http-opts :interceptors)) :response))
-                  ;debug-interceptor
+                       debug-interceptor
                        prepare-cookies))
         (handler req)))))
 

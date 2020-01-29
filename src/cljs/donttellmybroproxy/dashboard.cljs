@@ -39,14 +39,15 @@
 (defn stop-server []
   (rf/dispatch [:server/stop!]))
 
-(defn start-server []
-  (rf/dispatch [:server/start!]))
+(defn start-server [port]
+  (rf/dispatch [:server/start! port]))
 
 ;; End Handlers
 
 (defn main-action-buttons []
   (let [server-running? (rf/subscribe [:server/started?])
-        status-message (if @server-running? "Running" "Not Running")]
+        status-message (if @server-running? "Running" "Not Running")
+        proxy-port (rf/subscribe [:proxy/port])]
     [:> AppBar
      {
       :position "static"
@@ -64,14 +65,22 @@
        [:> Fab
         {:aria-label "Play"
          :disabled @server-running?
-         :on-click start-server}
+         :on-click #(start-server @proxy-port)}
         [:> PlayArrow]
         ]
        [:> Fab
         {:aria-label "Stop"
          :disabled (not @server-running?)
          :on-click stop-server}
-        [:> Stop]]]]]))
+        [:> Stop]]
+       [text-field
+        {:attrs {:label "/some-route"
+                 :id "route"
+                 :type "number"
+                 :disabled @server-running?}
+         :value proxy-port
+         :on-save #(rf/dispatch [:proxy/set-port! %])}]
+       ]]]))
 
 (defn running-proxy-list []
   (let [binded-lists (rf/subscribe [:proxy/list])

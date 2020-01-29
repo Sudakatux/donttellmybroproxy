@@ -23,7 +23,7 @@
   (-> handler
       (muuntaja/wrap-format)))
 
-
+; TODO associate port to status instead of flag
 (def proxy-server (atom {:server-started false}))
 
 (defn server-running? []

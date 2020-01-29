@@ -29,15 +29,19 @@ destination: http://yahoo.com
 After clicking play you should be able to go to localhost:3001/yahoo and see yahoo
 you can add new routes with the running server no need to re-start
 
-You can edit the created route. and add request response matchers RegEx for urls. For a given matcher
+You can edit the created route, add request response matchers RegEx for urls. For a given matcher
 you can add headers that will be used for the request response. Matchers will be applied in order to a given
-request response meaning if you have two or mor matchers that match for the same url it will merge them together
+request response meaning if you have two or more matchers that match for the same url it will merge them together
 
 
 ## Current state of art
 > You can associate routes to hosts.
 
 > Add additional response and request headers for a given matcher
+
+> Record traffic for a specific route.
+
+> Create interceptors given a recording
 
 > Respond a specific body for the given matcher
 

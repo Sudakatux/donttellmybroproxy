@@ -13,6 +13,9 @@
             [reagent.session :as session]
             [accountant.core :as accountant]))
 
+
+(def default_port 3001)
+
 ;; API Internal Event Handlers
 (rf/reg-fx
   :ajax/get
@@ -78,6 +81,12 @@
         (assoc :session/page page-info))))
 
 (rf/reg-event-db
+  :proxy/set-port!
+  (fn [db [_ port]]
+    (-> db
+        (assoc :proxy/port port))))
+
+(rf/reg-event-db
   :proxy/list-remove
   [(rf/path :proxy/list)]
   (fn [proxy-list [_ item]]
@@ -87,6 +96,11 @@
   :proxy/list
   (fn [db _]
       (:proxy/list db [])))
+
+(rf/reg-sub
+  :proxy/port
+  (fn [db _]
+    (:proxy/port db default_port)))
 
 (rf/reg-sub
   :session/page
@@ -108,6 +122,7 @@
             :proxy/list {}
             :proxy-form/errors {}
             :session/page nil
+            :proxy/port default_port
             }
        :dispatch-n  (list [:proxy/load-list] [:server/load-status])}))
 
@@ -143,10 +158,10 @@
 
 (rf/reg-event-fx
   :server/start!
-  (fn [_ _]
+  (fn [_ [_ port]]
     {:ajax/put {
                 :url "/api/proxy-server/start"
-                :params {:port 3001 }           ; This should be configurable
+                :params {:port (js/parseInt port)}
                 :success-event [:server/set-status true]}}))
 ;; TODO to be implemented
 ;; Should clear fields and add to list

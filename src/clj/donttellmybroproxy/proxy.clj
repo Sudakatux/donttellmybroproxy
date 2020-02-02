@@ -41,7 +41,7 @@
 (defn apply-response-args [response config]
   (merge-with into response config))
 
-(defn get-matchers-matching-url [url interceptors]
+(defn get-matchers-matching-url [interceptors url]
   "Returns a vector with matching interceptors"
   (filter #(re-matches (re-pattern (key %)) url) interceptors))
 
@@ -55,7 +55,15 @@
 
 (defn extract-interceptor-for-type [interceptors type]
   "Will return interceptor without the matching key"
-  (map (fn [el] (get (val el) type)) interceptors))
+  (map (fn [el] (get el type)) interceptors))
+
+(defn interceptors-for-method [interceptors method]
+  "Takes the interceptors and looks for all interceptor that match
+  either the method or the :all key"
+  (->> interceptors
+      vals
+      (map #((comp vals select-keys) % [:all method]))
+       flatten))
 
 (defn apply-interceptors [response interceptors]
   "Takes a request and a list of interceptors and apply them in order"
@@ -76,7 +84,7 @@
 (defn recorded-element->interceptor [recordElement elementIdx]
   (let [element-to-interceptor (nth (get recordElement :recorded) elementIdx)
         url-difference (clj-str/replace (:url element-to-interceptor) (get recordElement :base-url) "")]
-    {(str ".*" url-difference) {:response (:response element-to-interceptor)}}))
+    {(str ".*" url-difference) {:all {:response (get element-to-interceptor :response)}}}))
 
 (defn record! [response request proxy-path base-url record?]
   (if record?
@@ -108,22 +116,29 @@
               lcl-path   (URI. (subs (:uri req) (.length proxied-path)))
               remote-uri (.resolve rmt-path lcl-path)
               url (str remote-uri (if (:query-string req) (str "?" (:query-string req)) ""))
-              original-request {:method (:request-method req)
+              method (:request-method req)
+              original-request {:method method
                                 :url url
                                 :headers (dissoc (:headers req) "host" "content-length")
                                 :body (if-let [len (get-in req [:headers "content-length"])]
                                         (slurp-binary (:body req) (Integer/parseInt len)))
                                 :follow-redirects true
                                 :throw-exceptions false
-                                :as :stream }]
+                                :as :stream }
+              interceptors-for-method-url (-> http-opts
+                                              (get :interceptors) ;Gets all interceptors
+                                              debug-interceptor
+                                              (get-matchers-matching-url url) ; Filters by matchers matching url
+                                              debug-interceptor
+                                              (interceptors-for-method method)) ; Filters by methods and :all
+              ]
+          (clojure.pprint/pprint interceptors-for-method-url)
               (-> original-request
-                  (apply-interceptors (extract-interceptor-for-type (get-matchers-matching-url url (get http-opts :interceptors)) :request))
-                  request
-                  (record! original-request proxied-path remote-base-uri (:record? http-opts))
-                  (apply-interceptors
-                    (extract-interceptor-for-type
-                      (get-matchers-matching-url url (get http-opts :interceptors)) :response))
-                       debug-interceptor
+                  (apply-interceptors (extract-interceptor-for-type interceptors-for-method-url :request)) ; Applys request interceptors
+                  request                                   ; Performs actual request
+                  (record! original-request proxied-path remote-base-uri (:record? http-opts)) ; if present records request and response... and returns unmodified response --> Side Effect
+                  (apply-interceptors (extract-interceptor-for-type interceptors-for-method-url :response)) ;Applys response interceptors
+                  ;debug-interceptor
                        prepare-cookies))
         (handler req)))))
 
@@ -157,13 +172,14 @@
 (defn interceptors-for-id [id]
   (get-in @registered-proxies [id :args :interceptors] {}))
 
-(defn extract-existing-interceptors [current key type matcher]
-  "Returns a request/response(type) interceptor for a given matcher matcher"
-  (get-in current [key :args :interceptors matcher type]))
+(defn get-existing-interceptors-for-current-key-type-matcher-method [current key type matcher method]
+  "Returns a request/response(type) interceptor for a given matcher method"
+  (get-in current [key :args :interceptors matcher method type]))
 
-(defn existing-interceptors [key type matcher]
-  "Returns a map with existing headers for proxy [key] for type [request|response]"
-  (extract-existing-interceptors @registered-proxies key type matcher))
+(defn existing-interceptors [key type matcher method]
+  "Returns a map with existing headers for proxy [key] for type [request|response]
+  method :get :post :put :options :all"
+  (get-existing-interceptors-for-current-key-type-matcher-method @registered-proxies key type matcher method))
 
 (defn route-by-id [id]
   "Given an id returns the route"
@@ -202,8 +218,8 @@
 (defn update-type-interceptors! [type key interceptor-args matcher]
   "Takes the type the key the matcher and the interceptor arguments and creates/replace an interceptor"
   (swap! registered-proxies assoc-in
-         [key :args :interceptors matcher type]
-         (merge-with into (existing-interceptors key type matcher) interceptor-args)))
+         [key :args :interceptors matcher :all type]        ;FIXME refactor.. :all should be a param method
+         (merge-with into (existing-interceptors key type matcher :all) interceptor-args)))
 
 ;TODO extract atom and add tests
 (defn list-proxies []

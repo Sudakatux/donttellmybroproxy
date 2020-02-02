@@ -12,10 +12,10 @@
   {:body "This is a replaced body"})
 
 (def sample-matcher
-  {".*" {:response sample-header-interceptor}})
+  {".*" {:all {:response sample-header-interceptor}} })
 
 (def less-generic-matcher
-  {".*a=2" {:response some-body-interceptor}})
+  {".*a=2" {:all {:response some-body-interceptor}}})
 
 (def test-state-map
   {:yahoo {:route "/yahoo",
@@ -25,7 +25,7 @@
                   :interceptors sample-matcher}}})
 
 (fact "Should extract an interceptor configuration for a given matcher type"
-      (extract-existing-interceptors test-state-map :yahoo :response ".*")
+      (get-existing-interceptors-for-current-key-type-matcher-method test-state-map :yahoo :response ".*" :all)
       => sample-header-interceptor)
 
 (def sample-simple-request
@@ -56,11 +56,11 @@
    ".*a=2" {:response {:headers {"Some-Header" "Some Value"}}}})
 
 (fact "Should return all matchers that match the given url"
-      (get-matchers-matching-url "http://www.yahoo.com" sample-multi-matcher)
+      (get-matchers-matching-url sample-multi-matcher "http://www.yahoo.com")
       => (vector (flatten (seq (select-keys sample-multi-matcher [".*"])))))
 
 (fact "Should flatten the :request or :response from the interceptor"
-      (extract-interceptor-for-type sample-multi-matcher :response)
+      (extract-interceptor-for-type (vals sample-multi-matcher)  :response)
       => '({:headers {"Content-Type" "Text"}} {:headers {"Some-Header" "Some Value"}}))
 
 (def sample-state
@@ -120,15 +120,21 @@
 
 (def expected-result
   {
-   ".*/post?" {
-              :response sample-recorded-response
-              }
+   ".*/post?" {:all {:response sample-recorded-response}}
    }
   )
 
 (fact "Should take a recorded element and return an interceptor"
       (recorded-element->interceptor (get sample-record-element "/postman") 0)
       => expected-result)
+
+
+;(fact "Should return interceptors matching methods")
+(def sample-interceptors-all {".*" {:all {:response {:headers {"Bareer" "1232313"}}}}})
+
+(fact "Should return interceptors matching :all and method if present"
+      (interceptors-for-method {".*" {:all {:response {:headers {"Bareer" "1232313"}}}}} :get)
+      => '({:response {:headers {"Bareer" "1232313"}}}))
 
 ; Instruction to convert toInterceptor
 ;(swap! registered-proxies assoc-in [:postman :args :interceptors] (toInterceptor (get-in @recordings [:recordings "/postman"]) 0))

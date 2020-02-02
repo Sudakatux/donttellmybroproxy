@@ -83,13 +83,13 @@
       (fn [{{:keys [matcher header-key header-value]} :body-params
             {:keys [type id]} :path-params}]
         (proxy/update-type-interceptors! (keyword type) (keyword id) {:headers {header-key header-value}} matcher)
-        (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher))
+        (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher :all))
         )
       :delete
       (fn [{{:keys [matcher header-key]} :body-params
             {:keys [type id]} :path-params}]
         (proxy/remove-header! (keyword id) (keyword type) matcher header-key)
-        (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher))
+        (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher :all))
         )
       }
      ]
@@ -100,7 +100,7 @@
       (fn [{{:keys [matcher body]} :body-params
             {:keys [type id]} :path-params}]
         (proxy/update-type-interceptors! (keyword type) (keyword id)  {:body body} matcher)
-        (response/ok {:list (proxy/existing-interceptors (keyword id) :response matcher) } )
+        (response/ok {:list (proxy/existing-interceptors (keyword id) :response matcher :all) } )
         )
       }
      ]

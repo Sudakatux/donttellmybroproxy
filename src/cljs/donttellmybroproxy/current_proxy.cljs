@@ -38,10 +38,16 @@
             [re-frame.core :as rf]))
 
 (rf/reg-event-db
-  :session/set-matcher!
-  (fn [db [_ matcher]]
-    (-> db
-        (assoc :session/matcher? matcher))))
+  :session/set-matcher-regex!
+  [(rf/path :session/matcher?)]
+  (fn [matcher [_ regex]]
+      (assoc matcher :regex regex)))
+
+(rf/reg-event-db
+  :session/set-matcher-method!
+  [(rf/path :session/matcher?)]
+  (fn [matcher [_ method]]
+        (assoc matcher :method (keyword method) )))
 
 (rf/reg-event-db
   :session/set-request-or-response!
@@ -74,6 +80,14 @@
     (get-in list [(keyword page) :args :interceptors] {})))
 
 (rf/reg-sub
+  :proxy/matchers-methods
+  :<- [:proxy/list]
+  :<- [:session/page]
+  :<- [:session/matcher-regex?]
+  (fn [[list page regex]]
+    (keys (get-in list [(keyword page) :args :interceptors regex] {} ))))
+
+(rf/reg-sub
   :session/request-or-response?
   (fn [db _]
     (keyword (get db :session/request-or-response? "response"))))
@@ -81,7 +95,17 @@
 (rf/reg-sub
   :session/matcher?
   (fn [db _]
-    (:session/matcher? db)))
+    (get db :session/matcher? {})))
+
+(rf/reg-sub
+  :session/matcher-regex?
+  (fn [db _]
+    (get-in db [:session/matcher? :regex])))
+
+(rf/reg-sub
+  :session/matcher-method?
+    (fn [db _]
+      (get-in db [:session/matcher? :method] :all)))
 
 (rf/reg-sub
   :proxy/record?
@@ -103,9 +127,10 @@
     {:ajax/delete {
                  :url (str "/api/proxy-server/" (name type) "/headers/" id )
                  :params {:header-key header-key
-                          :matcher matcher}
+                          :matcher (get matcher :regex )
+                          :method (get matcher :method)}
                  :success-path [:list]
-                 :success-event [:proxy/set-headers! (keyword id) type matcher {:headers (dissoc current-headers header-key)}]}}))
+                 :success-event [:proxy/set-headers! (keyword id) type (get matcher :regex) (get matcher :method) {:headers (dissoc current-headers header-key)}]}}))
 
 (rf/reg-event-fx
   :proxy/record!
@@ -138,8 +163,8 @@
   :<- [:proxy/list]
   :<- [:session/page]
   :<- [:session/matcher?]
-  (fn [[list page matcher] [_ id]]
-    (get-in list [(keyword page) :args :interceptors matcher id :headers] {})))
+  (fn [[list page {:keys [regex method]}] [_ id]]
+    (get-in list [(keyword page) :args :interceptors regex method id :headers] {})))
 
 (defn existing-header-cloud []
   (let [header-type-form @(rf/subscribe [:session/request-or-response?])
@@ -207,7 +232,6 @@
       )
     )
   )
-
 
 (defn record-button []
   (let [
@@ -304,23 +328,38 @@
         open-modal (fn [] (reset! modal-state true))]
     (fn []
       (let [matchers @(rf/subscribe [:proxy/matchers])
+            methods @(rf/subscribe [:proxy/matchers-methods])
             recordings @(rf/subscribe [:proxy/recordings])
-            selected-matcher @(rf/subscribe [:session/matcher?])]
+            selected-matcher-regex @(rf/subscribe [:session/matcher-regex?])
+            selected-matcher-method @(rf/subscribe [:session/matcher-method?])]
         [:> Grid
          {
           :direction "row"
           :container true
           }
          (into [:> Select
-                {:style     #js {:width "50%"}
-                 :value selected-matcher
-                 :on-change #(rf/dispatch [:session/set-matcher! (-> % .-target .-value)])}]
+                {
+                 :style     #js {:width "25%"}
+                 :value selected-matcher-regex
+                 :on-change #(rf/dispatch [:session/set-matcher-regex! (-> % .-target .-value)])}]
                (map (fn [matcher]
                       ^{:key matcher}
                       [:> MenuItem
                        {:value matcher}
                        matcher
                        ]) (keys matchers)))
+         (into [:> Select
+                {
+                 :label "Method"
+                 :style     #js {:width "25%"}
+                 :value (name selected-matcher-method)
+                 :on-change #(rf/dispatch [:session/set-matcher-method! (-> % .-target .-value keyword)])}]
+               (map (fn [method]
+                      ^{:key (str selected-matcher-regex method)}
+                      [:> MenuItem
+                       {:value (name method)}
+                       (name method)
+                       ]) methods))
          [:> Button
           {:on-click open-modal}
           "Add Matcher"]

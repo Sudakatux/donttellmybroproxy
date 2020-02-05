@@ -208,18 +208,18 @@
 (defn is-recording? [id]
   (get-in @registered-proxies [id :args :record?]))
 
-(defn remove-header-from-map [current key type matcher header-key]
-  (update-in current [key :args :interceptors matcher type :headers] dissoc header-key))
+(defn remove-header-from-map [current key type matcher method header-key]
+  (update-in current [key :args :interceptors matcher method type :headers] dissoc header-key))
 
-(defn remove-header! [key type matcher header-key]
+(defn remove-header! [key type matcher method header-key]
   "Removed the header from state"
-  (swap! registered-proxies remove-header-from-map key type matcher header-key))
+  (swap! registered-proxies remove-header-from-map key type matcher method header-key))
 
-(defn update-type-interceptors! [type key interceptor-args matcher]
+(defn update-type-interceptors! [type key interceptor-args matcher method]
   "Takes the type the key the matcher and the interceptor arguments and creates/replace an interceptor"
   (swap! registered-proxies assoc-in
-         [key :args :interceptors matcher :all type]        ;FIXME refactor.. :all should be a param method
-         (merge-with into (existing-interceptors key type matcher :all) interceptor-args)))
+         [key :args :interceptors matcher method type]
+         (merge-with into (existing-interceptors key type matcher method) interceptor-args)))
 
 ;TODO extract atom and add tests
 (defn list-proxies []

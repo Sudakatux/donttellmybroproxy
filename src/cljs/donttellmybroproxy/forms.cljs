@@ -8,6 +8,8 @@
             ["@material-ui/core/Paper" :default Paper]
             ["@material-ui/icons/Add" :default Add]
             ["@material-ui/core/Fab" :default Fab]
+            ["@material-ui/core/Select" :default Select]
+            ["@material-ui/core/MenuItem" :default MenuItem]
             ["@material-ui/core/CardActions" :default CardActions]
             ["@material-ui/core/CardContent" :default CardContent]
             ["@material-ui/core/TextField" :default TextField]
@@ -33,14 +35,14 @@
 (rf/reg-event-db
   :proxy/add-matcher!
   [(rf/path :proxy/list)]
-  (fn [proxy-list [_ proxy-id matcher]]
-    (assoc-in proxy-list [proxy-id :args :interceptors matcher] {})))
+  (fn [proxy-list [_ proxy-id matcher method]]
+    (assoc-in proxy-list [proxy-id :args :interceptors matcher method] {})))
 
 (rf/reg-event-db
   :proxy/set-headers!
   [(rf/path :proxy/list)]
-  (fn [proxy-list [_ proxy-id header-type matcher headers]]
-    (assoc-in proxy-list [proxy-id :args :interceptors matcher header-type] headers)))
+  (fn [proxy-list [_ proxy-id header-type matcher method headers]]
+    (assoc-in proxy-list [proxy-id :args :interceptors matcher method header-type] headers)))
 
 (rf/reg-sub
   :form/fields
@@ -95,7 +97,7 @@
       {:ajax/post {
                    :url (str "/api/proxy-server/" (name header-type-form)  "/headers/" id)
                    :params payload
-                   :success-event [:proxy/set-headers! (keyword id) header-type-form (:matcher payload)]}})))
+                   :success-event [:proxy/set-headers! (keyword id) header-type-form (:matcher payload) (:method payload)]}})))
 
 (defn create-proxy [proxy-payload]
   (rf/dispatch [:proxy/add-to-list! (:new-proxy proxy-payload)]))
@@ -110,10 +112,10 @@
                                     :id id
                                     :payload payload}]))
 
-(defn add-matcher! [{matcher :matcher
-                     proxy-id :proxy-id
-                     }]
-  (rf/dispatch [:proxy/add-matcher! (keyword proxy-id) matcher]))
+;(defn add-matcher! [{matcher :matcher
+;                     proxy-id :proxy-id
+;                     }]
+;  (rf/dispatch [:proxy/add-matcher! (keyword proxy-id) matcher]))
 
 (defn create-proxy-form []
   (let [proxy-id-value (rf/subscribe [:form/field :new-proxy [:id]])
@@ -162,7 +164,8 @@
         header-value (rf/subscribe [:form/field @header-type-form [:header-value]])
         header-value-error @(rf/subscribe [:form/error @header-type-form [:header-value]])
         header-value-dispatcher #(rf/dispatch [:form/set-field @header-type-form [:header-value] %])
-        matcher @(rf/subscribe [:session/matcher?])
+        matcher @(rf/subscribe [:session/matcher-regex?])
+        method @(rf/subscribe [:session/matcher-method?])
         form-fields-for-type  (get
                                 @(rf/subscribe [:form/fields]) @header-type-form)
         current-proxy @(rf/subscribe [:session/page])
@@ -206,7 +209,8 @@
                                 :id current-proxy
                                 :payload (assoc
                                            form-fields-for-type
-                                           :matcher matcher) }) ;; TODO hardcoded matcher
+                                           :matcher matcher
+                                           :method method) }) ;; TODO hardcoded matcher
        :style #js {:margin-top 20}
        :color "primary"
        :variant "contained"
@@ -218,31 +222,61 @@
                     on-close     :on-close
                     }]
   (let [matcher (rf/subscribe [:form/field :new-matcher [:matcher]])
-        proxy-id @(rf/subscribe [:session/page])
-        matcher-error @(rf/subscribe [:form/error :new-matcher [:matcher]])]
+        proxy-id (rf/subscribe [:session/page])
+        matcher-error @(rf/subscribe [:form/error :new-matcher [:matcher]])
+        method (rf/subscribe [:form/field :new-matcher [:method]])]
     [:> Dialog
      {
       :open modal-opened
       }
      [:> Card
       [:> CardContent
-       [text-field
-        {:attrs   {:label    "Url Matcher"
-                   :id       "matcher"
-                   :multiple true
-                   :rowMax   4}
-         :value   matcher
-         :on-save #(rf/dispatch [:form/set-field :new-matcher [:matcher] %])
-         :error   matcher-error}]
-       ]
+       [:> Grid
+        {:container true
+         :direction "column"}
+        [text-field
+         {:attrs   {:label    "Url Matcher"
+                    :id       "matcher"
+                    :multiple true
+                    :rowMax   4}
+          :value   matcher
+          :on-save #(rf/dispatch [:form/set-field :new-matcher [:matcher] %])
+          :error   matcher-error}]
+        [:> Select {:label "Method"
+                    :on-change #(rf/dispatch [:form/set-field :new-matcher [:method] (-> % .-target .-value)])
+                    :value @method}
+         [:> MenuItem
+          {:value "all"}
+          "ALL"
+          ]
+         [:> MenuItem
+          {:value "post"}
+          "POST"
+          ]
+         [:> MenuItem
+          {:value "get"}
+          "GET"
+          ]
+         [:> MenuItem
+          {:value "options"}
+          "OPTIONS"
+          ]
+         [:> MenuItem
+          {:value "put"}
+          "PUT"
+          ]
+         [:> MenuItem
+          {:value "patch"}
+          "PATCH"]]]]
       [:> CardActions
        [:> Button
         {:on-click (fn [] (do
-                            (add-matcher! {:matcher @matcher
-                                           :proxy-id proxy-id
-                                           })
+
+                            (rf/dispatch [:proxy/add-matcher! (keyword @proxy-id) @matcher (keyword @method) ])
                             (on-close)
-                            ) )}
+                            ) )
+         :disabled (or (nil? @matcher) (nil? @method))
+         }
         "Add"]
        [:> Button
         {:on-click on-close}

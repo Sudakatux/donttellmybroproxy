@@ -80,16 +80,16 @@
     ["/proxy-server/:type/headers/:id"
      {
       :post
-      (fn [{{:keys [matcher header-key header-value]} :body-params
+      (fn [{{:keys [matcher header-key header-value method]} :body-params
             {:keys [type id]} :path-params}]
-        (proxy/update-type-interceptors! (keyword type) (keyword id) {:headers {header-key header-value}} matcher)
-        (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher :all))
+        (proxy/update-type-interceptors! (keyword type) (keyword id) {:headers {header-key header-value}} matcher (keyword method))
+        (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher (keyword method)))
         )
       :delete
-      (fn [{{:keys [matcher header-key]} :body-params
+      (fn [{{:keys [matcher header-key method]} :body-params
             {:keys [type id]} :path-params}]
-        (proxy/remove-header! (keyword id) (keyword type) matcher header-key)
-        (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher :all))
+        (proxy/remove-header! (keyword id) (keyword type) matcher (keyword method) header-key)
+        (response/ok (proxy/existing-interceptors (keyword id) (keyword type) matcher (keyword method)))
         )
       }
      ]
@@ -97,10 +97,10 @@
     ["/proxy-server/:type/body/:id"
      {
       :post
-      (fn [{{:keys [matcher body]} :body-params
+      (fn [{{:keys [matcher body method]} :body-params
             {:keys [type id]} :path-params}]
-        (proxy/update-type-interceptors! (keyword type) (keyword id)  {:body body} matcher)
-        (response/ok {:list (proxy/existing-interceptors (keyword id) :response matcher :all) } )
+        (proxy/update-type-interceptors! (keyword type) (keyword id)  {:body body} matcher (keyword method))
+        (response/ok {:list (proxy/existing-interceptors (keyword id) :response matcher (keyword method)) } )
         )
       }
      ]

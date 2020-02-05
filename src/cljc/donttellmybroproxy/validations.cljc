@@ -21,6 +21,8 @@
   [
    [:matcher
     st/required]
+   [:method
+    st/required]
    [:header-key
     st/required
     st/string]

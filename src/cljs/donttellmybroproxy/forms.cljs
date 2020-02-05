@@ -87,7 +87,7 @@
                    :url (str "/api/proxy-server/" (name type)  "/body/" id)
                    :params payload
                    :success-path [:body]
-                   :success-event [:proxy/set-body! (keyword id) type (:matcher payload)]}}))) ;Missing the set-body event
+                   :success-event [:proxy/set-body! (keyword id) type (:matcher payload) (:method payload)]}}))) ;Missing the set-body event
 
 (rf/reg-event-fx
   :proxy/add-header!
@@ -315,7 +315,8 @@
                                     :id @(rf/subscribe [:session/page])
                                     :payload (assoc
                                                form-fields-for-type
-                                               :matcher matcher)} )}
+                                               :matcher (get matcher :regex)
+                                               :method (get matcher :method))} )}
          [:> Add]]]]]])
   )
 

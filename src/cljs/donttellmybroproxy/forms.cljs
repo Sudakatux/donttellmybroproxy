@@ -290,7 +290,9 @@
         body-value (rf/subscribe [:form/field @type [:body]])
         body-value-error @(rf/subscribe [:form/error @type [:body]])
         body-value-dispatcher #(rf/dispatch [:form/set-field @type [:body] %])
-        matcher @(rf/subscribe [:session/matcher?])
+        matcher-map @(rf/subscribe [:session/matcher?])
+        matcher (get matcher-map :regex)
+        method (get matcher-map :method)
         form-fields-for-type (get @(rf/subscribe [:form/fields]) @type)]
     [:> Card
      {:style #js {:max-width 1000}}
@@ -309,15 +311,17 @@
                 body-value-error (merge {:error true :helperText body-value-error}))
         ]
        [:> CardActions
-        [:> Fab
+        [:> Button
          {:aria-label "Add"
-          :disabled (not matcher)
+          :disabled  (or (nil? method) (nil? matcher))
+          :variant "contained"
           :on-click #(change-body! {:type @type
                                     :id @(rf/subscribe [:session/page])
                                     :payload (assoc
                                                form-fields-for-type
-                                               :matcher (get matcher :regex)
-                                               :method (get matcher :method))} )}
-         [:> Add]]]]]])
+                                               :matcher matcher
+                                               :method method)} )}
+         [:> Add] "Update"
+         ]]]]])
   )
 

@@ -100,12 +100,12 @@
 (rf/reg-sub
   :session/matcher-regex?
   (fn [db _]
-    (get-in db [:session/matcher? :regex])))
+    (get-in db [:session/matcher? :regex] nil)))
 
 (rf/reg-sub
   :session/matcher-method?
     (fn [db _]
-      (get-in db [:session/matcher? :method] :all)))
+      (get-in db [:session/matcher? :method] nil)))
 
 (rf/reg-sub
   :proxy/record?
@@ -352,7 +352,7 @@
                 {
                  :label "Method"
                  :style     #js {:width "25%"}
-                 :value (name selected-matcher-method)
+                 :value (when (not (nil? selected-matcher-method)) (name selected-matcher-method))
                  :on-change #(rf/dispatch [:session/set-matcher-method! (-> % .-target .-value keyword)])}]
                (map (fn [method]
                       ^{:key (str selected-matcher-regex method)}

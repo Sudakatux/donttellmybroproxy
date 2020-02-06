@@ -170,6 +170,7 @@
                                 @(rf/subscribe [:form/fields]) @header-type-form)
         current-proxy @(rf/subscribe [:session/page])
         ]
+    (.log js/console matcher method)
     [:> Box {:style #js {:padding 20 }}
      [:> Grid
       {:direction "row"
@@ -204,7 +205,7 @@
         ]
        ]]
      [:> Button
-      { :disabled (not matcher)
+      { :disabled (or (nil? method) (nil? matcher))
        :on-click #(add-header! {:header-type-form @header-type-form
                                 :id current-proxy
                                 :payload (assoc

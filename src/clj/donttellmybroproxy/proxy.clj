@@ -82,9 +82,10 @@
                                                        :recorded (conj (current-recordings proxy-path) recording)}))
 
 (defn recorded-element->interceptor [recordElement elementIdx]
-  (let [element-to-interceptor (nth (get recordElement :recorded) elementIdx)
-        url-difference (clj-str/replace (:url element-to-interceptor) (get recordElement :base-url) "")]
-    {(str ".*" url-difference) {:all {:response (get element-to-interceptor :response)}}}))
+  (let [element-as-interceptor (nth (get recordElement :recorded) elementIdx)
+        url-difference (clj-str/replace (:url element-as-interceptor) (get recordElement :base-url) "")
+        method (:method element-as-interceptor)]
+    {(str ".*" url-difference) {method {:response (get element-as-interceptor :response)}}}))
 
 (defn record! [response request proxy-path base-url record?]
   (if record?

@@ -68,15 +68,15 @@
            :url "http://www.yahoo.com",
            :args {:request {},
                   :response {},
-                  :interceptors {".*" {:response {:headers {"Bareer" "123456", "Content-Type" "text"}}}}}}})
+                  :interceptors {".*" {:all {:response {:headers {"Bareer" "123456", "Content-Type" "text"}}}} }}}})
 
 (fact "Should remove a header interceptor when provided with a type a key and the proxy id"
-      (remove-header-from-map sample-state :yahoo :response ".*" "Content-Type")
+      (remove-header-from-map sample-state :yahoo :response ".*" :all "Content-Type")
       => {:yahoo {:route "/yahoo",
                     :url "http://www.yahoo.com",
                     :args {:request {},
                            :response {},
-                           :interceptors {".*" {:response {:headers {"Bareer" "123456"}}}}}}})
+                           :interceptors {".*" {:all {:response {:headers {"Bareer" "123456"}}}}}}}})
 
 (def some-bytes (byte-array [(byte 0x43)
                     (byte 0x6c)
@@ -120,7 +120,7 @@
 
 (def expected-result
   {
-   ".*/post?" {:all {:response sample-recorded-response}}
+   ".*/post?" {:post {:response sample-recorded-response}}
    }
   )
 

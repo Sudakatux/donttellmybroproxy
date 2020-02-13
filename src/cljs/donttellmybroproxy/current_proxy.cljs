@@ -285,7 +285,7 @@
               }
              [:> MenuItem
               {
-               :on-click #(accountant/navigate! (str "/proxy/postman/recordings"))
+               :on-click #(accountant/navigate! (str "/proxy/" current_proxy "/recordings"))
                }
               [:> Button
                "Show Recordings"

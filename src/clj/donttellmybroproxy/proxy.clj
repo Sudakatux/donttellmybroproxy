@@ -128,12 +128,9 @@
                                 :as :stream }
               interceptors-for-method-url (-> http-opts
                                               (get :interceptors) ;Gets all interceptors
-                                              debug-interceptor
                                               (get-matchers-matching-url url) ; Filters by matchers matching url
-                                              debug-interceptor
                                               (interceptors-for-method method)) ; Filters by methods and :all
               ]
-          (clojure.pprint/pprint interceptors-for-method-url)
               (-> original-request
                   (apply-interceptors (extract-interceptor-for-type interceptors-for-method-url :request)) ; Applys request interceptors
                   request                                   ; Performs actual request

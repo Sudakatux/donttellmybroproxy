@@ -5,7 +5,6 @@
             ["@material-ui/core/Grid" :default Grid]
             ["@material-ui/core/Typography" :default Typography]
             ["@material-ui/core/ClickAwayListener" :default ClickAwayListener]
-            ["@material-ui/core/Chip" :default Chip]
             ["@material-ui/core/TextField" :default TextField]
             ["@material-ui/core/Card" :default Card]
             ["@material-ui/core/CardContent" :default CardContent]
@@ -14,6 +13,7 @@
             ["@material-ui/core/CardHeader" :default CardHeader]
             ["@material-ui/core/Box" :default Box]
             ["@material-ui/core/ButtonGroup" :default ButtonGroup]
+            ["@material-ui/core/IconButton" :default IconButton]
             ["@material-ui/core/Popper" :default Popper]
             ["@material-ui/core/Paper" :default Paper]
             ["@material-ui/core/MenuList" :default MenuList]
@@ -26,6 +26,7 @@
             ["@material-ui/core/ListItemSecondaryAction" :default ListItemSecondaryAction]
             ["@material-ui/core/List" :default List]
             ["@material-ui/core/Button" :default Button]
+            ["@material-ui/icons/Delete" :default DeleteIcon]
             ["@material-ui/icons/GetApp" :default GetApp]
             ["@material-ui/icons/Publish" :default Publish]
             ["@material-ui/icons/RadioButtonChecked" :default RadioButtonChecked]
@@ -41,13 +42,13 @@
   :session/set-matcher-regex!
   [(rf/path :session/matcher?)]
   (fn [matcher [_ regex]]
-      (assoc matcher :regex regex)))
+    (assoc matcher :regex regex)))
 
 (rf/reg-event-db
   :session/set-matcher-method!
   [(rf/path :session/matcher?)]
   (fn [matcher [_ method]]
-        (assoc matcher :method (keyword method) )))
+    (assoc matcher :method (keyword method))))
 
 (rf/reg-event-db
   :session/set-request-or-response!
@@ -62,7 +63,7 @@
           args-path [:proxy/list (keyword id) :args]]
       (-> db
           (assoc-in id-path {
-                             :args (merge (get-in db args-path) {:record? record?})
+                             :args       (merge (get-in db args-path) {:record? record?})
                              :recordings recordings
                              })))))
 
@@ -70,7 +71,7 @@
   :proxy/set-interceptors!
   [(rf/path :proxy/list)]
   (fn [proxy-list [_ proxy-id interceptors]]
-    (assoc-in proxy-list [proxy-id :args :interceptors ] interceptors)))
+    (assoc-in proxy-list [proxy-id :args :interceptors] interceptors)))
 
 (rf/reg-sub
   :proxy/matchers
@@ -85,7 +86,7 @@
   :<- [:session/page]
   :<- [:session/matcher-regex?]
   (fn [[list page regex]]
-    (keys (get-in list [(keyword page) :args :interceptors regex] {} ))))
+    (keys (get-in list [(keyword page) :args :interceptors regex] {}))))
 
 (rf/reg-sub
   :session/request-or-response?
@@ -104,8 +105,8 @@
 
 (rf/reg-sub
   :session/matcher-method?
-    (fn [db _]
-      (get-in db [:session/matcher? :method] nil)))
+  (fn [db _]
+    (get-in db [:session/matcher? :method] nil)))
 
 (rf/reg-sub
   :proxy/record?
@@ -125,37 +126,37 @@
   :proxy/remove-header!
   (fn [_ [_ {:keys [type header-key id matcher current-headers]}]]
     {:ajax/delete {
-                 :url (str "/api/proxy-server/" (name type) "/headers/" id )
-                 :params {:header-key header-key
-                          :matcher (get matcher :regex )
-                          :method (get matcher :method)}
-                 :success-path [:list]
-                 :success-event [:proxy/set-headers! (keyword id) type (get matcher :regex) (get matcher :method) {:headers (dissoc current-headers header-key)}]}}))
+                   :url           (str "/api/proxy-server/" (name type) "/headers/" id)
+                   :params        {:header-key header-key
+                                   :matcher    (get matcher :regex)
+                                   :method     (get matcher :method)}
+                   :success-path  [:list]
+                   :success-event [:proxy/set-headers! (keyword id) type (get matcher :regex) (get matcher :method) {:headers (dissoc current-headers header-key)}]}}))
 
 (rf/reg-event-fx
   :proxy/record!
   (fn [_ [_ {:keys [id record?]}]]
     {:ajax/post {
-                :url    (str "/api/proxy-server/record/" id)
-                :params {:record? record?}
-                :success-event [:proxy/start-stop-recording! (keyword id)]
-                }}))
+                 :url           (str "/api/proxy-server/record/" id)
+                 :params        {:record? record?}
+                 :success-event [:proxy/start-stop-recording! (keyword id)]
+                 }}))
 
 (rf/reg-event-fx
   :proxy/convert-to-interceptor!
   (fn [_ [_ {:keys [id recording-idx]}]]
     {:ajax/post {
-                 :success-path [:interceptors]
-                 :url    (str "/api/proxy-server/" id "/recordings/" recording-idx "/to_interceptor")
+                 :success-path  [:interceptors]
+                 :url           (str "/api/proxy-server/" id "/recordings/" recording-idx "/to_interceptor")
                  :success-event [:proxy/set-interceptors! (keyword id)]}}))
 
 (rf/reg-event-fx
   :proxy/upload-interceptors!
   (fn [_ [_ {:keys [id form-data]}]]
     {:ajax/post {
-                 :success-path [:interceptors]
-                 :url (str "/api/proxy-server/" id "/interceptors/file")
-                 :body form-data
+                 :success-path  [:interceptors]
+                 :url           (str "/api/proxy-server/" id "/interceptors/file")
+                 :body          form-data
                  :success-event [:proxy/set-interceptors! (keyword id)]}}))
 
 (rf/reg-sub
@@ -166,37 +167,108 @@
   (fn [[list page {:keys [regex method]}] [_ id]]
     (get-in list [(keyword page) :args :interceptors regex method id :headers] {})))
 
-(defn existing-header-cloud []
+
+(defn existing-header-grid []
   (let [header-type-form @(rf/subscribe [:session/request-or-response?])
         header-values @(rf/subscribe [:proxy/response-headers header-type-form])
         type @(rf/subscribe [:session/request-or-response?])
         matcher @(rf/subscribe [:session/matcher?])
-        page @(rf/subscribe [:session/page])]
-    [:> Grid
-     {:direction "row"}
+        page @(rf/subscribe [:session/page])
+        row-item-props {:item true
+                        :xs 4
+                        }
+        row-container-props {:container true
+                             :item true
+                             :direction "row"
+                             :spacing 4
+                             :xs 12
+                             :align-items "center"
+                             :style #js {:border-bottom "1px #d5d5d5 solid"
+                                         :padding "1 rem"}
+                             }
+        header-title-props { :component "strong" }
+        ]
+[:> Grid
+ {:container true
+  :direction "column"
+  :spacing 4
+  :xs 12
+  :style #js {:border-top "1px #d5d5d5 solid"
+              :width "100%"}
+  :align-items "center"
+  }
+ [:> Grid
+  row-container-props
+  [:> Grid
+   row-item-props
+   [:> Typography
+      header-title-props
+      "HEADER KEY"
+    ]
+   ]
+  [:> Grid
+   row-item-props
+   [:> Typography
+    header-title-props
+    "HEADER VALUE"
+    ]
+   ]
+  [:> Grid
+   row-item-props
+   [:> Typography
+    header-title-props
+    "ACTIONS"
+    ]
+   ]
+  ]
+ [:> Box {:style #js {
+                      :overflow "auto"
+                      :max-height "20rem",
+                      :border-top "1px #d5d5d5 solid",
+                      :padding "1rem"
+                      }
+          :mt 2}
      (into [:<>]
-           (map (fn [[hk hv]]
-                  ^{:key hk}
-                  [:> Chip
-                   {:label (str hk " : " hv)
-                    :onDelete (fn []
-                                (rf/dispatch [:proxy/remove-header! {:type type
-                                                                     :matcher matcher
-                                                                     :header-key hk
-                                                                     :id page
-                                                                     :current-headers header-values}]))}
-                   ]) header-values))]))
+           (map (fn [[header-key header-value]]
+                  ^{:key header-key}
+                  [:> Grid
+                   row-container-props
+                  [:> Grid
+                   row-item-props
+                   header-key]
+                   [:> Grid
+                    row-item-props
+                    header-value]
+                   [:> Grid
+                    row-item-props
+                    [:> IconButton
+                     {:edge "end"
+                      :on-click (fn []
+                                  (rf/dispatch [:proxy/remove-header! {:type            type
+                                                                       :matcher         matcher
+                                                                       :header-key      header-key
+                                                                       :id              page
+                                                                       :current-headers header-values}]))
+                      }
+                     [:> DeleteIcon
+                      ]]
+
+                    ]
+                   ]) header-values))
+ ]]
+))
+
 
 (defn rec-toggle []
   (let [current_proxy @(rf/subscribe [:session/page])
         record? @(rf/subscribe [:proxy/record?])]
     [:> Button
      {:aria-label "Rec"
-      :on-click (fn [] (rf/dispatch [:proxy/record! {:id current_proxy
-                                                     :record? (not record?)}]))
-      :startIcon (if record?
-                   (r/as-element [:> RadioButtonChecked])
-                    (r/as-element [:> RadioButtonUnchecked]) )
+      :on-click   (fn [] (rf/dispatch [:proxy/record! {:id      current_proxy
+                                                       :record? (not record?)}]))
+      :startIcon  (if record?
+                    (r/as-element [:> RadioButtonChecked])
+                    (r/as-element [:> RadioButtonUnchecked]))
       }
      "Record"]))
 
@@ -206,29 +278,29 @@
                     (.append "file" (-> fevent .-target .-files (aget 0))))
         current_proxy @(rf/subscribe [:session/page])]
     (rf/dispatch [:proxy/upload-interceptors! {
-                                               :id current_proxy
+                                               :id        current_proxy
                                                :form-data form-data
                                                }])))
 
 (defn upload-interceptor []
   (let [!file (atom nil)]
     (fn []
-       [:> Button
-        {:onClick (fn []
-                    (when-let [file @!file]
-                      (.click file)
-                      ))
-         :startIcon (r/as-element [:> Publish])
-         }
-        [:input {:type "file"
-                 :id "file"
-                 :ref (fn [el]
-                        (reset! !file el))
-                 :on-change process-file-upload
-                 :style #js {:display "none"}
-                 }]
-        "Upload"
-        ]
+      [:> Button
+       {:onClick   (fn []
+                     (when-let [file @!file]
+                       (.click file)
+                       ))
+        :startIcon (r/as-element [:> Publish])
+        }
+       [:input {:type      "file"
+                :id        "file"
+                :ref       (fn [el]
+                             (reset! !file el))
+                :on-change process-file-upload
+                :style     #js {:display "none"}
+                }]
+       "Upload"
+       ]
       )
     )
   )
@@ -247,25 +319,25 @@
 
                           }
 
-           [:> Button {:startIcon (r/as-element [:> GetApp])}
-            [:a
-             {:href (str "/api/proxy-server/" current_proxy "/interceptors/file")
-              :style #js {:text-decoration "none"
-                          :color "inherit"}}
+          [:> Button {:startIcon (r/as-element [:> GetApp])}
+           [:a
+            {:href  (str "/api/proxy-server/" current_proxy "/interceptors/file")
+             :style #js {:text-decoration "none"
+                         :color           "inherit"}}
             "Download"
-             ]
             ]
+           ]
           [upload-interceptor]
           [rec-toggle]
           [:> Button {
-                      :size    "small"
+                      :size     "small"
                       :disabled (empty? recordings)
-                      :onClick (fn [event]
-                                   (when (nil? @anchor)
-                                     (set-anchor (-> event .-currentTarget))
-                                     )
-                                    (reset! opened? true)
-                                 )
+                      :onClick  (fn [event]
+                                  (when (nil? @anchor)
+                                    (set-anchor (-> event .-currentTarget))
+                                    )
+                                  (reset! opened? true)
+                                  )
 
                       }
            [:> ArrowDropDown]]]
@@ -291,28 +363,44 @@
                "Show Recordings"
                ]]]]]]]))))
 
-(defn single-header-configuration [{title  :title}]
-   [:<>
+;(defn exisiting-header-grid
+;  (let [header-type-form @(rf/subscribe [:session/request-or-response?])
+;        header-values @(rf/subscribe [:proxy/response-headers header-type-form])
+;        type @(rf/subscribe [:session/request-or-response?])
+;        matcher @(rf/subscribe [:session/matcher?])
+;        page @(rf/subscribe [:session/page])]
+;  [:> Grid
+;   {:container true}
+;
+;   ]
+;
+;  ))
+
+(defn single-header-configuration [{title :title}]
+  [:<>
    [:> Typography title]
    [:> Grid
-    {:direction "row"
+    {:direction "column"
      :container true}
+    [:> Grid
+     [existing-header-grid]
+     ]
     [:> Grid
      {:xs 8}
      [add-header-form]
      ]
-    [:> Grid
-     {:xs 4}
-     [existing-header-cloud]]]])
+    ;[:> Grid
+    ; {:xs 4}
+    ; [existing-header-cloud]]
+    ]])
 
 (defn add-header-card []
   (let [type @(rf/subscribe [:session/request-or-response?])]
-  [:> Card
-   {:style #js {:maxWidth 1000}}
-   [:> CardHeader {:title "Headers"}]
-   [:> CardContent
-    [single-header-configuration {:title  "Response Header"
-                                  :target type}]]]))
+    [:> Card
+     {:style #js {:maxWidth 1000}}
+     [:> CardHeader {:title "Headers"}]
+     [:> CardContent
+      [single-header-configuration { :target type}]]]))
 
 (defn add-interceptor-card []
   [:> Card
@@ -329,7 +417,6 @@
     (fn []
       (let [matchers @(rf/subscribe [:proxy/matchers])
             methods @(rf/subscribe [:proxy/matchers-methods])
-            recordings @(rf/subscribe [:proxy/recordings])
             selected-matcher-regex @(rf/subscribe [:session/matcher-regex?])
             selected-matcher-method @(rf/subscribe [:session/matcher-method?])]
         [:> Grid
@@ -340,7 +427,7 @@
          (into [:> Select
                 {
                  :style     #js {:width "25%"}
-                 :value selected-matcher-regex
+                 :value     selected-matcher-regex
                  :on-change #(rf/dispatch [:session/set-matcher-regex! (-> % .-target .-value)])}]
                (map (fn [matcher]
                       ^{:key matcher}
@@ -350,9 +437,9 @@
                        ]) (keys matchers)))
          (into [:> Select
                 {
-                 :label "Method"
+                 :label     "Method"
                  :style     #js {:width "25%"}
-                 :value (when (not (nil? selected-matcher-method)) (name selected-matcher-method))
+                 :value     (when (not (nil? selected-matcher-method)) (name selected-matcher-method))
                  :on-change #(rf/dispatch [:session/set-matcher-method! (-> % .-target .-value keyword)])}]
                (map (fn [method]
                       ^{:key (str selected-matcher-regex method)}
@@ -364,33 +451,51 @@
           {:on-click open-modal}
           "Add Matcher"]
          [new-matcher {:modal-opened @modal-state
-                       :on-close close-modal}]
-         [record-button recordings]]))))
+                       :on-close     close-modal}]
+         ]))))
 
 (defn card-container []
-  (let [type @(rf/subscribe [:session/request-or-response?])]
-    [:> Grid
-     {:container true
-      :direction "column"}
-     [matcher-menu]
-     [:> Tabs
-      {:value type
-       :onChange (fn [_ newType] (rf/dispatch [:session/set-request-or-response! newType]))}                                              ; TODO add support for this
-    [:> Tab {:label "response" :value :response}]
-    [:> Tab {:label "request" :value :request}]]
+  (let [type @(rf/subscribe [:session/request-or-response?])
+        recordings @(rf/subscribe [:proxy/recordings])]
     [:> Grid
      {:container true
       :direction "column"
-      :spacing 2}
+      }
      [:> Grid
-      {:item true}
-        [add-header-card]
-
+      {
+       :item true
+       :xs   12
+       }
+      [matcher-menu]
       ]
      [:> Grid
-      {:item true }
-      [add-interceptor-card]
-      ]]]))
+      {:item true}
+      [record-button recordings]
+      ]
+     [:> Grid
+      {:item true}
+      [:> Tabs
+       {:value    type
+        :onChange (fn [_ newType] (rf/dispatch [:session/set-request-or-response! newType]))}
+       [:> Tab {:label "response" :value :response}]
+       [:> Tab {:label "request" :value :request}]]
+      ]
+     [:> Grid {:item true}
+      [:> Grid
+       {:container true
+        :direction "column"
+        :spacing   2}
+       [:> Grid
+        {:item true}
+        [add-header-card]
+
+        ]
+       [:> Grid
+        {:item true}
+        [add-interceptor-card]
+        ]]
+      ]
+     ]))
 
 ;;;;;; Recordings
 
@@ -399,22 +504,22 @@
         current_proxy @(rf/subscribe [:session/page])]
     (into [:> List
            (map-indexed (fn [idx {:keys [url method]}]
-                  ^{:key url}
-                  [:<>
-                    [:> ListItem {:alignItems "flex-start"}
-                     [:> ListItemText {
-                                       :primary url
-                                       :secondary (str "Method: " (name method))
-                                       }]
-                     [:> ListItemSecondaryAction
-                      [:> Button
-                       {
-                        :onClick #(rf/dispatch [:proxy/convert-to-interceptor! {:id current_proxy :recording-idx idx} ])
-                        }
-                          "Convert to Interceptor"
-                       ]]]
-                    [:> Divider { :variant "inset"
-                                 :component "li"}]
-                   ]
-                  ) recordings)
+                          ^{:key url}
+                          [:<>
+                           [:> ListItem {:alignItems "flex-start"}
+                            [:> ListItemText {
+                                              :primary   url
+                                              :secondary (str "Method: " (name method))
+                                              }]
+                            [:> ListItemSecondaryAction
+                             [:> Button
+                              {
+                               :onClick #(rf/dispatch [:proxy/convert-to-interceptor! {:id current_proxy :recording-idx idx}])
+                               }
+                              "Convert to Interceptor"
+                              ]]]
+                           [:> Divider {:variant   "inset"
+                                        :component "li"}]
+                           ]
+                          ) recordings)
            ])))

@@ -213,11 +213,24 @@
   "Removed the header from state"
   (swap! registered-proxies remove-header-from-map key type matcher method header-key))
 
+
+; TODO Add tests for this
+(defmulti interceptor-merge-strategy (fn [_ b] (first (keys b)) ))
+
+(defmethod interceptor-merge-strategy :body
+  [a b] (merge a b))
+
+(defmethod interceptor-merge-strategy :headers
+  [a b] (merge-with into a b))
+
+(defmethod interceptor-merge-strategy :default
+  [a b] (merge-with into a b))
+
 (defn update-type-interceptors! [type key interceptor-args matcher method]
   "Takes the type the key the matcher and the interceptor arguments and creates/replace an interceptor"
   (swap! registered-proxies assoc-in
          [key :args :interceptors matcher method type]
-         (merge-with into (existing-interceptors key type matcher method) interceptor-args)))
+         (interceptor-merge-strategy (existing-interceptors key type matcher method) interceptor-args)))
 
 ;TODO extract atom and add tests
 (defn list-proxies []

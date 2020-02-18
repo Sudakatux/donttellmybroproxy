@@ -1,11 +1,11 @@
 (ns donttellmybroproxy.proxy
   (:import
-    [java.net URI] )
+    [java.net URI])
   (:require
-    [clj-http.client         :refer [request]]
-    [clojure.string          :as clj-str]
-    [ring.adapter.jetty      :refer [run-jetty]]
-    [clj-http.cookies        :refer [wrap-cookies]]
+    [clj-http.client :refer [request]]
+    [clojure.string :as clj-str]
+    [ring.adapter.jetty :refer [run-jetty]]
+    [clj-http.cookies :refer [wrap-cookies]]
     [ring.middleware.reload :refer [wrap-reload]]
     )
   (:import (java.io ByteArrayInputStream ByteArrayOutputStream)))
@@ -46,12 +46,12 @@
   (filter #(re-matches (re-pattern (key %)) url) interceptors))
 
 (defn apply-interceptor [response interceptor]
-           (cond-> response
-                   (contains? interceptor :headers) (assoc :headers (merge (:headers response) (get interceptor :headers)))
-                   (contains? interceptor :body) (merge {:body (ByteArrayInputStream. (condp = (type (get interceptor :body))
-                                                                                        java.lang.String  (.getBytes (get interceptor :body))
-                                                                                        (get interceptor :body))
-                                                                 )})))
+  (cond-> response
+          (contains? interceptor :headers) (assoc :headers (merge (:headers response) (get interceptor :headers)))
+          (contains? interceptor :body) (merge {:body (ByteArrayInputStream. (condp = (type (get interceptor :body))
+                                                                               java.lang.String (.getBytes (get interceptor :body))
+                                                                               (get interceptor :body))
+                                                                             )})))
 
 (defn extract-interceptor-for-type [interceptors type]
   "Will return interceptor without the matching key"
@@ -61,8 +61,8 @@
   "Takes the interceptors and looks for all interceptor that match
   either the method or the :all key"
   (->> interceptors
-      vals
-      (map #((comp vals select-keys) % [:all method]))
+       vals
+       (map #((comp vals select-keys) % [:all method]))
        flatten))
 
 (defn apply-interceptors [response interceptors]
@@ -80,12 +80,31 @@
 (defn add-recording! [recording proxy-path base-url]
   (swap! recordings assoc-in [:recordings proxy-path] {:base-url base-url
                                                        :recorded (conj (current-recordings proxy-path) recording)}))
+(defn format-body-if-possible [type-recorded-element]
+  (let [existing-headers (get type-recorded-element :headers)
+        lower-case-headers (into {} (for [[k v] existing-headers] [(.toLowerCase k) v]))
+        content-type (get lower-case-headers "content-type")
+        body-byte-array (get type-recorded-element :body)]
+    (letfn [(is-stringable? [ctype]
+              (.contains content-type ctype))]
+      (if (some is-stringable? ["application/json"
+                                "application/xml"
+                                "application/javascript"
+                                "application/xhtml+xml"
+                                "application/x-www-form-urlencoded"
+                                "text/"])
+        (String. body-byte-array)
+        body-byte-array
+        ))))
 
 (defn recorded-element->interceptor [recordElement elementIdx]
+  "Takes a recordElement and a target index. Returns recorded element as an interceptor"
   (let [element-as-interceptor (nth (get recordElement :recorded) elementIdx)
         url-difference (clj-str/replace (:url element-as-interceptor) (get recordElement :base-url) "")
         method (:method element-as-interceptor)]
-    {(str ".*" url-difference) {method {:response (get element-as-interceptor :response)}}}))
+    {(str ".*" url-difference) {method {
+                                        :response (get element-as-interceptor :response)
+                                        }}}))
 
 (defn record! [response request proxy-path base-url record?]
   (if record?
@@ -94,13 +113,15 @@
           method (:method request)
           body (:body request)]
       (add-recording! {
-                       :url url
-                       :method method
-                       :body body
+                       :url      url
+                       :method   method
+                       :body     body
                        :response (select-keys (merge response {:body response-body})
-                                              [:cached :request-time :repeatable? :protocol-version :chunked? :cookies :reason-phrase :headers :status :length :body])
+                                              [:headers :status :body]
+                                              ;[:cached :request-time :repeatable? :protocol-version :chunked? :cookies :reason-phrase :headers :status :length :body]
+                                              )
                        } proxy-path base-url)
-      (merge response {:body (ByteArrayInputStream. response-body)}) )
+      (merge response {:body (ByteArrayInputStream. response-body)}))
     response))
 
 (defn wrap-proxy
@@ -110,34 +131,34 @@
   (wrap-cookies
     (fn [req]
       (if (.startsWith ^String (:uri req) proxied-path)
-        (let [rmt-full   (URI. (str remote-base-uri "/"))
-              rmt-path   (URI. (.getScheme    rmt-full)
-                               (.getAuthority rmt-full)
-                               (.getPath      rmt-full) nil nil)
-              lcl-path   (URI. (subs (:uri req) (.length proxied-path)))
+        (let [rmt-full (URI. (str remote-base-uri "/"))
+              rmt-path (URI. (.getScheme rmt-full)
+                             (.getAuthority rmt-full)
+                             (.getPath rmt-full) nil nil)
+              lcl-path (URI. (subs (:uri req) (.length proxied-path)))
               remote-uri (.resolve rmt-path lcl-path)
               url (str remote-uri (if (:query-string req) (str "?" (:query-string req)) ""))
               method (:request-method req)
-              original-request {:method method
-                                :url url
-                                :headers (dissoc (:headers req) "host" "content-length")
-                                :body (if-let [len (get-in req [:headers "content-length"])]
-                                        (slurp-binary (:body req) (Integer/parseInt len)))
+              original-request {:method           method
+                                :url              url
+                                :headers          (dissoc (:headers req) "host" "content-length")
+                                :body             (if-let [len (get-in req [:headers "content-length"])]
+                                                    (slurp-binary (:body req) (Integer/parseInt len)))
                                 :follow-redirects true
                                 :throw-exceptions false
-                                :as :stream }
+                                :as               :stream}
               interceptors-for-method-url (-> http-opts
                                               (get :interceptors) ;Gets all interceptors
                                               (get-matchers-matching-url url) ; Filters by matchers matching url
                                               (interceptors-for-method method)) ; Filters by methods and :all
               ]
-              (-> original-request
-                  (apply-interceptors (extract-interceptor-for-type interceptors-for-method-url :request)) ; Applys request interceptors
-                  request                                   ; Performs actual request
-                  (record! original-request proxied-path remote-base-uri (:record? http-opts)) ; if present records request and response... and returns unmodified response --> Side Effect
-                  (apply-interceptors (extract-interceptor-for-type interceptors-for-method-url :response)) ;Applys response interceptors
-                  ;debug-interceptor
-                       prepare-cookies))
+          (-> original-request
+              (apply-interceptors (extract-interceptor-for-type interceptors-for-method-url :request)) ; Applys request interceptors
+              request                                       ; Performs actual request
+              (record! original-request proxied-path remote-base-uri (:record? http-opts)) ; if present records request and response... and returns unmodified response --> Side Effect
+              (apply-interceptors (extract-interceptor-for-type interceptors-for-method-url :response)) ;Applys response interceptors
+              ;debug-interceptor
+              prepare-cookies))
         (handler req)))))
 
 (def registered-proxies (atom {}))
@@ -146,20 +167,20 @@
   (map vals (vals @registered-proxies)))
 
 (defn wrap-dynamic [handler]
-(fn [req]
-  ((->>
-     (params-to-args)
-     (reduce #(apply wrap-proxy %1 %2) handler)) req)))
+  (fn [req]
+    ((->>
+       (params-to-args)
+       (reduce #(apply wrap-proxy %1 %2) handler)) req)))
 
 (defn prepare-default-args [proxy-configuration]
-  (assoc-in proxy-configuration [:args] {:request {}
+  (assoc-in proxy-configuration [:args] {:request  {}
                                          :response {}
-                                         :record? false}))
+                                         :record?  false}))
 
 (defn add-proxy [key & args]
   (swap! registered-proxies assoc key (->> args
-                                          (zipmap [:route :url :args])
-                                          prepare-default-args)))
+                                           (zipmap [:route :url :args])
+                                           prepare-default-args)))
 
 (defn remove-proxy [key]
   (swap! registered-proxies dissoc key))
@@ -214,8 +235,7 @@
   (swap! registered-proxies remove-header-from-map key type matcher method header-key))
 
 
-; TODO Add tests for this
-(defmulti interceptor-merge-strategy (fn [_ b] (first (keys b)) ))
+(defmulti interceptor-merge-strategy (fn [_ b] (first (keys b))))
 
 (defmethod interceptor-merge-strategy :body
   [a b] (merge a b))
@@ -232,7 +252,6 @@
          [key :args :interceptors matcher method type]
          (interceptor-merge-strategy (existing-interceptors key type matcher method) interceptor-args)))
 
-;TODO extract atom and add tests
 (defn list-proxies []
   (->> @registered-proxies
        (map (fn [[k v]] [k (assoc v :recordings (recordings-by-id k))]))
@@ -245,8 +264,8 @@
                 interceptors)))
 
 (defn create-an-interceptor-from-recording-idx! [key recording-idx]
-         (merge-to-existing-interceptors! key
-                (recorded-element->interceptor (recorded-element-by-id key) recording-idx)))
+  (merge-to-existing-interceptors! key
+                                   (recorded-element->interceptor (recorded-element-by-id key) recording-idx)))
 
 (defn start-recording! [key]
   (swap! registered-proxies assoc-in [key :args :record?] true))
@@ -256,15 +275,15 @@
 
 (def myapp
   (-> (constantly {
-                   :status 404
+                   :status  404
                    :headers {}
-                   :body "404 - not found"
+                   :body    "404 - not found"
                    })
       wrap-dynamic
       wrap-reload))
 
 (defn server ([] (server 3000))
   ([port] (let [running-server (run-jetty
-                                 #'myapp                      ; Just changes here
+                                 #'myapp                    ; Just changes here
                                  {:port port :join? false})]
             running-server)))

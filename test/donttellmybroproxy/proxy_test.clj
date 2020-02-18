@@ -38,7 +38,6 @@
    :headers {"Content-Type" "12345678"}
    :body "This is a body that will get replaced"})
 
-
 (fact "Should return a request with interceptor applied"
       (apply-interceptor sample-simple-request sample-header-interceptor)
       => (merge sample-simple-request sample-header-interceptor)
@@ -135,6 +134,38 @@
 (fact "Should return interceptors matching :all and method if present"
       (interceptors-for-method {".*" {:all {:response {:headers {"Bareer" "1232313"}}}}} :get)
       => '({:response {:headers {"Bareer" "1232313"}}}))
+
+
+(def sample-recorded-response
+  {:headers {"accept-ch" "device-memory, dpr, width, viewport-width, rtt, downlink, ect",
+             "Referrer-Policy" "no-referrer-when-downgrade",
+             "Server" "ATS",
+             "Age" "0",
+             "Content-Type" "text/html; charset=UTF-8",
+             "X-Content-Type-Options" "nosniff",
+             "X-Frame-Options" "SAMEORIGIN",
+             "Strict-Transport-Security" "max-age=31536000",
+             "Connection" "keep-alive",
+             "Transfer-Encoding" "chunked",
+             "Expires" "-1",
+             "P3P" "policyref=\"https://policies.yahoo.com/w3c/p3p.xml\", CP=\"CAO DSP COR CUR ADM DEV TAI PSA PSD IVAi IVDi CONi TELo OTPi OUR DELi SAMi OTRi UNRi PUBi IND PHY ONL UNI PUR FIN COM NAV INT DEM CNT STA POL HEA PRE LOC GOV\"",
+             "Expect-CT" "max-age=31536000, report-uri=\"http://csp.yahoo.com/beacon/csp?src=yahoocom-expect-ct-report-only\"",
+             "Date" "Tue, 18 Feb 2020 12:27:32 GMT",
+             "X-XSS-Protection" "1; mode=block",
+             "Cache-Control" "no-store, no-cache, max-age=0, private",
+             "accept-ch-lifetime" "604800"},
+   :status 200,
+   :body some-bytes}
+  )
+
+(fact "Should be able to convert body if content type if valid headers"
+      (format-body-if-possible sample-recorded-response)
+      => "Clojure!")
+
+(fact "Should return the byte array if content type is not stringable"
+      (format-body-if-possible (assoc-in sample-recorded-response [:headers "Content-Type" ] "video/mpeg"))
+      => some-bytes)
+
 
 ; Instruction to convert toInterceptor
 ;(swap! registered-proxies assoc-in [:postman :args :interceptors] (toInterceptor (get-in @recordings [:recordings "/postman"]) 0))

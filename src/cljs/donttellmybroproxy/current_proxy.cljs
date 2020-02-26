@@ -164,13 +164,22 @@
   :<- [:proxy/list]
   :<- [:session/page]
   :<- [:session/matcher?]
-  (fn [[list page {:keys [regex method]}] [_ id]]
-    (get-in list [(keyword page) :args :interceptors regex method id :headers] {})))
+  :<- [:session/request-or-response?]
+  (fn [[list page {:keys [regex method]} type] [_ _]]
+    (get-in list [(keyword page) :args :interceptors regex method type :headers] {})))
+
+(rf/reg-sub
+  :proxy/body
+  :<- [:proxy/list]
+  :<- [:session/page]
+  :<- [:session/matcher?]
+  :<- [:session/request-or-response?]
+  (fn [[list page {:keys [regex method]} type] [_ _]]
+    (get-in list [(keyword page) :args :interceptors regex method type :body] "")))
 
 
 (defn existing-header-grid []
-  (let [header-type-form @(rf/subscribe [:session/request-or-response?])
-        header-values @(rf/subscribe [:proxy/response-headers header-type-form])
+  (let [header-values @(rf/subscribe [:proxy/response-headers])
         type @(rf/subscribe [:session/request-or-response?])
         matcher @(rf/subscribe [:session/matcher?])
         page @(rf/subscribe [:session/page])

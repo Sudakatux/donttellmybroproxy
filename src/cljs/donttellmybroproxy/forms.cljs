@@ -44,6 +44,12 @@
   (fn [proxy-list [_ proxy-id header-type matcher method headers]]
     (assoc-in proxy-list [proxy-id :args :interceptors matcher method header-type] headers)))
 
+(rf/reg-event-db
+  :proxy/set-body!
+  [(rf/path :proxy/list)]
+  (fn [proxy-list [_ proxy-id type matcher method body]]
+    (assoc-in proxy-list [proxy-id :args :interceptors matcher method type :body] body)))
+
 (rf/reg-sub
   :form/fields
   (fn [db]
@@ -211,7 +217,7 @@
                                 :payload (assoc
                                            form-fields-for-type
                                            :matcher matcher
-                                           :method method) }) ;; TODO hardcoded matcher
+                                           :method method) })
        :style #js {:margin-top 20}
        :color "primary"
        :variant "contained"
@@ -272,7 +278,6 @@
       [:> CardActions
        [:> Button
         {:on-click (fn [] (do
-
                             (rf/dispatch [:proxy/add-matcher! (keyword @proxy-id) @matcher (keyword @method) ])
                             (on-close)
                             ) )
@@ -287,13 +292,12 @@
   "Takes a type meaning request response. Returns a body form"
   []
   (let [type (rf/subscribe [:session/request-or-response?])
-        body-value (rf/subscribe [:form/field @type [:body]])
-        body-value-error @(rf/subscribe [:form/error @type [:body]])
-        body-value-dispatcher #(rf/dispatch [:form/set-field @type [:body] %])
+        page @(rf/subscribe [:session/page])
+        body-value (rf/subscribe [:proxy/body])
         matcher-map @(rf/subscribe [:session/matcher?])
         matcher (get matcher-map :regex)
         method (get matcher-map :method)
-        form-fields-for-type (get @(rf/subscribe [:form/fields]) @type)]
+        body-value-dispatcher #(rf/dispatch [:proxy/set-body! (keyword page) @type matcher method %])]
     [:> Card
      {:style #js {:max-width 1000}}
      [:> CardHeader {:title "Set Body"}]
@@ -302,25 +306,24 @@
        {:container true
         :direction "column"}
        [:> TextField
-        (cond-> {
-                 :value @body-value
-                 :onChange #(body-value-dispatcher (-> % .-target .-value))
-                 :multiline true
-                 :rowsMax 4
-                 }
-                body-value-error (merge {:error true :helperText body-value-error}))
-        ]
+        {
+         :value @body-value
+         :onChange #(body-value-dispatcher (-> % .-target .-value))
+         :multiline true
+         :rowsMax 4
+        }]
        [:> CardActions
         [:> Button
          {:aria-label "Add"
           :disabled  (or (nil? method) (nil? matcher))
           :variant "contained"
           :on-click #(change-body! {:type @type
-                                    :id @(rf/subscribe [:session/page])
-                                    :payload (assoc
-                                               form-fields-for-type
-                                               :matcher matcher
-                                               :method method)} )}
+                                    :id page
+                                    :payload {
+                                              :matcher matcher
+                                              :method method
+                                              :body @body-value
+                                              }})}
          [:> Add] "Update"
          ]]]]])
   )

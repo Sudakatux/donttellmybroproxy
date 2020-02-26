@@ -101,9 +101,10 @@
   "Takes a recordElement and a target index. Returns recorded element as an interceptor"
   (let [element-as-interceptor (nth (get recordElement :recorded) elementIdx)
         url-difference (clj-str/replace (:url element-as-interceptor) (get recordElement :base-url) "")
-        method (:method element-as-interceptor)]
+        method (:method element-as-interceptor)
+        response-recorded-element (get element-as-interceptor :response)]
     {(str ".*" url-difference) {method {
-                                        :response (get element-as-interceptor :response)
+                                        :response (assoc response-recorded-element :body (format-body-if-possible response-recorded-element))
                                         }}}))
 
 (defn record! [response request proxy-path base-url record?]

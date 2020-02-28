@@ -86,7 +86,7 @@
                     (byte 0x65)
                     (byte 0x21)]))
 
-(def sample-recorded-response
+(def sample-recorded-element-response
   {:cached nil,
    :request-time 1243,
    :repeatable? false,
@@ -98,7 +98,7 @@
                           :value "s%3AhEcGVYfm4C_yhtl-gKhzjy2xTZeeHfAD.SYprp3zYF6aiUX2cmJryFu1mEbDYDz5zWobDkXumAhE",
                           :version 0}},
    :reason-phrase "OK",
-   :headers {"Content-Type" "application/json; charset=utf-8",
+   :headers {"Content-Type" "text charset=utf-8",
              "Date" "Tue, 24 Dec 2019 12:01:45 GMT",
              "ETag" "W/\"40e-4wWvkw27hk7OZ3gzloXmBsT7QXs\"",
              "Server" "nginx",
@@ -106,7 +106,7 @@
              "Connection" "Close"},
    :status 200,
    :length -1,
-   ;:body some-bytes
+   :body (.getBytes "Some request body")
    }
   )
 
@@ -114,12 +114,12 @@
   {"/postman" {:base-url "https://postman-echo.com",
                :recorded [{:url "https://postman-echo.com/post?",
                            :method :post,
-                           :body (.getBytes "Some request body"),
-                           :response sample-recorded-response}]}}) ;Use vector instead of list
+                           :response sample-recorded-element-response
+                           }]}}) ;Use vector instead of list
 
 (def expected-result
   {
-   ".*/post?" {:post {:response sample-recorded-response}}
+   ".*/post?" {:post {:response (assoc sample-recorded-element-response :body "Some request body") }}
    }
   )
 

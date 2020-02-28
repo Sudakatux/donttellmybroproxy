@@ -41,9 +41,13 @@
 (defn apply-response-args [response config]
   (merge-with into response config))
 
+(defn- matches-url? [pattern url]
+  "Tests if pattern matches url"
+  (re-matches (re-pattern pattern) url))
+
 (defn get-matchers-matching-url [interceptors url]
   "Returns a vector with matching interceptors"
-  (filter #(re-matches (re-pattern (key %)) url) interceptors))
+  (filter #(matches-url? (key %) url) interceptors))
 
 (defn apply-interceptor [response interceptor]
   (cond-> response
@@ -80,19 +84,21 @@
 (defn add-recording! [recording proxy-path base-url]
   (swap! recordings assoc-in [:recordings proxy-path] {:base-url base-url
                                                        :recorded (conj (current-recordings proxy-path) recording)}))
+
 (defn format-body-if-possible [type-recorded-element]
-  (let [existing-headers (get type-recorded-element :headers)
+  (let [existing-headers (get type-recorded-element :headers {})
         lower-case-headers (into {} (for [[k v] existing-headers] [(.toLowerCase k) v]))
-        content-type (get lower-case-headers "content-type")
-        body-byte-array (get type-recorded-element :body)]
+        content-type (get lower-case-headers "content-type" "")
+        body-byte-array (get type-recorded-element :body (.getBytes ""))]
     (letfn [(is-stringable? [ctype]
-              (.contains content-type ctype))]
+              (clj-str/includes? content-type ctype)
+              )]
       (if (some is-stringable? ["application/json"
                                 "application/xml"
                                 "application/javascript"
                                 "application/xhtml+xml"
                                 "application/x-www-form-urlencoded"
-                                "text/"])
+                                "text"])
         (String. body-byte-array)
         body-byte-array
         ))))

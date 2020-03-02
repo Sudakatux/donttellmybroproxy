@@ -292,12 +292,11 @@
   "Takes a type meaning request response. Returns a body form"
   []
   (let [type (rf/subscribe [:session/request-or-response?])
-        page @(rf/subscribe [:session/page])
+        page (rf/subscribe [:session/page])
+        matcher (rf/subscribe [:session/matcher-regex?])
+        method (rf/subscribe [:session/matcher-method?])
         body-value (rf/subscribe [:proxy/body])
-        matcher-map @(rf/subscribe [:session/matcher?])
-        matcher (get matcher-map :regex)
-        method (get matcher-map :method)
-        body-value-dispatcher #(rf/dispatch [:proxy/set-body! (keyword page) @type matcher method %])]
+        body-value-dispatcher #(rf/dispatch [:proxy/set-body! (keyword @page) @type @matcher @method %])]
     [:> Card
      {:style #js {:max-width 1000}}
      [:> CardHeader {:title "Set Body"}]
@@ -305,23 +304,24 @@
       [:> Grid
        {:container true
         :direction "column"}
-       [:> TextField
-        {
-         :value @body-value
-         :onChange #(body-value-dispatcher (-> % .-target .-value))
-         :multiline true
-         :rowsMax 4
-        }]
+       [text-field
+        {:attrs {:label "Body"
+                 :id "body"
+                 :multiline true
+                 :rowsMax 4
+                 }
+         :value body-value
+         :on-save #(body-value-dispatcher %)}]
        [:> CardActions
         [:> Button
          {:aria-label "Add"
-          :disabled  (or (nil? method) (nil? matcher))
+          :disabled  (or (nil? @method) (nil? @matcher))
           :variant "contained"
           :on-click #(change-body! {:type @type
-                                    :id page
+                                    :id @page
                                     :payload {
-                                              :matcher matcher
-                                              :method method
+                                              :matcher @matcher
+                                              :method @method
                                               :body @body-value
                                               }})}
          [:> Add] "Update"

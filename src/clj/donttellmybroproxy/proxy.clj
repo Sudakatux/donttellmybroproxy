@@ -43,7 +43,10 @@
 
 (defn- matches-url? [pattern url]
   "Tests if pattern matches url"
-  (re-matches (re-pattern pattern) url))
+  (-> pattern
+      re-pattern
+      (re-matches url)
+      some?))
 
 (defn get-matchers-matching-url [interceptors url]
   "Returns a vector with matching interceptors"
@@ -109,7 +112,7 @@
         url-difference (clj-str/replace (:url element-as-interceptor) (get recordElement :base-url) "")
         method (:method element-as-interceptor)
         response-recorded-element (get element-as-interceptor :response)]
-    {(str ".*" url-difference) {method {
+    {(str ".*\\Q" url-difference "\\E$") {method {
                                         :response (assoc response-recorded-element :body (format-body-if-possible response-recorded-element))
                                         }}}))
 
@@ -284,7 +287,7 @@
   (-> (constantly {
                    :status  404
                    :headers {}
-                   :body    "404 - not found"
+                   :body    "404 - no route set for this path"
                    })
       wrap-dynamic
       wrap-reload))

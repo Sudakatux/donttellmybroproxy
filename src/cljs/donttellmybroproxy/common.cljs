@@ -31,7 +31,7 @@
                                   (on-save (or @draft ""))
                                   (reset! draft nil))
                        :on-change #(reset! draft (.. % -target -value))
-                       :value @value }
+                       :defaultValue @value }
                       error (merge {:error true :helperText error})))])))
 
 ;(defnc HeaderAutocomplete [{initial-value :initialValue

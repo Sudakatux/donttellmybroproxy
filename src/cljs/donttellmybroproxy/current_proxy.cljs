@@ -235,6 +235,7 @@
                       :max-height "20rem",
                       :border-top "1px #d5d5d5 solid",
                       :padding "1rem"
+                      :width "100%"
                       }
           :mt 2}
      (into [:<>]

@@ -188,7 +188,7 @@
         :item true
         }
        [:> TextField
-        (cond-> {:value @header-key-value
+        (cond-> {:defaultValue @header-key-value
                  :onChange #(header-key-dispatcher (-> % .-target .-value))
                  :label "Header Key"
                  :id "header-key"
@@ -201,7 +201,7 @@
         :item true
         }
        [:> TextField
-        (cond-> {:value @header-value
+        (cond-> {:defaultValue @header-value
                  :onChange #(header-value-dispatcher (-> % .-target .-value))
                  :label "Header Value"
                  :id "header-value"

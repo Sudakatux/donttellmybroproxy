@@ -373,19 +373,6 @@
                "Show Recordings"
                ]]]]]]]))))
 
-;(defn exisiting-header-grid
-;  (let [header-type-form @(rf/subscribe [:session/request-or-response?])
-;        header-values @(rf/subscribe [:proxy/response-headers header-type-form])
-;        type @(rf/subscribe [:session/request-or-response?])
-;        matcher @(rf/subscribe [:session/matcher?])
-;        page @(rf/subscribe [:session/page])]
-;  [:> Grid
-;   {:container true}
-;
-;   ]
-;
-;  ))
-
 (defn single-header-configuration [{title :title}]
   [:<>
    [:> Typography title]

@@ -267,10 +267,10 @@
        (map (fn [[k v]] [k (assoc v :recordings (recordings-by-id k))]))
        (into {})))
 
-;TODO extract swap and add tests
+;TODO extract swap and add tests +1
 (defn merge-to-existing-interceptors! [key interceptors]
   (swap! registered-proxies assoc-in [key :args :interceptors]
-         (merge (get-in @registered-proxies [key :args :interceptors])
+         (merge-with into (get-in @registered-proxies [key :args :interceptors])
                 interceptors)))
 
 (defn create-an-interceptor-from-recording-idx! [key recording-idx]

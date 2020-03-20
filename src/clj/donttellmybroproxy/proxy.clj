@@ -134,6 +134,13 @@
       (merge response {:body (ByteArrayInputStream. response-body)}))
     response))
 
+(defn maybe-request [request request-fn make-request]
+  (if make-request
+    (request-fn request)
+    {:body ""
+     :headers {}}
+    ))
+
 (defn wrap-proxy
   "Proxies requests from proxied-path, a local URI, to the remote URI at
   remote-base-uri, also a string."
@@ -164,7 +171,7 @@
               ]
           (-> original-request
               (apply-interceptors (extract-interceptor-for-type interceptors-for-method-url :request)) ; Applys request interceptors
-              request                                       ; Performs actual request
+              (maybe-request request (get http-opts :make-request?))                                       ; Performs actual request
               (record! original-request proxied-path remote-base-uri (:record? http-opts)) ; if present records request and response... and returns unmodified response --> Side Effect
               (apply-interceptors (extract-interceptor-for-type interceptors-for-method-url :response)) ;Applys response interceptors
               ;debug-interceptor
@@ -185,7 +192,8 @@
 (defn prepare-default-args [proxy-configuration]
   (assoc-in proxy-configuration [:args] {:request  {}
                                          :response {}
-                                         :record?  false}))
+                                         :record?  false
+                                         :make-request? true}))
 
 (defn add-proxy [key & args]
   (swap! registered-proxies assoc key (->> args

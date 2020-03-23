@@ -68,7 +68,7 @@
        (proxy/add-proxy (keyword id)  route destination #{})
        (response/ok {:list (proxy/list-proxies)} ))
       }]
-    ["/proxy-server/delete/:id"
+    ["/proxy-server/:id/delete"
      {
       :delete
       (fn [{{:keys [id]} :path-params}]
@@ -77,7 +77,7 @@
         )
       }
      ]
-    ["/proxy-server/:type/headers/:id"
+    ["/proxy-server/:id/headers/:type"
      {
       :post
       (fn [{{:keys [matcher header-key header-value method]} :body-params
@@ -104,7 +104,7 @@
         )
       }
      ]
-    ["/proxy-server/record/:id"
+    ["/proxy-server/:id/record"
      {
       :post
       (fn [{{:keys [record?]} :body-params
@@ -118,6 +118,14 @@
                       }))
       }
      ]
+    ["/proxy-server/:id/should-make-request"
+     {:put
+      (fn [{{:keys [make-request?]} :body-params
+            {:keys [id]} :path-params}]
+        (proxy/update-make-request (keyword id) make-request?)
+        (response/no-content))
+
+      }]
     ["/proxy-server/:id/recordings/:recording_idx/to_interceptor"
      {
       :post

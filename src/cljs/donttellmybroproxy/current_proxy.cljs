@@ -28,11 +28,13 @@
             ["@material-ui/core/Button" :default Button]
             ["@material-ui/icons/Delete" :default DeleteIcon]
             ["@material-ui/icons/GetApp" :default GetApp]
+            ["@material-ui/core/Switch" :default Switch]
             ["@material-ui/icons/Publish" :default Publish]
             ["@material-ui/icons/RadioButtonChecked" :default RadioButtonChecked]
             ["@material-ui/icons/RadioButtonUnchecked" :default RadioButtonUnchecked]
             ["@material-ui/icons/ArrowDropDown" :default ArrowDropDown]
             ["@material-ui/core/Fab" :default Fab]
+            ["@material-ui/core/FormControlLabel" :default FormControlLabel]
             [donttellmybroproxy.forms :refer [add-header-form update-body-form new-matcher]]
             [accountant.core :as accountant]
             [reagent.core :as r]
@@ -73,12 +75,25 @@
   (fn [proxy-list [_ proxy-id interceptors]]
     (assoc-in proxy-list [proxy-id :args :interceptors] interceptors)))
 
+(rf/reg-event-db
+  :proxy/set-make-request!
+  [(rf/path :proxy/list)]
+  (fn [proxy-list [_ proxy-id make-request?]]
+    (assoc-in proxy-list [proxy-id :args :make-request?] make-request?)))
+
 (rf/reg-sub
   :proxy/matchers
   :<- [:proxy/list]
   :<- [:session/page]
   (fn [[list page]]
     (get-in list [(keyword page) :args :interceptors] {})))
+
+(rf/reg-sub
+  :proxy/make-request?
+  :<- [:proxy/list]
+  :<- [:session/page]
+  (fn [[list page]]
+    (get-in list [(keyword page) :args :make-request?] false)))
 
 (rf/reg-sub
   :proxy/matchers-methods
@@ -126,7 +141,7 @@
   :proxy/remove-header!
   (fn [_ [_ {:keys [type header-key id matcher current-headers]}]]
     {:ajax/delete {
-                   :url           (str "/api/proxy-server/" (name type) "/headers/" id)
+                   :url           (str "/api/proxy-server/" id "/headers/" (name type))
                    :params        {:header-key header-key
                                    :matcher    (get matcher :regex)
                                    :method     (get matcher :method)}
@@ -137,7 +152,7 @@
   :proxy/record!
   (fn [_ [_ {:keys [id record?]}]]
     {:ajax/post {
-                 :url           (str "/api/proxy-server/record/" id)
+                 :url           (str "/api/proxy-server/" id "/record" )
                  :params        {:record? record?}
                  :success-event [:proxy/start-stop-recording! (keyword id)]
                  }}))
@@ -158,6 +173,14 @@
                  :url           (str "/api/proxy-server/" id "/interceptors/file")
                  :body          form-data
                  :success-event [:proxy/set-interceptors! (keyword id)]}}))
+
+(rf/reg-event-fx
+  :proxy/update-make-request!
+  (fn [_ [_ {:keys [id make-request?]}]]
+    {:ajax/put {
+                 :url           (str "/api/proxy-server/" id "/should-make-request")
+                 :params          {:make-request? make-request?}
+                 :success-event [:proxy/set-make-request! (keyword id) make-request?]}}))
 
 (rf/reg-sub
   :proxy/response-headers
@@ -453,7 +476,11 @@
 
 (defn card-container []
   (let [type @(rf/subscribe [:session/request-or-response?])
-        recordings @(rf/subscribe [:proxy/recordings])]
+        recordings @(rf/subscribe [:proxy/recordings])
+        page @(rf/subscribe [:session/page])
+        make-request? (rf/subscribe [:proxy/make-request?])
+        update-make-request (fn [] (rf/dispatch [:proxy/update-make-request! {:id page :make-request? (not @make-request?)}] ))
+        ]
     [:> Grid
      {:container true
       :direction "column"
@@ -464,6 +491,13 @@
        :xs   12
        }
       [matcher-menu]
+      ]
+     [:> Grid
+      {:item true}
+      [:> FormControlLabel
+       {:control (r/create-element Switch #js {:checked @make-request? :onChange update-make-request})
+        :label "Make Request"}
+       ]
       ]
      [:> Grid
       {:item true}

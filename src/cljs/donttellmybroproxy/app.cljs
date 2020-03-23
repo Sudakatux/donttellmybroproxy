@@ -146,7 +146,7 @@
   :proxy/remove-from-list!
   (fn [_ [_ elem]]
     {:ajax/delete {
-                   :url (str "/api/proxy-server/delete/" (name elem))
+                   :url (str "/api/proxy-server/" (name elem) "/delete" )
                    :success-event [:proxy/list-remove elem]}}))
 
 (rf/reg-event-fx

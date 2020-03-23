@@ -291,6 +291,9 @@
 (defn stop-recording! [key]
   (swap! registered-proxies assoc-in [key :args :record?] false))
 
+(defn update-make-request [key make-request?]
+  (swap! registered-proxies assoc-in [key :args :make-request?] make-request?))
+
 (def myapp
   (-> (constantly {
                    :status  404

@@ -7,8 +7,18 @@ Used code from https://github.com/tailrecursion/ring-proxy when migrated from ht
 and streams
  
 ## Building and running
-If you use leiningen https://leiningen.org then `lein uberjar` will build the source 
+
+### Building the UI
+This project uses shadow-cljs So you'll need to build the production build so:
+> `yarn` to install dependencies
+> `npx shadow-cljs release app` to build the source 
+
+### Building serverside
+If you use leiningen https://leiningen.org then `lein uberjar` will build the source
+ 
 and `java -jar donttellmybroproxy/target/uberjar/donttellmybro-proxy.jar` should run it
+
+### Alternativly using Docker
 If you prefer the docker way then build the container with :
 `docker build -t donttelmybroproxy . `
 
@@ -44,6 +54,8 @@ request response meaning if you have two or more matchers that match for the sam
 > Create interceptors given a recording
 
 > Respond a specific body for the given matcher
+
+> Stop actual request. Usefull to record and play without making the actual request
 
 ## License
 

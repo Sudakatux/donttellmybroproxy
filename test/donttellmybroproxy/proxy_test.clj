@@ -119,7 +119,7 @@
 
 (def expected-result
   {
-   ".*/post?" {:post {:response (assoc sample-recorded-element-response :body "Some request body") }}
+   ".*\\Q/post?\\E$" {:post {:response (assoc sample-recorded-element-response :body "Some request body") }}
    }
   )
 

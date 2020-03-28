@@ -33,6 +33,7 @@
             ["@material-ui/icons/RadioButtonChecked" :default RadioButtonChecked]
             ["@material-ui/icons/RadioButtonUnchecked" :default RadioButtonUnchecked]
             ["@material-ui/icons/ArrowDropDown" :default ArrowDropDown]
+            ["@material-ui/icons/ClearAll" :default ClearAllIcon]
             ["@material-ui/core/Fab" :default Fab]
             ["@material-ui/core/FormControlLabel" :default FormControlLabel]
             [donttellmybroproxy.forms :refer [add-header-form update-body-form new-matcher]]
@@ -57,6 +58,12 @@
   (fn [db [_ type]]
     (-> db
         (assoc :session/request-or-response? type))))
+
+(rf/reg-event-db
+  :proxy/clear-recordings-for-id!
+  (fn [db [_ id]]
+    (-> db
+        (update-in [:proxy/list (keyword id)] :recordings []))))
 
 (rf/reg-event-db
   :proxy/start-stop-recording!
@@ -164,6 +171,13 @@
                  :success-path  [:interceptors]
                  :url           (str "/api/proxy-server/" id "/recordings/" recording-idx "/to_interceptor")
                  :success-event [:proxy/set-interceptors! (keyword id)]}}))
+
+(rf/reg-event-fx
+  :proxy/clear-recordings!
+  (fn [_ [_ id]]
+    {:ajax/delete {
+                 :url           (str "/api/proxy-server/" id "/recordings")
+                 :success-event [:proxy/clear-recordings-for-id! (keyword id)]}}))
 
 (rf/reg-event-fx
   :proxy/upload-interceptors!
@@ -533,24 +547,37 @@
 (defn recordings-proxy-layout []
   (let [recordings @(rf/subscribe [:proxy/recordings])
         current_proxy @(rf/subscribe [:session/page])]
-    (into [:> List
-           (map-indexed (fn [idx {:keys [url method]}]
-                          ^{:key url}
-                          [:<>
-                           [:> ListItem {:alignItems "flex-start"}
-                            [:> ListItemText {
-                                              :primary   url
-                                              :secondary (str "Method: " (name method))
-                                              }]
-                            [:> ListItemSecondaryAction
-                             [:> Button
-                              {
-                               :onClick #(rf/dispatch [:proxy/convert-to-interceptor! {:id current_proxy :recording-idx idx}])
-                               }
-                              "Convert to Interceptor"
-                              ]]]
-                           [:> Divider {:variant   "inset"
-                                        :component "li"}]
-                           ]
-                          ) recordings)
-           ])))
+    [:> Grid {:container true}
+     [:> Grid {:item true}
+      [:> Button {
+                  :size     "small"
+                  :disabled (empty? recordings)
+                  :on-click #(rf/dispatch [:proxy/clear-recordings! current_proxy])
+                  }
+       "Clear Recordings" [:> ClearAllIcon]]]
+     [:> Grid {:item true :xs 12}
+      (into [:> List
+             (map-indexed (fn [idx {:keys [url method]}]
+                            ^{:key url}
+                            [:<>
+                             [:> ListItem {:alignItems "flex-start"}
+                              [:> ListItemText {
+                                                :primary   url
+                                                :secondary (str "Method: " (name method))
+                                                }]
+                              [:> ListItemSecondaryAction
+                               [:> Button
+                                {
+                                 :onClick #(rf/dispatch [:proxy/convert-to-interceptor! {:id current_proxy :recording-idx idx}])
+                                 }
+                                "Convert to Interceptor"
+                                ]]]
+                             [:> Divider {:variant   "inset"
+                                          :component "li"}]
+                             ]
+                            ) recordings)
+             ])
+      ]
+     ]
+
+    ))

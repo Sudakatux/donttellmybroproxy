@@ -134,6 +134,14 @@
         (response/ok {:interceptors (proxy/interceptors-for-id (keyword id))}))
       }
      ]
+    ["/proxy-server/:id/recordings"
+     {
+      :delete
+      (fn [{{:keys [id]} :path-params}]
+        (proxy/clean-recordings-for-id! (keyword id))
+        (response/no-content))
+      }
+     ]
     ["/proxy-server/:id/interceptors/file"
      {:get
       (fn [{{:keys [id]} :path-params}]

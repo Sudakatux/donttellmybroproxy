@@ -74,7 +74,7 @@
          :on-click stop-server}
         [:> Stop]]
        [text-field
-        {:attrs {:label "/some-route"
+        {:attrs {:label "Port number"
                  :id "route"
                  :type "number"
                  :disabled @server-running?}

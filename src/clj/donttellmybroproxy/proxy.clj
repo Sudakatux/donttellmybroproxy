@@ -79,6 +79,7 @@
 (defn apply-merge-in-body [response body-param]
   (merge response body-param))
 
+
 (def recordings (atom {}))
 
 (defn current-recordings [proxy-path]
@@ -241,6 +242,19 @@
   (-> id
       recorded-element-by-id
       recordings-from-recorded-element))
+
+(defn clean-recordings-for-route [recording-collection route]
+  (update-in recording-collection [:recordings route] assoc :recorded []))
+
+(defn clean-recordings-for-route! [route]
+  (swap! recordings clean-recordings-for-route route))
+
+(defn clean-recordings-for-id! [id]
+  (-> id
+      route-by-id
+      clean-recordings-for-route!))
+
+
 
 (defn is-recording? [id]
   (get-in @registered-proxies [id :args :record?]))

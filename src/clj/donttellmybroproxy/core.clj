@@ -32,7 +32,6 @@
     false
     )
   )
-;TODO endpoint paths are in a confusing order refactor proxy-server/:id/thenTheAction
 (def routes
   [
    ["/api"
@@ -94,7 +93,7 @@
       }
      ]
 
-    ["/proxy-server/:type/body/:id"
+    ["/proxy-server/:id/body/:type"
      {
       :post
       (fn [{{:keys [matcher body method]} :body-params

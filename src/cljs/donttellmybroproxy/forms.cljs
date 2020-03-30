@@ -90,7 +90,7 @@
     (if-let [validation-errors (validate-body payload)]
       {:db (assoc-in db [:forms :errors type] validation-errors)}
       {:ajax/post {
-                   :url (str "/api/proxy-server/" (name type)  "/body/" id)
+                   :url (str "/api/proxy-server/" id  "/body/" (name type) )
                    :params payload
                    :success-path [:body]
                    :success-event [:proxy/set-body! (keyword id) type (:matcher payload) (:method payload)]}}))) ;Missing the set-body event

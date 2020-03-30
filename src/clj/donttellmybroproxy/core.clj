@@ -204,7 +204,16 @@
                 wrap-reload)
             {:port port :join? false})))
 
+(defn parse-int [s]
+  (Integer. (re-find #"[0-9]*" s)))
 
-(defn -main []
-  (server))
+(defn -main [& args]
+  (if (empty? args)
+    (server)
+   (-> args
+                first
+                parse-int
+                server)
+    )
+  )
 

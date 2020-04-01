@@ -16,7 +16,7 @@
             ["@material-ui/core/Button" :default Button]
             [reagent.core :as r :refer [atom]]
             [donttellmybroproxy.validations :refer [validate-proxy-entry validate-header-schema validate-body]]
-            [donttellmybroproxy.common :refer [text-field]]))
+            [donttellmybroproxy.common :refer [text-field text-area]]))
 
 (def value-db-path [:forms :values])
 (def error-db-path [:forms :errors])
@@ -304,7 +304,7 @@
       [:> Grid
        {:container true
         :direction "column"}
-       [text-field
+       [text-area
         {:attrs {:label "Body"
                  :id "body"
                  :multiline true

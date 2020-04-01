@@ -267,10 +267,14 @@
   (swap! registered-proxies remove-header-from-map key type matcher method header-key))
 
 
+;(defn update-header-if-present [])
+
 (defmulti interceptor-merge-strategy (fn [_ b] (first (keys b))))
 
 (defmethod interceptor-merge-strategy :body
-  [a b] (merge a b))
+  [a b] (-> a
+            (merge b)
+            (interceptor-merge-strategy {:headers {"Content-Length" (str (count (get b :body))  )}})))
 
 (defmethod interceptor-merge-strategy :headers
   [a b] (merge-with into a b))
@@ -288,6 +292,12 @@
   (->> @registered-proxies
        (map (fn [[k v]] [k (assoc v :recordings (recordings-by-id k))]))
        (into {})))
+
+;TO-BE Tested
+(defn merge-to-existing-interceptors-in-proxy-list [proxy-list key interceptors]
+  (update-in proxy-list [key :args :interceptors] merge-with into (get-in proxy-list [key :args :interceptors])
+             interceptors))
+
 
 ;TODO extract swap and add tests +1
 (defn merge-to-existing-interceptors! [key interceptors]

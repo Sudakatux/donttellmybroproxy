@@ -34,6 +34,24 @@
                        :defaultValue @value }
                       error (merge {:error true :helperText error})))])))
 
+(defn text-area [{val :value
+                   :keys [on-save]}]
+  (let [draft (r/atom nil)
+        value (r/track #(or @draft @val ""))]
+    (fn [{props :attrs
+          error :error}]
+      [:textarea
+       (merge props
+              (cond-> {
+                       :on-focus #(reset! draft (or @val ""))
+                       :on-blur (fn []
+                                  (on-save (or @draft "")))
+                       :on-change #(reset! draft (.. % -target -value))
+                       :value @value
+                       }
+                      error (merge {:error true :helperText error})))
+       ])))
+
 ;(defnc HeaderAutocomplete [{initial-value :initialValue
 ;                            options :options
 ;                            on-save :onSave

@@ -297,18 +297,13 @@
         method (rf/subscribe [:session/matcher-method?])
         body-value (rf/subscribe [:proxy/body])
         body-value-dispatcher #(rf/dispatch [:proxy/set-body! (keyword @page) @type @matcher @method %])]
-    [:> Card
-     {:style #js {:max-width 1000}}
-     [:> CardHeader {:title "Set Body"}]
-     [:> CardContent
       [:> Grid
        {:container true
         :direction "column"}
        [text-area
         {:attrs {:label "Body"
                  :id "body"
-                 :multiline true
-                 :rowsMax 4
+                 :rows 4
                  }
          :value body-value
          :on-save #(body-value-dispatcher %)}]
@@ -325,6 +320,6 @@
                                               :body @body-value
                                               }})}
          [:> Add] "Update"
-         ]]]]])
+         ]]])
   )
 

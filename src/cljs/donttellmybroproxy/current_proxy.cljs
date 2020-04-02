@@ -7,6 +7,12 @@
             ["@material-ui/core/ClickAwayListener" :default ClickAwayListener]
             ["@material-ui/core/TextField" :default TextField]
             ["@material-ui/core/Card" :default Card]
+            ["@material-ui/core/ExpansionPanel" :default ExpansionPanel]
+
+            ["@material-ui/core/ExpansionPanelDetails" :default ExpansionPanelDetails]
+            ["@material-ui/core/ExpansionPanelSummary" :default ExpansionPanelSummary]
+            ["@material-ui/core/ExpansionPanelActions" :default ExpansionPanelActions]
+
             ["@material-ui/core/CardContent" :default CardContent]
             ["@material-ui/core/CardActions" :default CardActions]
             ["@material-ui/core/Divider" :default Divider]
@@ -123,12 +129,12 @@
 (rf/reg-sub
   :session/matcher-regex?
   (fn [db _]
-    (get-in db [:session/matcher? :regex] nil)))
+    (get-in db [:session/matcher? :regex] "")))
 
 (rf/reg-sub
   :session/matcher-method?
   (fn [db _]
-    (get-in db [:session/matcher? :method] nil)))
+    (get-in db [:session/matcher? :method] "")))
 
 (rf/reg-sub
   :proxy/record?
@@ -216,10 +222,10 @@
 
 
 (defn existing-header-grid []
-  (let [header-values @(rf/subscribe [:proxy/response-headers])
-        type @(rf/subscribe [:session/request-or-response?])
-        matcher @(rf/subscribe [:session/matcher?])
-        page @(rf/subscribe [:session/page])
+  (let [header-values (rf/subscribe [:proxy/response-headers])
+        type (rf/subscribe [:session/request-or-response?])
+        matcher (rf/subscribe [:session/matcher?])
+        page (rf/subscribe [:session/page])
         row-item-props {:item true
                         :xs 4
                         }
@@ -232,8 +238,9 @@
                              :style #js {:border-bottom "1px #d5d5d5 solid"
                                          :padding "1 rem"}
                              }
-        header-title-props { :component "strong" }
-        ]
+        header-title-props { :component "strong" }]
+
+
 [:> Grid
  {:container true
   :direction "column"
@@ -291,17 +298,17 @@
                     [:> IconButton
                      {:edge "end"
                       :on-click (fn []
-                                  (rf/dispatch [:proxy/remove-header! {:type            type
-                                                                       :matcher         matcher
+                                  (rf/dispatch [:proxy/remove-header! {:type            @type
+                                                                       :matcher         @matcher
                                                                        :header-key      header-key
-                                                                       :id              page
-                                                                       :current-headers header-values}]))
+                                                                       :id              @page
+                                                                       :current-headers @header-values}]))
                       }
                      [:> DeleteIcon
                       ]]
 
                     ]
-                   ]) header-values))
+                   ]) @header-values))
  ]]
 ))
 
@@ -410,17 +417,18 @@
                "Show Recordings"
                ]]]]]]]))))
 
-(defn single-header-configuration [{title :title}]
+(defn single-header-configuration []
   [:<>
-   [:> Typography title]
+   ;[:> Typography title]
    [:> Grid
-    {:direction "column"
+    {:direction "row"
      :container true}
-    [:> Grid
+    [:> Grid {:item true}
      [existing-header-grid]
      ]
     [:> Grid
-     {:xs 8}
+     {:xs 8
+      :item true}
      [add-header-form]
      ]
     ;[:> Grid
@@ -429,19 +437,24 @@
     ]])
 
 (defn add-header-card []
-  (let [type @(rf/subscribe [:session/request-or-response?])]
-    [:> Card
+
+    [:> ExpansionPanel
      {:style #js {:maxWidth 1000}}
-     [:> CardHeader {:title "Headers"}]
-     [:> CardContent
-      [single-header-configuration { :target type}]]]))
+     [:> ExpansionPanelSummary
+      "Headers"
+      ]
+     [:> ExpansionPanelDetails
+      [single-header-configuration]]]
+)
 
 (defn add-interceptor-card []
-  [:> Card
+  [:> ExpansionPanel
    {:style #js {:maxWidth 1000}}
-   [:> CardHeader {:title "Body"}]
-   [:> CardContent
-    [update-body-form]]])
+   [:>  ExpansionPanelSummary
+    "Body"]
+   [:> ExpansionPanelDetails
+      [update-body-form]
+     ]])
 
 (defn matcher-menu []
   (let [
@@ -449,10 +462,10 @@
         close-modal #(reset! modal-state false)
         open-modal (fn [] (reset! modal-state true))]
     (fn []
-      (let [matchers @(rf/subscribe [:proxy/matchers])
-            methods @(rf/subscribe [:proxy/matchers-methods])
-            selected-matcher-regex @(rf/subscribe [:session/matcher-regex?])
-            selected-matcher-method @(rf/subscribe [:session/matcher-method?])]
+      (let [matchers (rf/subscribe [:proxy/matchers])
+            methods (rf/subscribe [:proxy/matchers-methods])
+            selected-matcher-regex (rf/subscribe [:session/matcher-regex?])
+            selected-matcher-method (rf/subscribe [:session/matcher-method?])]
         [:> Grid
          {
           :direction "row"
@@ -461,26 +474,26 @@
          (into [:> Select
                 {
                  :style     #js {:width "25%"}
-                 :value     selected-matcher-regex
+                 :value     @selected-matcher-regex
                  :on-change #(rf/dispatch [:session/set-matcher-regex! (-> % .-target .-value)])}]
                (map (fn [matcher]
                       ^{:key matcher}
                       [:> MenuItem
                        {:value matcher}
                        matcher
-                       ]) (keys matchers)))
+                       ]) (keys @matchers)))
          (into [:> Select
                 {
                  :label     "Method"
                  :style     #js {:width "25%"}
-                 :value     (when (not (nil? selected-matcher-method)) (name selected-matcher-method))
+                 :value     (if (not (nil? @selected-matcher-method)) (name @selected-matcher-method) "")
                  :on-change #(rf/dispatch [:session/set-matcher-method! (-> % .-target .-value keyword)])}]
                (map (fn [method]
-                      ^{:key (str selected-matcher-regex method)}
+                      ^{:key (str @selected-matcher-regex method)}
                       [:> MenuItem
                        {:value (name method)}
                        (name method)
-                       ]) methods))
+                       ]) @methods))
          [:> Button
           {:on-click open-modal}
           "Add Matcher"]

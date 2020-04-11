@@ -1,13 +1,14 @@
 (ns donttellmybroproxy.app
   (:require
             ["@material-ui/core/colors" :as mui-colors]
-            ["@material-ui/core/styles" :refer [createMuiTheme withStyles]]
-            ["@material-ui/core/styles/MuiThemeProvider" :default ThemeProvider]
+            ["@material-ui/core/styles" :refer [createMuiTheme withStyles ThemeProvider]]
+    ;["@material-ui/core/styles/MuiThemeProvider" :default ThemeProvider]
             [donttellmybroproxy.dashboard :refer [main-layout empty-content]]
             [donttellmybroproxy.forms :refer [create-proxy-form]]
             [ajax.core :refer [GET POST PUT DELETE]]
             [re-frame.core :as rf]
-            [reagent.core :as r :refer [atom as-element render-component]]
+            [reagent.core :as r :refer [atom as-element]]
+            [reagent.dom :as rdom]
             [donttellmybroproxy.current_proxy :refer [card-container recordings-proxy-layout]]
             [reitit.frontend :as reitit]
             [reagent.session :as session]
@@ -207,7 +208,7 @@
     ))
 
 (defn mount-app []
-      (render-component
+      (rdom/render
         [app]
         (js/document.getElementById "content")))
 

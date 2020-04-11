@@ -419,7 +419,6 @@
 
 (defn single-header-configuration []
   [:<>
-   ;[:> Typography title]
    [:> Grid
     {:direction "row"
      :container true}
@@ -431,12 +430,9 @@
       :item true}
      [add-header-form]
      ]
-    ;[:> Grid
-    ; {:xs 4}
-    ; [existing-header-cloud]]
     ]])
 
-(defn add-header-card []
+(defn edit-header-section []
 
     [:> ExpansionPanel
      {:style #js {:maxWidth 1000}}
@@ -447,7 +443,7 @@
       [single-header-configuration]]]
 )
 
-(defn add-interceptor-card []
+(defn edit-body-section []
   [:> ExpansionPanel
    {:style #js {:maxWidth 1000}}
    [:>  ExpansionPanelSummary
@@ -502,8 +498,8 @@
          ]))))
 
 (defn card-container []
-  (let [type @(rf/subscribe [:session/request-or-response?])
-        recordings @(rf/subscribe [:proxy/recordings])
+  (let [type (rf/subscribe [:session/request-or-response?])
+        recordings (rf/subscribe [:proxy/recordings])
         page @(rf/subscribe [:session/page])
         make-request? (rf/subscribe [:proxy/make-request?])
         update-make-request (fn [] (rf/dispatch [:proxy/update-make-request! {:id page :make-request? (not @make-request?)}] ))
@@ -511,6 +507,7 @@
     [:> Grid
      {:container true
       :direction "column"
+      :spacing 2
       }
      [:> Grid
       {
@@ -521,6 +518,10 @@
       ]
      [:> Grid
       {:item true}
+      [record-button @recordings]
+      ]
+     [:> Grid
+      {:item true}
       [:> FormControlLabel
        {:control (r/create-element Switch #js {:checked @make-request? :onChange update-make-request})
         :label "Make Request"}
@@ -528,12 +529,8 @@
       ]
      [:> Grid
       {:item true}
-      [record-button recordings]
-      ]
-     [:> Grid
-      {:item true}
       [:> Tabs
-       {:value    type
+       {:value @type
         :onChange (fn [_ newType] (rf/dispatch [:session/set-request-or-response! newType]))}
        [:> Tab {:label "response" :value :response}]
        [:> Tab {:label "request" :value :request}]]
@@ -545,12 +542,12 @@
         :spacing   2}
        [:> Grid
         {:item true}
-        [add-header-card]
+        [edit-header-section]
 
         ]
        [:> Grid
         {:item true}
-        [add-interceptor-card]
+        [edit-body-section]
         ]]
       ]
      ]))

@@ -57,6 +57,10 @@ request response meaning if you have two or more matchers that match for the sam
 
 > Stop actual request. Usefull to record and play without making the actual request
 
+![image](screenshotProxy.png)
+
+
+
 ## License
 
 Copyright © 2019 FIXME

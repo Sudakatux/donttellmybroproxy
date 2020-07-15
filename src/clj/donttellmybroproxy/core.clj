@@ -24,7 +24,7 @@
       (muuntaja/wrap-format)))
 
 ; TODO associate port to status instead of flag
-(def proxy-server (atom {:server-started false}))
+(defonce proxy-server (atom {:server-started false}))
 
 (defn server-running? []
   (if-let [server-instance (:instance @proxy-server)]
@@ -212,7 +212,5 @@
    (-> args
                 first
                 parse-int
-                server)
-    )
-  )
+                server)))
 

@@ -1,6 +1,6 @@
 (ns donttellmybroproxy.proxy-test
   (:use midje.sweet)
-  (:use donttellmybroproxy.proxy)
+  (:require [donttellmybroproxy.proxy :as proxy])
   (:import (java.io ByteArrayInputStream))
   )
 
@@ -25,7 +25,7 @@
                   :interceptors sample-matcher}}})
 
 (fact "Should extract an interceptor configuration for a given matcher type"
-      (get-existing-interceptors-for-current-key-type-matcher-method test-state-map :yahoo :response ".*" :all)
+      (proxy/get-existing-interceptors-for-current-key-type-matcher-method test-state-map :yahoo :response ".*" :all)
       => sample-header-interceptor)
 
 (def sample-simple-request
@@ -39,15 +39,15 @@
    :body "This is a body that will get replaced"})
 
 (fact "Should return a request with interceptor applied"
-      (apply-interceptor sample-simple-request sample-header-interceptor)
+      (proxy/apply-interceptor sample-simple-request sample-header-interceptor)
       => (merge sample-simple-request sample-header-interceptor)
-      (apply-interceptor sample-header-with-request sample-header-interceptor)
+      (proxy/apply-interceptor sample-header-with-request sample-header-interceptor)
       => {:headers {"Content-Type" "This one"
                     "Bareer" "123213"}
           :body "This is a body that will get replaced"})
 
 (fact "Should apply all interceptors in order"
-      (select-keys (apply-interceptors sample-simple-request [sample-header-interceptor  {:headers {"Content-Type" "12345678"}}]) [:headers])
+      (select-keys (proxy/apply-interceptors sample-simple-request [sample-header-interceptor  {:headers {"Content-Type" "12345678"}}]) [:headers])
       => {  :headers {"Content-Type" "12345678" "Bareer" "123213"}})
 
 (def sample-multi-matcher
@@ -55,11 +55,11 @@
    ".*a=2" {:response {:headers {"Some-Header" "Some Value"}}}})
 
 (fact "Should return all matchers that match the given url"
-      (get-matchers-matching-url sample-multi-matcher "http://www.yahoo.com")
+      (proxy/get-matchers-matching-url sample-multi-matcher "http://www.yahoo.com")
       => (vector (flatten (seq (select-keys sample-multi-matcher [".*"])))))
 
 (fact "Should flatten the :request or :response from the interceptor"
-      (extract-interceptor-for-type (vals sample-multi-matcher)  :response)
+      (proxy/extract-interceptor-for-type (vals sample-multi-matcher)  :response)
       => '({:headers {"Content-Type" "Text"}} {:headers {"Some-Header" "Some Value"}}))
 
 (def sample-state
@@ -70,7 +70,7 @@
                   :interceptors {".*" {:all {:response {:headers {"Bareer" "123456", "Content-Type" "text"}}}} }}}})
 
 (fact "Should remove a header interceptor when provided with a type a key and the proxy id"
-      (remove-header-from-map sample-state :yahoo :response ".*" :all "Content-Type")
+      (proxy/remove-header-from-map sample-state :yahoo :response ".*" :all "Content-Type")
       => {:yahoo {:route "/yahoo",
                     :url "http://www.yahoo.com",
                     :args {:request {},
@@ -124,7 +124,7 @@
   )
 
 (fact "Should take a recorded element and return an interceptor"
-      (recorded-element->interceptor (get sample-record-element "/postman") 0)
+      (proxy/recorded-element->interceptor (get sample-record-element "/postman") 0)
       => expected-result)
 
 
@@ -132,7 +132,7 @@
 (def sample-interceptors-all {".*" {:all {:response {:headers {"Bareer" "1232313"}}}}})
 
 (fact "Should return interceptors matching :all and method if present"
-      (interceptors-for-method {".*" {:all {:response {:headers {"Bareer" "1232313"}}}}} :get)
+      (proxy/interceptors-for-method {".*" {:all {:response {:headers {"Bareer" "1232313"}}}}} :get)
       => '({:response {:headers {"Bareer" "1232313"}}}))
 
 
@@ -159,13 +159,12 @@
   )
 
 (fact "Should be able to convert body if content type if valid headers"
-      (format-body-if-possible sample-recorded-response)
+      (proxy/format-body-if-possible sample-recorded-response)
       => "Clojure!")
 
 (fact "Should return the byte array if content type is not stringable"
-      (format-body-if-possible (assoc-in sample-recorded-response [:headers "Content-Type" ] "video/mpeg"))
+      (proxy/format-body-if-possible (assoc-in sample-recorded-response [:headers "Content-Type" ] "video/mpeg"))
       => some-bytes)
-
 
 ; Instruction to convert toInterceptor
 ;(swap! registered-proxies assoc-in [:postman :args :interceptors] (toInterceptor (get-in @recordings [:recordings "/postman"]) 0))

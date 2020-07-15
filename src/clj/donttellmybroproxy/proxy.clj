@@ -41,15 +41,17 @@
 (defn apply-response-args [response config]
   (merge-with into response config))
 
-(defn- matches-url? [pattern url]
+(defn- matches-url?
   "Tests if pattern matches url"
+  [pattern url]
   (-> pattern
       re-pattern
       (re-matches url)
       some?))
 
-(defn get-matchers-matching-url [interceptors url]
-  "Returns a vector with matching interceptors"
+(defn get-matchers-matching-url
+   "Returns a vector with matching interceptors"
+  [interceptors url]
   (filter #(matches-url? (key %) url) interceptors))
 
 (defn apply-interceptor [response interceptor]
@@ -60,27 +62,30 @@
                                                                                (get interceptor :body))
                                                                              )})))
 
-(defn extract-interceptor-for-type [interceptors type]
+(defn extract-interceptor-for-type
   "Will return interceptor without the matching key"
+  [interceptors type]
   (map (fn [el] (get el type)) interceptors))
 
-(defn interceptors-for-method [interceptors method]
+(defn interceptors-for-method
   "Takes the interceptors and looks for all interceptor that match
   either the method or the :all key"
+  [interceptors method]
   (->> interceptors
        vals
        (map #((comp vals select-keys) % [:all method]))
        flatten))
 
-(defn apply-interceptors [response interceptors]
+(defn apply-interceptors
   "Takes a request and a list of interceptors and apply them in order"
+  [response interceptors]
   (reduce apply-interceptor response interceptors))
 
 (defn apply-merge-in-body [response body-param]
   (merge response body-param))
 
 
-(def recordings (atom {}))
+(defonce recordings (atom {}))
 
 (defn current-recordings [proxy-path]
   (get-in @recordings [:recordings proxy-path :recorded] []))
@@ -107,8 +112,9 @@
         body-byte-array
         ))))
 
-(defn recorded-element->interceptor [recordElement elementIdx]
+(defn recorded-element->interceptor
   "Takes a recordElement and a target index. Returns recorded element as an interceptor"
+  [recordElement elementIdx]
   (let [element-as-interceptor (nth (get recordElement :recorded) elementIdx)
         url-difference (clj-str/replace (:url element-as-interceptor) (get recordElement :base-url) "")
         method (:method element-as-interceptor)
@@ -179,7 +185,7 @@
               prepare-cookies))
         (handler req)))))
 
-(def registered-proxies (atom {}))
+(defonce registered-proxies (atom {}))
 
 (defn params-to-args []
   (map vals (vals @registered-proxies)))
@@ -210,35 +216,42 @@
 (defn interceptors-for-id [id]
   (get-in @registered-proxies [id :args :interceptors] {}))
 
-(defn get-existing-interceptors-for-current-key-type-matcher-method [current key type matcher method]
+(defn get-existing-interceptors-for-current-key-type-matcher-method
   "Returns a request/response(type) interceptor for a given matcher method"
+  [current key type matcher method]
   (get-in current [key :args :interceptors matcher method type]))
 
-(defn existing-interceptors [key type matcher method]
+(defn existing-interceptors
   "Returns a map with existing headers for proxy [key] for type [request|response]
   method :get :post :put :options :all"
+  [key type matcher method]
   (get-existing-interceptors-for-current-key-type-matcher-method @registered-proxies key type matcher method))
 
-(defn route-by-id [id]
+(defn route-by-id
   "Given an id returns the route"
+  [id]
   (get-in @registered-proxies [id :route]))
 
-(defn recorded-element-by-route [route]
+(defn recorded-element-by-route
   "Takes a route string returns recordings vector"
+  [route]
   (get-in @recordings [:recordings route]))
 
-(defn recordings-from-recorded-element [recorded-element]
+(defn recordings-from-recorded-element
   "Takes a route string returns recordings vector"
+  [recorded-element]
   (get recorded-element :recorded))
 
-(defn recorded-element-by-id [id]
+(defn recorded-element-by-id
   "Takes an id returns recorded element"
+  [id]
   (-> id
       route-by-id
       recorded-element-by-route))
 
-(defn recordings-by-id [id]
+(defn recordings-by-id
   "Takes an id returns recordings vector"
+  [id]
   (-> id
       recorded-element-by-id
       recordings-from-recorded-element))
@@ -254,17 +267,25 @@
       route-by-id
       clean-recordings-for-route!))
 
-
-
 (defn is-recording? [id]
   (get-in @registered-proxies [id :args :record?]))
 
 (defn remove-header-from-map [current key type matcher method header-key]
   (update-in current [key :args :interceptors matcher method type :headers] dissoc header-key))
 
-(defn remove-header! [key type matcher method header-key]
+(defn remove-header!
   "Removed the header from state"
+  [key type matcher method header-key]
   (swap! registered-proxies remove-header-from-map key type matcher method header-key))
+
+(defn disociate-interceptor
+  "Removes interceptor for given key type matcher and method"
+  [current key type matcher method]
+  (update-in current [key :args :interceptors matcher method] dissoc type))
+
+(defn remove-interceptor! [key type matcher method]
+
+  )
 
 
 ;(defn update-header-if-present [])
@@ -282,8 +303,9 @@
 (defmethod interceptor-merge-strategy :default
   [a b] (merge-with into a b))
 
-(defn update-type-interceptors! [type key interceptor-args matcher method]
+(defn update-type-interceptors!
   "Takes the type the key the matcher and the interceptor arguments and creates/replace an interceptor"
+  [type key interceptor-args matcher method]
   (swap! registered-proxies assoc-in
          [key :args :interceptors matcher method type]
          (interceptor-merge-strategy (existing-interceptors key type matcher method) interceptor-args)))

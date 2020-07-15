@@ -1,0 +1,5 @@
+#kaocha
+{:tests [{:id :unit
+          :type :kaocha.type/midje
+          :source-paths ["src/clj"]
+          :test-paths ["test"]}]}

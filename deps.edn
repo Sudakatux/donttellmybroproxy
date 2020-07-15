@@ -1,0 +1,26 @@
+{:paths ["src/clj" "resources"]
+ :deps  {org.clojure/clojure {:mvn/version "1.10.1"}
+         clj-http  {:mvn/version "3.10.0"}
+         ring {:mvn/version "1.7.1"}
+         ;[nrepl "0.6.0"]
+         metosin/reitit {:mvn/version "0.3.1"}
+         metosin/ring-http-response {:mvn/version "0.9.1"}
+         ring/ring-defaults {:mvn/version "0.3.2"}
+         midje               {:mvn/version "1.9.8"}
+         ;org.clojure/clojurescript "1.10.520" :scope "provided"]
+         ;[com.google.javascript/closure-compiler-unshaded "v20190325"]
+         ;[org.clojure/google-closure-library "0.0-20190213-2033d5d9"]
+         ;                  [cljs-ajax "0.7.3"]
+         ;[reagent "0.10.0"]
+         ;                   [re-frame "0.12.0"]
+         ;[thheller/shadow-cljs "2.8.52"]
+         ;                   [day8.re-frame/re-frame-10x "0.6.2"]
+         ;[reagent-utils "0.3.3"]
+         ;                   [lilactown/hx "0.5.3"]
+         ;[cljs-bean "1.5.0"]
+         funcool/struct {:mvn/version "1.4.0"}
+         ;[venantius/accountant "0.2.5"]
+         }
+ :aliases {:test {:extra-paths ["test/main/clojure"]
+                  :extra-deps  {lambdaisland/kaocha-midje {:mvn/version "0.0-5"}}
+                  :main-opts   ["-m" "kaocha.runner"]}}}
